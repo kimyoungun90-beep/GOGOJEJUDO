@@ -468,7 +468,7 @@
     <div class="ladder-top">
       <div>
         <h2>🪜 저녁 벌칙 사다리</h2>
-        <p id="ladderPageSub">선택한 사람 것만 공개되고 나머지는 가려짐</p>
+        <p id="ladderPageSub">선택한 줄만 공이 내려가고 나머지는 가려짐</p>
       </div>
       <button class="ghost" onclick="closeLadderPage()">돌아가기</button>
     </div>
@@ -497,7 +497,7 @@
 </div>
 
 <script>
-const localStoreKey = 'jejuPTripShared.local.v7';
+const localStoreKey = 'jejuPTripShared.local.v8';
 const deviceIdKey = 'jejuPTripShared.deviceId';
 
 const defaultPenaltyTask = '설거지';
@@ -1257,7 +1257,7 @@ function getLadderGeometry(count){
   return {canvas,width,height,marginX,topY,bottomY,gap};
 }
 
-function drawRealLadder(selectedIndex=null, ballPoint=null){
+function drawRealLadder(selectedIndex=null, ballPoint=null, tracePoints=[]){
   const rows = state.penaltyLadder || [];
   const count = rows.length || 1;
   const links = state.penaltyLinks || [];
@@ -1269,14 +1269,14 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
   ctx.fillRect(0,0,width,height);
 
   ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
   ctx.textAlign = 'center';
 
-  // vertical lines
+  // 기본 세로줄: 선택했다고 전체 라인을 녹색으로 칠하지 않음
   for(let i=0;i<count;i++){
     const x = marginX + i*gap;
-    const isSelected = selectedIndex === i;
-    ctx.strokeStyle = isSelected ? '#0f766e' : '#cbd5e1';
-    ctx.lineWidth = isSelected ? 5 : 2;
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(x, topY);
     ctx.lineTo(x, bottomY);
@@ -1291,7 +1291,7 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.fillText(`${i+1}`, x, 54);
   }
 
-  // horizontal links
+  // 가로줄
   const levelCount = getLadderLevelCount(count);
   links.forEach(link=>{
     const y = topY + ((link.level + 1) / (levelCount + 1)) * (bottomY - topY);
@@ -1305,7 +1305,19 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.stroke();
   });
 
-  // bottom result labels: 선택해서 공개된 줄의 도착 칸만 보여줌
+  // 공이 지나간 경로만 녹색으로 표시
+  if(tracePoints && tracePoints.length > 1){
+    ctx.strokeStyle = '#0f766e';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(tracePoints[0].x, tracePoints[0].y);
+    for(let i=1;i<tracePoints.length;i++){
+      ctx.lineTo(tracePoints[i].x, tracePoints[i].y);
+    }
+    ctx.stroke();
+  }
+
+  // 아래 결과: 선택해서 공개된 줄의 도착 칸만 보여줌
   rows.forEach((row, i)=>{
     const x = marginX + i*gap;
     const revealedRow = rows.find(r => r.revealed && r.endIndex === i);
@@ -1315,7 +1327,17 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.fillText(label, x, bottomY + 38);
   });
 
-  // ball
+  // 선택 번호 표시용 작은 테두리만 표시
+  if(selectedIndex !== null && selectedIndex >= 0){
+    const x = marginX + selectedIndex*gap;
+    ctx.beginPath();
+    ctx.strokeStyle = '#0f766e';
+    ctx.lineWidth = 3;
+    ctx.arc(x, 54, 15, 0, Math.PI*2);
+    ctx.stroke();
+  }
+
+  // 공
   if(ballPoint){
     ctx.beginPath();
     ctx.fillStyle = '#ef4444';
@@ -1326,7 +1348,6 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.shadowBlur = 0;
   }
 }
-
 function buildLadderPath(startIndex){
   const rows = state.penaltyLadder || [];
   const count = rows.length;
@@ -1354,28 +1375,39 @@ function buildLadderPath(startIndex){
 function animateAlongPath(points, selectedIndex, done){
   let seg = 0;
   let t = 0;
+  const traveled = [points[0]];
+
   function frame(){
     if(seg >= points.length - 1){
+      drawRealLadder(selectedIndex, points[points.length-1], points);
       done();
       return;
     }
+
     const p1 = points[seg];
     const p2 = points[seg+1];
-    t += 0.045;
+
+    // 기존보다 빠르게 내려가도록 속도 상향
+    t += 0.115;
+
     if(t >= 1){
+      traveled.push(p2);
       t = 0;
       seg++;
       requestAnimationFrame(frame);
       return;
     }
+
     const x = p1.x + (p2.x - p1.x) * t;
     const y = p1.y + (p2.y - p1.y) * t;
-    drawRealLadder(selectedIndex, {x,y});
+    const liveTrace = [...traveled, {x,y}];
+
+    drawRealLadder(selectedIndex, {x,y}, liveTrace);
     requestAnimationFrame(frame);
   }
+
   frame();
 }
-
 function startSelectedLadderAnimation(){
   const select = document.getElementById('ladderSelect');
   if(!select || !state.penaltyLadder.length) return;
@@ -1392,7 +1424,7 @@ function startSelectedLadderAnimation(){
     state.penaltyLadder[idx].revealed = true;
     state.penaltyLadder[idx].endIndex = path.endIndex;
     const resultRow = state.penaltyLadder[idx];
-    drawRealLadder(idx, path.points[path.points.length-1]);
+    drawRealLadder(idx, path.points[path.points.length-1], path.points);
 
     const text = resultRow.task ? `${resultRow.person} · ${resultRow.task}` : `${resultRow.person} · 통과`;
     info.className = resultRow.task ? 'ladder-picked danger' : 'ladder-picked';
