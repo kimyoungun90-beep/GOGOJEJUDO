@@ -140,6 +140,42 @@
     .ladder-task{font-weight:950;color:#ef4444;text-align:right}
     .ladder-safe{color:#94a3b8;font-weight:800;text-align:right}
     .ladder-hidden{color:#0f766e;font-weight:900;text-align:right}
+    .ladder-page{
+      position:fixed;inset:0;z-index:95;background:
+        radial-gradient(circle at top left, rgba(20,184,166,.18), transparent 32%),
+        linear-gradient(135deg,#ecfeff,#fff7ed);
+      display:none;overflow:auto;padding:14px;
+    }
+    .ladder-page.show{display:block}
+    .ladder-shell{width:min(920px,100%);margin:0 auto;padding-bottom:34px}
+    .ladder-top{
+      background:linear-gradient(135deg,#0f766e,#14b8a6);
+      color:#fff;border-radius:24px;padding:16px;box-shadow:var(--shadow);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:10px;z-index:2;
+    }
+    .ladder-top h2{margin:0;font-size:22px}
+    .ladder-top p{margin:4px 0 0;color:rgba(255,255,255,.88);font-weight:800;font-size:13px}
+    .ladder-stage{
+      background:#fff;border:1px solid rgba(15,118,110,.15);border-radius:24px;
+      box-shadow:var(--shadow);padding:14px;margin-top:12px;
+    }
+    .ladder-control{
+      display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;
+    }
+    @media(min-width:760px){.ladder-control{grid-template-columns:1fr auto auto}}
+    .ladder-canvas-wrap{
+      position:relative;background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;
+      padding:8px;overflow:auto;
+    }
+    #ladderCanvas{display:block;width:100%;min-height:520px;background:#fff;border-radius:16px}
+    .ladder-picked{
+      background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:18px;
+      padding:14px;margin-top:12px;font-weight:900;white-space:pre-line;text-align:center;
+    }
+    .ladder-picked.danger{
+      background:#fef2f2;border-color:#fecaca;color:#991b1b;
+    }
+
   </style>
 </head>
 <body>
@@ -394,8 +430,8 @@
       </div>
 
       <div class="input-row" style="margin-top:10px">
-        <button onclick="runPenaltyLadder()">사다리 생성</button>
-        <button class="orange" onclick="revealAllPenaltyRows()">한번에 보기</button>
+        <button onclick="runPenaltyLadder()">사다리 생성/화면 이동</button>
+        <button class="orange" onclick="openLadderPage()">사다리 화면 보기</button>
         <button class="gray" onclick="hideAllPenaltyRows()">다시 가리기</button>
       </div>
 
@@ -427,6 +463,30 @@
   </div>
 </div>
 
+<div class="ladder-page" id="ladderPage">
+  <div class="ladder-shell">
+    <div class="ladder-top">
+      <div>
+        <h2>🪜 저녁 벌칙 사다리</h2>
+        <p id="ladderPageSub">선택한 사람 것만 공개되고 나머지는 가려짐</p>
+      </div>
+      <button class="ghost" onclick="closeLadderPage()">돌아가기</button>
+    </div>
+
+    <div class="ladder-stage">
+      <div class="ladder-control">
+        <select id="ladderSelect"></select>
+        <button class="orange" onclick="startSelectedLadderAnimation()">선택한 줄 내려가기</button>
+        <button onclick="revealAllPenaltyRows()">전체 결과 보기</button>
+      </div>
+      <div class="ladder-canvas-wrap">
+        <canvas id="ladderCanvas" width="900" height="620"></canvas>
+      </div>
+      <div class="ladder-picked" id="ladderPickedInfo">사다리 줄을 선택하고 내려가기 버튼을 눌러줘.</div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="modal" onclick="closeModal(event)">
   <div class="modal-card">
     <div class="emoji" id="modalEmoji">🎉</div>
@@ -437,7 +497,7 @@
 </div>
 
 <script>
-const localStoreKey = 'jejuPTripShared.local.v5';
+const localStoreKey = 'jejuPTripShared.local.v6';
 const deviceIdKey = 'jejuPTripShared.deviceId';
 
 const defaultPenaltyTask = '설거지';
@@ -489,7 +549,7 @@ const characters = [
   {name:'오늘은 내가 왕', desc:'오늘 최종 선택권 1회 사용 가능'},
   {name:'불평 금지 인간', desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
   {name:'사진 감독', desc:'단체사진 포즈 지시 가능, 안하면 벌칙 추가'},
-  {name:'산타할아버지', desc:'아침, 미션 더위 담당, 외부에서 줄 경우 1회당 벌칙 추가(내부 제외)'},
+  {name:'산타할아버지', desc:'아린, 이서 더위 담당, 외부에서 줄 경우 1회당 벌칙 추가(내부 제외)'},
   {name:'오늘의 시다바리', desc:'심부름 담당(운전 불가한 경우 1인 지목 동행, 중복 지목 X / 철수, 영희, 철수는 가능)'},
   {name:'네비 부사관', desc:'운전자 옆에서 길 안내 담당, 틀리면 1회당 벌칙 추가'},
   {name:'사장님~계세요~', desc:'장소 도착할 때마다(식당, 카페 등) 자리 파악하기, 못하면 벌칙 추가 x2'},
@@ -1061,28 +1121,238 @@ function runPenaltyLadder(){
   }
 
   const winnerSet = new Set(winnerIndexes);
+  const ladderLinks = makeLadderLinks(entries.length);
 
   state.penaltyLadder = entries.map((entry, idx)=>({
     no: idx + 1,
     person: entry.person,
+    startIndex: idx,
+    endIndex: resolveLadderEnd(idx, ladderLinks),
     task: winnerSet.has(idx) ? task : '',
     revealed: false
   }));
 
+  state.penaltyLinks = ladderLinks;
   const winners = state.penaltyLadder.filter(r=>r.task);
   state.penaltyResult = `사다리 ${total}줄 생성\n벌칙 인원 ${winners.length}명 확정\n${duplicateMode === 'allow' ? '중복 허용' : '중복 불가능'}`;
-  showModal('🔴','저녁 벌칙 사다리 생성', `${state.penaltyResult}\n\n한 줄씩 눌러서 내려가거나\n한번에 보기 버튼을 눌러 확인`);
-  burstConfetti();
+
   persist(`벌칙 사다리 생성: ${total}줄 · ${winners.length}명`);
+  openLadderPage();
+  burstConfetti();
+}
+function makeLadderLinks(count){
+  const links = [];
+  if(count <= 1) return links;
+  const levels = Math.max(5, Math.min(14, Math.ceil(count * 0.65)));
+  for(let level=0; level<levels; level++){
+    const used = new Set();
+    const linkCount = Math.max(1, Math.floor(Math.random() * Math.min(4, count - 1)) + 1);
+    for(let k=0; k<linkCount; k++){
+      const col = Math.floor(Math.random() * (count - 1));
+      if(used.has(col) || used.has(col-1) || used.has(col+1)) continue;
+      used.add(col);
+      links.push({level, left:col, right:col+1});
+    }
+  }
+  return links;
+}
+function resolveLadderEnd(startIndex, links){
+  let pos = startIndex;
+  const sorted = [...links].sort((a,b)=>a.level-b.level);
+  sorted.forEach(link=>{
+    if(link.left === pos) pos = link.right;
+    else if(link.right === pos) pos = link.left;
+  });
+  return pos;
+}
+function openLadderPage(){
+  if(!state.penaltyLadder || !state.penaltyLadder.length){
+    showModal('🔴','사다리 없음','먼저 사다리를 생성해줘.');
+    return;
+  }
+  document.getElementById('ladderPage').classList.add('show');
+  renderLadderPage();
+}
+function closeLadderPage(){
+  document.getElementById('ladderPage').classList.remove('show');
+}
+function renderLadderPage(selectedIndex=null, ballPoint=null){
+  const select = document.getElementById('ladderSelect');
+  if(select){
+    select.innerHTML = state.penaltyLadder.map((r, idx)=>{
+      const label = r.revealed ? `${r.no}번 · ${r.person}` : `${r.no}번 · ???`;
+      return `<option value="${idx}">${escapeHtml(label)}</option>`;
+    }).join('');
+    if(selectedIndex !== null) select.value = String(selectedIndex);
+  }
+  drawRealLadder(selectedIndex, ballPoint);
+  const info = document.getElementById('ladderPickedInfo');
+  if(info && selectedIndex === null){
+    info.className = 'ladder-picked';
+    info.textContent = '사다리 줄을 선택하고 내려가기 버튼을 눌러줘. 나머지 줄은 가려진 상태로 유지됨.';
+  }
+}
+function getLadderGeometry(count){
+  const canvas = document.getElementById('ladderCanvas');
+  const width = Math.max(760, count * 72);
+  const height = 620;
+  canvas.width = width;
+  canvas.height = height;
+  const marginX = 48;
+  const topY = 72;
+  const bottomY = height - 70;
+  const gap = count > 1 ? (width - marginX*2) / (count - 1) : 0;
+  return {canvas,width,height,marginX,topY,bottomY,gap};
+}
+function drawRealLadder(selectedIndex=null, ballPoint=null){
+  const rows = state.penaltyLadder || [];
+  const count = rows.length || 1;
+  const links = state.penaltyLinks || [];
+  const {canvas,width,height,marginX,topY,bottomY,gap} = getLadderGeometry(count);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,width,height);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,width,height);
+
+  ctx.lineCap = 'round';
+  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+
+  // vertical lines
+  for(let i=0;i<count;i++){
+    const x = marginX + i*gap;
+    const isSelected = selectedIndex === i;
+    ctx.strokeStyle = isSelected ? '#0f766e' : '#cbd5e1';
+    ctx.lineWidth = isSelected ? 5 : 2;
+    ctx.beginPath();
+    ctx.moveTo(x, topY);
+    ctx.lineTo(x, bottomY);
+    ctx.stroke();
+
+    const row = rows[i];
+    ctx.fillStyle = row && row.revealed ? '#0f766e' : '#94a3b8';
+    const topLabel = row && row.revealed ? row.person : '???';
+    ctx.fillText(topLabel, x, 34);
+    ctx.fillStyle = '#334155';
+    ctx.fillText(`${i+1}`, x, 54);
+  }
+
+  // horizontal links
+  const levelCount = Math.max(5, Math.min(14, Math.ceil(count * 0.65)));
+  links.forEach(link=>{
+    const y = topY + ((link.level + 1) / (levelCount + 1)) * (bottomY - topY);
+    const x1 = marginX + link.left * gap;
+    const x2 = marginX + link.right * gap;
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.stroke();
+  });
+
+  // bottom result labels: hidden unless revealed
+  rows.forEach((row, i)=>{
+    const x = marginX + i*gap;
+    const show = row.revealed;
+    ctx.fillStyle = show ? (row.task ? '#ef4444' : '#94a3b8') : '#94a3b8';
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    const label = show ? (row.task ? row.task : '통과') : '???';
+    ctx.fillText(label, x, bottomY + 34);
+  });
+
+  // ball
+  if(ballPoint){
+    ctx.beginPath();
+    ctx.fillStyle = '#ef4444';
+    ctx.shadowColor = 'rgba(239,68,68,.35)';
+    ctx.shadowBlur = 12;
+    ctx.arc(ballPoint.x, ballPoint.y, 13, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+function buildLadderPath(startIndex){
+  const rows = state.penaltyLadder || [];
+  const count = rows.length;
+  const links = [...(state.penaltyLinks || [])].sort((a,b)=>a.level-b.level);
+  const {marginX,topY,bottomY,gap} = getLadderGeometry(count);
+  const levelCount = Math.max(5, Math.min(14, Math.ceil(count * 0.65)));
+  let pos = startIndex;
+  let currentY = topY;
+  const points = [{x:marginX + pos*gap, y:topY}];
+
+  links.forEach(link=>{
+    if(link.left !== pos && link.right !== pos) return;
+    const y = topY + ((link.level + 1) / (levelCount + 1)) * (bottomY - topY);
+    points.push({x:marginX + pos*gap, y});
+    pos = link.left === pos ? link.right : link.left;
+    points.push({x:marginX + pos*gap, y});
+    currentY = y;
+  });
+  points.push({x:marginX + pos*gap, y:bottomY});
+  return {points, endIndex: pos};
+}
+function animateAlongPath(points, selectedIndex, done){
+  let seg = 0;
+  let t = 0;
+  function frame(){
+    if(seg >= points.length - 1){
+      done();
+      return;
+    }
+    const p1 = points[seg];
+    const p2 = points[seg+1];
+    t += 0.035;
+    if(t >= 1){
+      t = 0;
+      seg++;
+      requestAnimationFrame(frame);
+      return;
+    }
+    const x = p1.x + (p2.x - p1.x) * t;
+    const y = p1.y + (p2.y - p1.y) * t;
+    drawRealLadder(selectedIndex, {x,y});
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+function startSelectedLadderAnimation(){
+  const select = document.getElementById('ladderSelect');
+  if(!select || !state.penaltyLadder.length) return;
+  const idx = Number(select.value);
+  const row = state.penaltyLadder[idx];
+  if(!row) return;
+
+  const info = document.getElementById('ladderPickedInfo');
+  info.className = 'ladder-picked';
+  info.textContent = `${idx+1}번 줄 내려가는 중...`;
+
+  const path = buildLadderPath(idx);
+  animateAlongPath(path.points, idx, ()=>{
+    state.penaltyLadder[idx].revealed = true;
+    const end = path.endIndex;
+    const resultRow = state.penaltyLadder[idx];
+    drawRealLadder(idx, path.points[path.points.length-1]);
+
+    const text = resultRow.task ? `${resultRow.person} · ${resultRow.task}` : `${resultRow.person} · 통과`;
+    info.className = resultRow.task ? 'ladder-picked danger' : 'ladder-picked';
+    info.textContent = text;
+    persist(`사다리 모션 확인: ${resultRow.person}`);
+    if(resultRow.task){
+      showModal('🔴','벌칙 당첨', text);
+    }
+    renderLadderPage(idx);
+  });
 }
 function revealPenaltyRow(idx){
   if(!state.penaltyLadder[idx]) return;
-  state.penaltyLadder[idx].revealed = true;
-  const row = state.penaltyLadder[idx];
-  persist(`사다리 ${idx+1}번 확인: ${row.person}`);
-  if(row.task){
-    showModal('🔴','벌칙 당첨', `${row.person} · ${row.task}`);
-  }
+  openLadderPage();
+  setTimeout(()=>{
+    document.getElementById('ladderSelect').value = String(idx);
+    startSelectedLadderAnimation();
+  }, 120);
 }
 function revealAllPenaltyRows(){
   if(!state.penaltyLadder.length){
@@ -1092,12 +1362,14 @@ function revealAllPenaltyRows(){
   state.penaltyLadder = state.penaltyLadder.map(r=>({...r, revealed:true}));
   const winners = state.penaltyLadder.filter(r=>r.task);
   const text = winners.length ? winners.map(w=>`${w.person} · ${w.task}`).join('\n') : '벌칙 당첨 없음';
+  renderLadderPage();
   showModal('🔴','벌칙 한번에 보기', text);
   persist('벌칙 사다리 한번에 보기');
 }
 function hideAllPenaltyRows(){
   if(!state.penaltyLadder.length) return;
   state.penaltyLadder = state.penaltyLadder.map(r=>({...r, revealed:false}));
+  renderLadderPage();
   persist('벌칙 사다리 다시 가리기');
 }
 function renderPenaltyLadder(){
@@ -1130,7 +1402,7 @@ function renderPenaltyLadder(){
     }else{
       list.innerHTML = state.penaltyLadder.map((r, idx)=>{
         const hidden = !r.revealed;
-        let rightText = '눌러서 확인';
+        let rightText = '눌러서 사다리 타기';
         let cls = 'ladder-hidden';
         if(!hidden){
           rightText = r.task ? r.task : '통과';
