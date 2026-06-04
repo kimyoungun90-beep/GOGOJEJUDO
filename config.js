@@ -4,5 +4,5 @@
 // window.JEJU_SUPABASE_URL = "https://xxxxx.supabase.co";
 // window.JEJU_SUPABASE_ANON_KEY = "sb_publishable_xxxxx";
 
-window.JEJU_SUPABASE_URL = "https://wulqwqhwoyfcakxewmzi.supabase.co/";
+window.JEJU_SUPABASE_URL = "https://wulqwqhwoyfcakxewmzi.supabase.co";
 window.JEJU_SUPABASE_ANON_KEY = "sb_publishable_I5zv5q4MuVFtB0kFBffCsA_aqEwvVwA";
