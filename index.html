@@ -497,7 +497,7 @@
 </div>
 
 <script>
-const localStoreKey = 'jejuPTripShared.local.v6';
+const localStoreKey = 'jejuPTripShared.local.v7';
 const deviceIdKey = 'jejuPTripShared.deviceId';
 
 const defaultPenaltyTask = '설거지';
@@ -519,6 +519,8 @@ const defaultState = {
   penaltyCount: 4,
   penaltyDuplicateMode: 'allow',
   penaltyLadder: [],
+  penaltyLinks: [],
+  penaltyLevels: 0,
   penaltyResult: '',
   awardResult: '',
   budgetResult: '',
@@ -549,7 +551,7 @@ const characters = [
   {name:'오늘은 내가 왕', desc:'오늘 최종 선택권 1회 사용 가능'},
   {name:'불평 금지 인간', desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
   {name:'사진 감독', desc:'단체사진 포즈 지시 가능, 안하면 벌칙 추가'},
-  {name:'산타할아버지', desc:'아린, 이서 더위 담당, 외부에서 줄 경우 1회당 벌칙 추가(내부 제외)'},
+  {name:'맛집 평론가', desc:'아침, 미션 더위 담당, 외부에서 줄 경우 1회당 벌칙 추가(내부 제외)'},
   {name:'오늘의 시다바리', desc:'심부름 담당(운전 불가한 경우 1인 지목 동행, 중복 지목 X / 철수, 영희, 철수는 가능)'},
   {name:'네비 부사관', desc:'운전자 옆에서 길 안내 담당, 틀리면 1회당 벌칙 추가'},
   {name:'사장님~계세요~', desc:'장소 도착할 때마다(식당, 카페 등) 자리 파악하기, 못하면 벌칙 추가 x2'},
@@ -612,6 +614,8 @@ function normalizeState(s){
   next.penaltyCount = Math.max(1, Number(next.penaltyCount || 4));
   if(!['allow','unique'].includes(next.penaltyDuplicateMode)) next.penaltyDuplicateMode = 'allow';
   if(!Array.isArray(next.penaltyLadder)) next.penaltyLadder = [];
+  if(!Array.isArray(next.penaltyLinks)) next.penaltyLinks = [];
+  next.penaltyLevels = Number(next.penaltyLevels || 0);
   return next;
 }
 
@@ -1051,6 +1055,8 @@ function addPenaltyBalls(){
   const amount = Number(document.getElementById('penaltyAmount').value || 1);
   state.penaltyBalls[person] = (state.penaltyBalls[person] || 0) + amount;
   state.penaltyLadder = [];
+  state.penaltyLinks = [];
+  state.penaltyLevels = 0;
   state.penaltyResult = '';
   persist(`벌칙공 추가: ${person} +${amount}`);
 }
@@ -1060,6 +1066,8 @@ function removePenaltyBall(){
   state.penaltyBalls[person] = Math.max(0, (state.penaltyBalls[person] || 0) - 1);
   if(state.penaltyBalls[person] <= 0) delete state.penaltyBalls[person];
   state.penaltyLadder = [];
+  state.penaltyLinks = [];
+  state.penaltyLevels = 0;
   state.penaltyResult = '';
   persist(`벌칙공 1개 빼기: ${person}`);
 }
@@ -1067,6 +1075,8 @@ function clearPenaltyBalls(){
   if(!confirm('벌칙공과 사다리 결과를 초기화할까요?')) return;
   state.penaltyBalls = {};
   state.penaltyLadder = [];
+  state.penaltyLinks = [];
+  state.penaltyLevels = 0;
   state.penaltyResult = '';
   persist('벌칙공 초기화');
 }
@@ -1105,34 +1115,47 @@ function runPenaltyLadder(){
   const wantedCount = Math.max(1, Number(state.penaltyCount || 1));
   const duplicateMode = state.penaltyDuplicateMode || 'allow';
 
-  let winnerIndexes = [];
+  const ladderData = makeLadderLinks(entries.length);
+  const links = ladderData.links;
+  const levels = ladderData.levels;
+
+  let winnerStartIndexes = [];
 
   if(duplicateMode === 'allow'){
     const maxCount = Math.min(wantedCount, entries.length);
-    winnerIndexes = shuffle(entries.map((_, idx)=>idx)).slice(0, maxCount);
+    winnerStartIndexes = shuffle(entries.map((_, idx)=>idx)).slice(0, maxCount);
   }else{
     const uniquePeople = [...new Set(entries.map(e=>e.person))];
     const maxCount = Math.min(wantedCount, uniquePeople.length);
     const selectedPeople = shuffle(uniquePeople).slice(0, maxCount);
     selectedPeople.forEach(person=>{
       const indexes = entries.map((e, idx)=>e.person === person ? idx : -1).filter(idx=>idx >= 0);
-      winnerIndexes.push(sample(indexes));
+      winnerStartIndexes.push(sample(indexes));
     });
   }
 
-  const winnerSet = new Set(winnerIndexes);
-  const ladderLinks = makeLadderLinks(entries.length);
+  // 진짜 사다리처럼, 당첨은 아래 결과 칸에 배치하고 선택한 줄이 도착한 칸으로 판정
+  const bottomResults = Array(entries.length).fill('');
+  winnerStartIndexes.forEach(startIdx=>{
+    const endIdx = resolveLadderEnd(startIdx, links);
+    bottomResults[endIdx] = task;
+  });
 
-  state.penaltyLadder = entries.map((entry, idx)=>({
-    no: idx + 1,
-    person: entry.person,
-    startIndex: idx,
-    endIndex: resolveLadderEnd(idx, ladderLinks),
-    task: winnerSet.has(idx) ? task : '',
-    revealed: false
-  }));
+  state.penaltyLadder = entries.map((entry, idx)=>{
+    const endIndex = resolveLadderEnd(idx, links);
+    return {
+      no: idx + 1,
+      person: entry.person,
+      startIndex: idx,
+      endIndex,
+      task: bottomResults[endIndex] || '',
+      revealed: false
+    };
+  });
 
-  state.penaltyLinks = ladderLinks;
+  state.penaltyLinks = links;
+  state.penaltyLevels = levels;
+
   const winners = state.penaltyLadder.filter(r=>r.task);
   state.penaltyResult = `사다리 ${total}줄 생성\n벌칙 인원 ${winners.length}명 확정\n${duplicateMode === 'allow' ? '중복 허용' : '중복 불가능'}`;
 
@@ -1140,31 +1163,57 @@ function runPenaltyLadder(){
   openLadderPage();
   burstConfetti();
 }
+
+// 조금 더 복잡한 사다리: 층을 많이 만들고, 홀수/짝수 줄을 번갈아 연결
 function makeLadderLinks(count){
   const links = [];
-  if(count <= 1) return links;
-  const levels = Math.max(5, Math.min(14, Math.ceil(count * 0.65)));
+  if(count <= 1) return {links, levels:0};
+
+  const levels = Math.max(14, Math.min(34, Math.ceil(count * 1.25)));
+
   for(let level=0; level<levels; level++){
-    const used = new Set();
-    const linkCount = Math.max(1, Math.floor(Math.random() * Math.min(4, count - 1)) + 1);
-    for(let k=0; k<linkCount; k++){
-      const col = Math.floor(Math.random() * (count - 1));
-      if(used.has(col) || used.has(col-1) || used.has(col+1)) continue;
-      used.add(col);
-      links.push({level, left:col, right:col+1});
+    const offset = level % 2; // 0-1, 2-3 / 다음 층은 1-2, 3-4
+    for(let left=offset; left<count-1; left+=2){
+      // 너무 꽉 차지 않게 일부만 랜덤 제외하되, 복잡도는 유지
+      const keep = Math.random() > 0.18;
+      if(!keep) continue;
+      links.push({level, left, right:left+1});
+    }
+
+    // 중간중간 랜덤 보강
+    if(level % 3 === 1){
+      const possible = [];
+      for(let left=0; left<count-1; left++){
+        const adjacentExists = links.some(l => l.level === level && Math.abs(l.left - left) <= 1);
+        if(!adjacentExists) possible.push(left);
+      }
+      if(possible.length){
+        const left = sample(possible);
+        links.push({level, left, right:left+1});
+      }
     }
   }
-  return links;
+
+  return {links, levels};
 }
+
+function getLadderLevelCount(count){
+  if(state.penaltyLevels && state.penaltyLevels > 0) return state.penaltyLevels;
+  const links = state.penaltyLinks || [];
+  if(links.length) return Math.max(...links.map(l=>l.level)) + 1;
+  return Math.max(14, Math.min(34, Math.ceil(count * 1.25)));
+}
+
 function resolveLadderEnd(startIndex, links){
   let pos = startIndex;
-  const sorted = [...links].sort((a,b)=>a.level-b.level);
+  const sorted = [...links].sort((a,b)=>a.level-b.level || a.left-b.left);
   sorted.forEach(link=>{
     if(link.left === pos) pos = link.right;
     else if(link.right === pos) pos = link.left;
   });
   return pos;
 }
+
 function openLadderPage(){
   if(!state.penaltyLadder || !state.penaltyLadder.length){
     showModal('🔴','사다리 없음','먼저 사다리를 생성해줘.');
@@ -1173,9 +1222,11 @@ function openLadderPage(){
   document.getElementById('ladderPage').classList.add('show');
   renderLadderPage();
 }
+
 function closeLadderPage(){
   document.getElementById('ladderPage').classList.remove('show');
 }
+
 function renderLadderPage(selectedIndex=null, ballPoint=null){
   const select = document.getElementById('ladderSelect');
   if(select){
@@ -1192,18 +1243,20 @@ function renderLadderPage(selectedIndex=null, ballPoint=null){
     info.textContent = '사다리 줄을 선택하고 내려가기 버튼을 눌러줘. 나머지 줄은 가려진 상태로 유지됨.';
   }
 }
+
 function getLadderGeometry(count){
   const canvas = document.getElementById('ladderCanvas');
-  const width = Math.max(760, count * 72);
-  const height = 620;
+  const width = Math.max(820, count * 76);
+  const height = 680;
   canvas.width = width;
   canvas.height = height;
-  const marginX = 48;
-  const topY = 72;
-  const bottomY = height - 70;
+  const marginX = 52;
+  const topY = 78;
+  const bottomY = height - 78;
   const gap = count > 1 ? (width - marginX*2) / (count - 1) : 0;
   return {canvas,width,height,marginX,topY,bottomY,gap};
 }
+
 function drawRealLadder(selectedIndex=null, ballPoint=null){
   const rows = state.penaltyLadder || [];
   const count = rows.length || 1;
@@ -1216,7 +1269,6 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
   ctx.fillRect(0,0,width,height);
 
   ctx.lineCap = 'round';
-  ctx.font = 'bold 13px system-ui, sans-serif';
   ctx.textAlign = 'center';
 
   // vertical lines
@@ -1231,6 +1283,7 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.stroke();
 
     const row = rows[i];
+    ctx.font = 'bold 12px system-ui, sans-serif';
     ctx.fillStyle = row && row.revealed ? '#0f766e' : '#94a3b8';
     const topLabel = row && row.revealed ? row.person : '???';
     ctx.fillText(topLabel, x, 34);
@@ -1239,7 +1292,7 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
   }
 
   // horizontal links
-  const levelCount = Math.max(5, Math.min(14, Math.ceil(count * 0.65)));
+  const levelCount = getLadderLevelCount(count);
   links.forEach(link=>{
     const y = topY + ((link.level + 1) / (levelCount + 1)) * (bottomY - topY);
     const x1 = marginX + link.left * gap;
@@ -1252,14 +1305,14 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.stroke();
   });
 
-  // bottom result labels: hidden unless revealed
+  // bottom result labels: 선택해서 공개된 줄의 도착 칸만 보여줌
   rows.forEach((row, i)=>{
     const x = marginX + i*gap;
-    const show = row.revealed;
-    ctx.fillStyle = show ? (row.task ? '#ef4444' : '#94a3b8') : '#94a3b8';
+    const revealedRow = rows.find(r => r.revealed && r.endIndex === i);
+    ctx.fillStyle = revealedRow ? (revealedRow.task ? '#ef4444' : '#94a3b8') : '#94a3b8';
     ctx.font = 'bold 12px system-ui, sans-serif';
-    const label = show ? (row.task ? row.task : '통과') : '???';
-    ctx.fillText(label, x, bottomY + 34);
+    const label = revealedRow ? (revealedRow.task ? revealedRow.task : '통과') : '???';
+    ctx.fillText(label, x, bottomY + 38);
   });
 
   // ball
@@ -1273,27 +1326,31 @@ function drawRealLadder(selectedIndex=null, ballPoint=null){
     ctx.shadowBlur = 0;
   }
 }
+
 function buildLadderPath(startIndex){
   const rows = state.penaltyLadder || [];
   const count = rows.length;
-  const links = [...(state.penaltyLinks || [])].sort((a,b)=>a.level-b.level);
+  const links = [...(state.penaltyLinks || [])].sort((a,b)=>a.level-b.level || a.left-b.left);
   const {marginX,topY,bottomY,gap} = getLadderGeometry(count);
-  const levelCount = Math.max(5, Math.min(14, Math.ceil(count * 0.65)));
+  const levelCount = getLadderLevelCount(count);
   let pos = startIndex;
-  let currentY = topY;
   const points = [{x:marginX + pos*gap, y:topY}];
 
-  links.forEach(link=>{
-    if(link.left !== pos && link.right !== pos) return;
-    const y = topY + ((link.level + 1) / (levelCount + 1)) * (bottomY - topY);
+  for(let level=0; level<levelCount; level++){
+    const y = topY + ((level + 1) / (levelCount + 1)) * (bottomY - topY);
     points.push({x:marginX + pos*gap, y});
-    pos = link.left === pos ? link.right : link.left;
-    points.push({x:marginX + pos*gap, y});
-    currentY = y;
-  });
+
+    const link = links.find(l => l.level === level && (l.left === pos || l.right === pos));
+    if(link){
+      pos = link.left === pos ? link.right : link.left;
+      points.push({x:marginX + pos*gap, y});
+    }
+  }
+
   points.push({x:marginX + pos*gap, y:bottomY});
   return {points, endIndex: pos};
 }
+
 function animateAlongPath(points, selectedIndex, done){
   let seg = 0;
   let t = 0;
@@ -1304,7 +1361,7 @@ function animateAlongPath(points, selectedIndex, done){
     }
     const p1 = points[seg];
     const p2 = points[seg+1];
-    t += 0.035;
+    t += 0.045;
     if(t >= 1){
       t = 0;
       seg++;
@@ -1318,6 +1375,7 @@ function animateAlongPath(points, selectedIndex, done){
   }
   frame();
 }
+
 function startSelectedLadderAnimation(){
   const select = document.getElementById('ladderSelect');
   if(!select || !state.penaltyLadder.length) return;
@@ -1332,7 +1390,7 @@ function startSelectedLadderAnimation(){
   const path = buildLadderPath(idx);
   animateAlongPath(path.points, idx, ()=>{
     state.penaltyLadder[idx].revealed = true;
-    const end = path.endIndex;
+    state.penaltyLadder[idx].endIndex = path.endIndex;
     const resultRow = state.penaltyLadder[idx];
     drawRealLadder(idx, path.points[path.points.length-1]);
 
@@ -1346,6 +1404,7 @@ function startSelectedLadderAnimation(){
     renderLadderPage(idx);
   });
 }
+
 function revealPenaltyRow(idx){
   if(!state.penaltyLadder[idx]) return;
   openLadderPage();
@@ -1354,6 +1413,7 @@ function revealPenaltyRow(idx){
     startSelectedLadderAnimation();
   }, 120);
 }
+
 function revealAllPenaltyRows(){
   if(!state.penaltyLadder.length){
     showModal('🔴','사다리 없음','먼저 사다리를 생성해줘.');
@@ -1366,6 +1426,7 @@ function revealAllPenaltyRows(){
   showModal('🔴','벌칙 한번에 보기', text);
   persist('벌칙 사다리 한번에 보기');
 }
+
 function hideAllPenaltyRows(){
   if(!state.penaltyLadder.length) return;
   state.penaltyLadder = state.penaltyLadder.map(r=>({...r, revealed:false}));
