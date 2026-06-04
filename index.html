@@ -122,6 +122,15 @@
     .muted-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:12px}
     .kicker{font-size:13px;color:#0f766e;font-weight:950;margin-bottom:4px}
     .hidden{display:none!important}
+    .direction-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+    @media(min-width:760px){.direction-grid{grid-template-columns:repeat(4,1fr)}}
+    .dir-btn{background:#f8fafc;color:#0f766e;border:1px solid #cfe2df;box-shadow:none;padding:13px 10px}
+    .dir-btn.active{background:#0f766e;color:#fff;border-color:#0f766e}
+    .route-list{counter-reset:route;display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .route-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;display:flex;gap:10px;align-items:center}
+    .route-card:before{counter-increment:route;content:counter(route);width:28px;height:28px;border-radius:999px;background:#0f766e;color:#fff;font-weight:950;display:grid;place-items:center;flex:0 0 auto}
+    .route-card b{font-size:16px}
+    .route-card span{color:#64748b;font-weight:750;font-size:13px}
   </style>
 </head>
 <body>
@@ -158,6 +167,7 @@
   <nav class="tabs" id="tabs">
     <button class="tab active" onclick="goTab('setup')">세팅</button>
     <button class="tab" onclick="goTab('wheel-sec')">돌림판</button>
+    <button class="tab" onclick="goTab('drive-game')">차량 이동</button>
     <button class="tab" onclick="goTab('character')">캐릭터</button>
     <button class="tab" onclick="goTab('mission')">미션</button>
     <button class="tab" onclick="goTab('court')">재판소</button>
@@ -188,7 +198,6 @@
           <label class="mini">돌림판 종류</label>
           <select id="wheelPreset" onchange="setWheelPreset(this.value)">
             <option value="course">오늘 코스</option>
-            <option value="food">맛집 왕좌</option>
             <option value="penalty">벌칙 카드</option>
             <option value="budget">랜덤 예산</option>
             <option value="weather">비 오면 코스</option>
@@ -222,6 +231,51 @@
       </div>
     </div>
 
+    <div class="card" id="drive-game">
+      <h2>🚗 차량 이동 복불복</h2>
+      <p class="sub">10명이 각자 방향을 고르고, 실행하면 선택한 10개가 랜덤 순서로 나열됨. 그 순서대로 이동하다가 첫 번째 목적지가 나오면 방문.</p>
+
+      <div class="two">
+        <div>
+          <label class="mini">선택할 사람</label>
+          <select id="driveName"></select>
+        </div>
+        <div>
+          <label class="mini">목적지 기준</label>
+          <select id="driveTarget" onchange="setDriveTarget(this.value)">
+            <option value="식당">첫 번째 식당</option>
+            <option value="카페">첫 번째 카페</option>
+            <option value="맛집/카페">첫 번째 식당 또는 카페</option>
+            <option value="편의점">첫 번째 편의점</option>
+            <option value="바다">첫 번째 바다 보이는 곳</option>
+            <option value="아무 목적지">첫 번째 괜찮아 보이는 곳</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="direction-grid">
+        <button class="dir-btn" onclick="pickDirection('직진')">⬆️ 직진</button>
+        <button class="dir-btn" onclick="pickDirection('좌회전')">⬅️ 좌회전</button>
+        <button class="dir-btn" onclick="pickDirection('우회전')">➡️ 우회전</button>
+        <button class="dir-btn" onclick="pickDirection('유턴')">↩️ 유턴</button>
+      </div>
+
+      <div class="notice">
+        진행 룰: 운전자는 안전 우선. 실제 유턴/좌회전이 불가능하면 <b>다음 가능한 길</b>에서 적용.
+      </div>
+
+      <h3>누가 뭘 골랐는지</h3>
+      <div class="chips" id="drivePickChips"></div>
+
+      <div class="input-row" style="margin-top:8px">
+        <button class="orange" onclick="runDriveGame()">랜덤 순서 뽑기</button>
+        <button class="gray" onclick="clearDrivePicks()">선택 초기화</button>
+      </div>
+
+      <div class="result big-result" id="driveResult">차량 이동 순서 대기 중</div>
+      <div class="route-list" id="driveRouteList"></div>
+    </div>
+
     <div class="card half" id="character">
       <h2>🎭 오늘의 캐릭터 뽑기</h2>
       <p class="sub">뽑은 캐릭터가 같은 방 전체에 공유됨.</p>
@@ -234,23 +288,11 @@
       <div class="list" id="charList"></div>
     </div>
 
-    <div class="card half" id="food-king">
-      <h2>🍖 맛집 왕좌의 게임</h2>
-      <p class="sub">메뉴 후보를 같이 넣고, 후보를 돌림판으로 넘길 수 있음.</p>
-      <div class="input-row">
-        <input id="foodInput" placeholder="메뉴 입력 예: 흑돼지" style="flex:1;min-width:140px" onkeydown="if(event.key==='Enter') addFood()" />
-        <button onclick="addFood()">메뉴 추가</button>
-      </div>
-      <div class="chips" id="foodChips"></div>
-      <div class="timer" id="timer">10</div>
-      <div class="input-row">
-        <button class="orange" onclick="startPitchTimer()">10초 발표 시작</button>
-        <button onclick="applyFoodToWheel()">메뉴로 돌림판 세팅</button>
-        <button class="gray" onclick="clearFoods()">메뉴 삭제</button>
-      </div>
-      <div class="notice">
-        걸린 메뉴를 낸 사람은 <b>오늘의 맛집 왕</b>. 맛없으면 밤에 재판소 피고인.
-      </div>
+    <div class="card half">
+      <h2>💸 랜덤 예산 카드</h2>
+      <p class="sub">뽑은 예산 카드도 방 전체에 공유됨.</p>
+      <button onclick="drawBudget()">예산 카드 뽑기</button>
+      <div class="result" id="budgetResult">예산 카드 대기 중</div>
     </div>
 
     <div class="card" id="mission">
@@ -265,17 +307,24 @@
     </div>
 
     <div class="card half">
-      <h2>💸 랜덤 예산 카드</h2>
-      <p class="sub">뽑은 예산 카드도 방 전체에 공유됨.</p>
-      <button onclick="drawBudget()">예산 카드 뽑기</button>
-      <div class="result" id="budgetResult">예산 카드 대기 중</div>
-    </div>
-
-    <div class="card half">
       <h2>🌧️ 비 오는 날 긴급 버튼</h2>
       <p class="sub">7월 제주에서 비 오거나 너무 더우면 누르기.</p>
       <button onclick="rainyMode()">비/폭염 코스로 변경</button>
       <div class="result" id="rainResult">실내·카페·시장 위주로 자동 변경</div>
+    </div>
+
+    <div class="card half">
+      <h2>📍 차량 이동 사용 예시</h2>
+      <p class="sub">차량 출발 전 10명이 방향을 하나씩 고른 뒤 랜덤 순서대로 움직이면 됨.</p>
+      <div class="muted-box">
+        <b>예시</b>
+        <p class="mini" style="line-height:1.6">
+          1번 영언 · 좌회전<br>
+          2번 수진 · 직진<br>
+          3번 민수 · 우회전<br><br>
+          이렇게 나오면 첫 번째 갈림길에서 좌회전, 다음 갈림길에서 직진, 다음 갈림길에서 우회전. 이동 중 첫 번째 카페가 보이면 그 카페 방문.
+        </p>
+      </div>
     </div>
 
     <div class="card" id="court">
@@ -288,7 +337,7 @@
         </div>
         <div>
           <label class="mini">고발 내용</label>
-          <input id="courtText" placeholder="예: 흑돼지 먹자더니 제일 적게 먹음" onkeydown="if(event.key==='Enter') addCase()" />
+          <input id="courtText" placeholder="예: 좌회전 골라놓고 본인이 멀미함" onkeydown="if(event.key==='Enter') addCase()" />
         </div>
       </div>
       <div class="input-row" style="margin-top:8px">
@@ -304,11 +353,11 @@
       <h2>📌 추천 진행 순서</h2>
       <div class="three">
         <div class="muted-box"><div class="kicker">아침</div><b>캐릭터 뽑기 → 오늘 코스 돌림판</b><p class="mini">오늘 하루 분위기 담당, 사진 감독, 맛집 평론가 등 배정.</p></div>
-        <div class="muted-box"><div class="kicker">점심/저녁</div><b>맛집 왕좌의 게임</b><p class="mini">각자 10초 발표 후 메뉴 돌림판. 걸린 사람은 맛집 왕.</p></div>
+        <div class="muted-box"><div class="kicker">이동 전</div><b>차량 이동 복불복</b><p class="mini">10명이 방향 선택 → 랜덤 순서 실행 → 첫 번째 목적지 방문.</p></div>
         <div class="muted-box"><div class="kicker">밤</div><b>제주 재판소</b><p class="mini">오늘의 빌런/레전드/불운왕 뽑고 가벼운 벌칙.</p></div>
       </div>
       <div class="notice danger-note">
-        운전자 벌칙, 과한 술 벌칙, 금액 큰 벌칙은 제외 추천. 재미는 살리고 분위기 깨지는 건 빼는 게 좋음.
+        운전자는 게임보다 안전 우선. 유턴/좌회전은 가능한 도로에서만 적용하고, 위험하면 무조건 패스.
       </div>
     </div>
   </section>
@@ -318,7 +367,7 @@
   <div class="inner">
     <button class="navbtn on" onclick="goTab('setup')"><span>👥</span>세팅</button>
     <button class="navbtn" onclick="goTab('wheel-sec')"><span>🎡</span>돌림판</button>
-    <button class="navbtn" onclick="goTab('character')"><span>🎭</span>캐릭터</button>
+    <button class="navbtn" onclick="goTab('drive-game')"><span>🚗</span>차량</button>
     <button class="navbtn" onclick="goTab('mission')"><span>🕵️</span>미션</button>
     <button class="navbtn" onclick="goTab('court')"><span>⚖️</span>재판</button>
   </div>
@@ -334,7 +383,7 @@
 </div>
 
 <script>
-const localStoreKey = 'jejuPTripShared.local.v2';
+const localStoreKey = 'jejuPTripShared.local.v3';
 const deviceIdKey = 'jejuPTripShared.deviceId';
 
 const defaultState = {
@@ -344,12 +393,15 @@ const defaultState = {
   wheelResult: '',
   usedCharacters: [],
   characterAssignments: [],
-  foods: [],
   teams: [],
   cases: [],
   awardResult: '',
   budgetResult: '',
   rainResult: '실내·카페·시장 위주로 자동 변경',
+  drivePicks: [],
+  driveTarget: '식당',
+  driveRoute: [],
+  driveResult: '',
   lastEvent: '',
   lastActor: '',
   lastUpdatedAt: ''
@@ -360,16 +412,13 @@ let activeRoom = '';
 let client = null;
 let channel = null;
 let sharedReady = false;
-let suppressSave = false;
 let spinning = false;
 let wheelRotation = 0;
-let timerId = null;
 
 const deviceId = getDeviceId();
 
 const presets = {
   course: ['바다', '오름', '시장', '카페', '실내', '포토존', '숙소 근처', '아무 데나 좌회전', '제일 가까운 곳', '밥부터'],
-  food: ['흑돼지', '고기국수', '갈치조림', '해장국', '회', '해물라면', '햄버거', '돈까스', '치킨', '편의점 털기'],
   penalty: ['다음 카페 음료 1잔', '단체사진 포즈 정하기', '편의점 심부름', '오늘 후기 30초 발표', '야식 세팅', '내일 아침 커피 주문', '다음 장소 소개 멘트', '사진 이상한 포즈 모델', '차 안 노래 선곡권 박탈', '말끝마다 제주 붙이기 10분'],
   budget: ['5천원 간식 사오기', '1만원 쓸데없는 기념품', '1만5천원 야식 업그레이드', '0원으로 레전드 사진', '편의점 취향저격 간식', '귤 관련 제품 사오기', '팀원 몰래 작은 선물', '가장 제주스러운 물건'],
   weather: ['대형 카페', '시장 투어', '아쿠아플라넷', '소품샵', '실내 맛집', '드라이브 코스', '숙소 보드게임', '편의점 야식 대결', '볼링/방탈출', '비 오는 바다 차 안 구경']
@@ -436,6 +485,9 @@ function normalizeState(s){
   const next = {...defaultState, ...(s || {})};
   if(!next.wheelItems || !next.wheelItems.length) next.wheelItems = [...presets.course];
   if(!next.wheelType) next.wheelType = 'course';
+  if(!next.driveTarget) next.driveTarget = '식당';
+  if(!Array.isArray(next.drivePicks)) next.drivePicks = [];
+  if(!Array.isArray(next.driveRoute)) next.driveRoute = [];
   return next;
 }
 
@@ -571,11 +623,12 @@ function goTab(id){
   scrollToId(id);
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('on'));
-  const idx = ['setup','wheel-sec','character','mission','court'].indexOf(id);
-  if(idx>=0){
-    document.querySelectorAll('.tab')[idx]?.classList.add('active');
-    document.querySelectorAll('.navbtn')[idx]?.classList.add('on');
-  }
+  const idxMap = {'setup':0,'wheel-sec':1,'drive-game':2,'mission':3,'court':4};
+  const idx = idxMap[id];
+  document.querySelectorAll('.tab').forEach(tab=>{
+    if(tab.getAttribute('onclick')?.includes("'" + id + "'")) tab.classList.add('active');
+  });
+  if(idx>=0) document.querySelectorAll('.navbtn')[idx]?.classList.add('on');
 }
 function sample(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function shuffle(arr){
@@ -599,11 +652,13 @@ function removeName(name){
   state.names = state.names.filter(n=>n!==name);
   state.characterAssignments = state.characterAssignments.filter(a=>a.person!==name);
   state.cases = state.cases.filter(c=>c.name!==name);
+  state.drivePicks = state.drivePicks.filter(p=>p.person!==name);
+  state.driveRoute = state.driveRoute.filter(p=>p.person!==name);
   persist('멤버 삭제: ' + name);
 }
 function clearNames(){
   if(!confirm('멤버를 전부 삭제할까요?')) return;
-  state.names=[]; state.characterAssignments=[]; state.teams=[]; state.cases=[];
+  state.names=[]; state.characterAssignments=[]; state.teams=[]; state.cases=[]; state.drivePicks=[]; state.driveRoute=[];
   persist('멤버 전체 삭제');
 }
 function loadSampleNames(){
@@ -613,8 +668,9 @@ function loadSampleNames(){
 function renderNames(){
   const chips = document.getElementById('nameChips');
   chips.innerHTML = state.names.length ? state.names.map(n=>`<span class="chip">${escapeHtml(n)} <span class="x" onclick="removeName('${escapeJs(n)}')">×</span></span>`).join('') : '<span class="mini">아직 등록된 멤버가 없음</span>';
-  ['charName','courtName'].forEach(id=>{
+  ['charName','courtName','driveName'].forEach(id=>{
     const sel=document.getElementById(id);
+    if(!sel) return;
     sel.innerHTML = state.names.map(n=>`<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`).join('');
     if(!state.names.length) sel.innerHTML='<option>멤버 없음</option>';
   });
@@ -628,7 +684,7 @@ function setWheelPreset(type){
   persist('돌림판 변경: ' + labelWheelType(type));
 }
 function labelWheelType(type){
-  return {course:'오늘 코스',food:'맛집 왕좌',penalty:'벌칙 카드',budget:'랜덤 예산',weather:'비 오면 코스',custom:'직접 입력'}[type] || type;
+  return {course:'오늘 코스',penalty:'벌칙 카드',budget:'랜덤 예산',weather:'비 오면 코스',custom:'직접 입력'}[type] || type;
 }
 function addWheelItem(){
   const input=document.getElementById('wheelAdd');
@@ -706,6 +762,67 @@ function spinWheel(){
   },3300);
 }
 
+function setDriveTarget(v){
+  state.driveTarget = v;
+  persist('차량 목적지 기준 변경: ' + v);
+}
+function pickDirection(direction){
+  if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
+  const person = document.getElementById('driveName').value;
+  if(!person || person === '멤버 없음'){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
+  const exists = state.drivePicks.find(p=>p.person===person);
+  if(exists){
+    exists.direction = direction;
+  }else{
+    state.drivePicks.push({person, direction});
+  }
+  persist('차량 방향 선택: ' + person + ' · ' + direction);
+}
+function clearDrivePicks(){
+  if(!confirm('차량 이동 선택과 결과를 초기화할까요?')) return;
+  state.drivePicks = [];
+  state.driveRoute = [];
+  state.driveResult = '';
+  persist('차량 이동 선택 초기화');
+}
+function runDriveGame(){
+  if(!state.drivePicks.length){
+    showModal('🚗','선택 없음','먼저 멤버들이 직진/좌회전/우회전/유턴 중 하나를 골라야 해.');
+    return;
+  }
+  state.driveRoute = shuffle(state.drivePicks);
+  state.driveResult = `${state.driveRoute.length}개 랜덤 순서 확정\n첫 번째 ${state.driveTarget} 나오면 방문`;
+  showModal('🚗','차량 이동 순서 확정', state.driveRoute.map((p,i)=>`${i+1}. ${p.person} · ${p.direction}`).join('\n') + `\n\n첫 번째 ${state.driveTarget} 나오면 방문`);
+  burstConfetti();
+  persist('차량 이동 랜덤 순서 확정');
+}
+function renderDriveGame(){
+  const targetSel = document.getElementById('driveTarget');
+  if(targetSel) targetSel.value = state.driveTarget || '식당';
+
+  const chips = document.getElementById('drivePickChips');
+  if(chips){
+    chips.innerHTML = state.drivePicks.length
+      ? state.drivePicks.map(p=>`<span class="chip">${escapeHtml(p.person)} · ${escapeHtml(p.direction)} <span class="x" onclick="removeDrivePick('${escapeJs(p.person)}')">×</span></span>`).join('')
+      : '<span class="mini">아직 선택한 사람이 없음</span>';
+  }
+
+  const result = document.getElementById('driveResult');
+  if(result) result.textContent = state.driveResult || '차량 이동 순서 대기 중';
+
+  const list = document.getElementById('driveRouteList');
+  if(list){
+    list.innerHTML = state.driveRoute.length
+      ? state.driveRoute.map(p=>`<div class="route-card"><div><b>${escapeHtml(p.direction)}</b><br><span>${escapeHtml(p.person)} 선택</span></div></div>`).join('')
+      : '<div class="mini">랜덤 순서를 뽑으면 여기에 1번부터 표시됨</div>';
+  }
+}
+function removeDrivePick(person){
+  state.drivePicks = state.drivePicks.filter(p=>p.person!==person);
+  state.driveRoute = state.driveRoute.filter(p=>p.person!==person);
+  persist('차량 방향 선택 삭제: ' + person);
+}
+
 function drawCharacter(){
   if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
   const person=document.getElementById('charName').value;
@@ -743,45 +860,6 @@ function renderCharacters(){
 function removeChar(person){
   state.characterAssignments=state.characterAssignments.filter(a=>a.person!==person);
   persist('캐릭터 삭제: ' + person);
-}
-
-function addFood(){
-  const input=document.getElementById('foodInput');
-  const v=input.value.trim();
-  if(!v) return;
-  state.foods.push(v);
-  input.value='';
-  persist('메뉴 추가: ' + v);
-}
-function removeFood(idx){
-  const removed = state.foods[idx];
-  state.foods.splice(idx,1);
-  persist('메뉴 삭제: ' + removed);
-}
-function clearFoods(){ state.foods=[]; persist('메뉴 전체 삭제'); }
-function renderFoods(){
-  const chips=document.getElementById('foodChips');
-  chips.innerHTML = state.foods.length ? state.foods.map((f,i)=>`<span class="chip">${escapeHtml(f)} <span class="x" onclick="removeFood(${i})">×</span></span>`).join('') : '<span class="mini">메뉴를 추가해줘</span>';
-}
-function applyFoodToWheel(){
-  if(!state.foods.length){ showModal('🍖','메뉴 없음','먼저 먹고 싶은 메뉴를 추가해줘.'); return; }
-  state.wheelItems=[...state.foods];
-  state.wheelType='custom';
-  persist('맛집 메뉴를 돌림판으로 세팅');
-  goTab('wheel-sec');
-}
-function startPitchTimer(){
-  clearInterval(timerId);
-  let t=10;
-  const el=document.getElementById('timer');
-  el.textContent=t;
-  timerId=setInterval(()=>{
-    t--; el.textContent=t;
-    if(t<=0){
-      clearInterval(timerId);
-      showModal('⏰','발표 끝','이제 다음 사람 10초 발표!');
-    }
-  },1000);
 }
 
 function makeTeams(){
@@ -886,10 +964,10 @@ function openHelp(){
   showModal('🌴','사용법',`1. 방 코드 입력 후 입장
 2. 친구들도 같은 사이트 + 같은 방 코드로 입장
 3. 멤버 10명 이름 입력
-4. 아침에 캐릭터 뽑기
-5. 오늘 코스 돌림판
-6. 식사 때 맛집 왕좌의 게임
-7. 이동 중 미션 헌터
+4. 차량 이동 복불복에서 각자 방향 선택
+5. 랜덤 순서 뽑기
+6. 나온 순서대로 이동
+7. 첫 번째 식당/카페/목적지가 나오면 방문
 8. 밤에 제주 재판소`);
 }
 async function copyRoomLink(){
@@ -942,8 +1020,8 @@ function renderAll(){
   state = normalizeState(state);
   renderNames();
   renderWheel();
+  renderDriveGame();
   renderCharacters();
-  renderFoods();
   renderTeams();
   renderCases();
   document.getElementById('budgetResult').textContent = state.budgetResult || '예산 카드 대기 중';
