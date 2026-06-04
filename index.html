@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>제주 P 여행 복불복 공유판</title>
+  <meta name="theme-color" content="#0f766e" />
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#e9fbf7; --bg2:#fff7ed; --card:#fff; --ink:#102a43; --muted:#64748b;
+      --primary:#0f766e; --primary2:#14b8a6; --accent:#f97316; --danger:#ef4444;
+      --line:#d9eee9; --shadow:0 16px 45px rgba(15,118,110,.16); --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(20,184,166,.23), transparent 36%),
+        radial-gradient(circle at 88% 8%, rgba(249,115,22,.20), transparent 30%),
+        linear-gradient(135deg,var(--bg),var(--bg2));
+      min-height:100vh; padding-bottom:82px;
+    }
+    .wrap{width:min(1120px,100%);margin:0 auto;padding:18px 14px 34px}
+    .hero{
+      background:linear-gradient(135deg,#0f766e,#14b8a6 52%,#fb923c);
+      color:#fff; border-radius:30px; padding:24px 18px; box-shadow:var(--shadow);
+      overflow:hidden; position:relative;
+    }
+    .hero:before{content:"";position:absolute;right:-45px;top:-45px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.18)}
+    .hero:after{content:"🌊";position:absolute;right:22px;bottom:16px;font-size:58px;opacity:.28}
+    h1{font-size:30px;line-height:1.12;margin:0 0 8px;letter-spacing:-.8px}
+    .hero p{margin:0;color:rgba(255,255,255,.92);font-weight:700;line-height:1.45}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+    button,.btn{
+      border:0; border-radius:14px; padding:12px 14px; font-weight:850; cursor:pointer;
+      color:#fff; background:var(--primary); box-shadow:0 8px 18px rgba(15,118,110,.18);
+      transition:transform .08s, filter .08s, opacity .08s; font-size:15px; text-decoration:none;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap;
+    }
+    button:active{transform:scale(.98)}
+    button.secondary{background:#164e63}
+    button.orange{background:var(--accent)}
+    button.red{background:var(--danger)}
+    button.ghost{background:#fff;color:var(--primary);border:1px solid rgba(15,118,110,.18);box-shadow:none}
+    button.gray{background:#e2e8f0;color:#334155;box-shadow:none}
+    button.small{font-size:13px;padding:8px 10px;border-radius:11px}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .tabs{
+      position:sticky;top:0;z-index:10;background:rgba(233,251,247,.88);backdrop-filter:blur(12px);
+      padding:10px 14px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 10px;
+      border-bottom:1px solid rgba(15,118,110,.12)
+    }
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{color:#0f766e;background:#fff;border:1px solid rgba(15,118,110,.15);box-shadow:none;padding:10px 13px;border-radius:999px;font-size:14px;flex:0 0 auto}
+    .tab.active{background:#0f766e;color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{
+      grid-column:span 12;background:rgba(255,255,255,.88);border:1px solid rgba(15,118,110,.13);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;
+    }
+    .card h2{margin:0 0 8px;font-size:22px;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+    .card h3{margin:16px 0 8px;font-size:17px}
+    .sub{color:var(--muted);margin:0 0 12px;font-weight:650;line-height:1.5}
+    .mini{font-size:12px;color:var(--muted);font-weight:700}
+    .input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    input,select,textarea{
+      width:100%;border:1px solid #cfe2df;border-radius:14px;padding:12px 12px;font-size:15px;
+      outline:none;background:#fff;color:var(--ink);font-family:inherit;
+    }
+    textarea{min-height:76px;resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:#14b8a6;box-shadow:0 0 0 4px rgba(20,184,166,.12)}
+    .two{display:grid;grid-template-columns:1fr;gap:12px}
+    .three{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:760px){
+      .card.half{grid-column:span 6}.card.third{grid-column:span 4}
+      .two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}
+      h1{font-size:38px}
+    }
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+    .chip{display:inline-flex;align-items:center;gap:5px;background:#ecfeff;border:1px solid #bae6fd;color:#155e75;border-radius:999px;padding:8px 10px;font-weight:800;font-size:13px}
+    .chip .x{cursor:pointer;color:#ef4444;font-weight:950}
+    .result{
+      min-height:68px;border-radius:18px;background:linear-gradient(135deg,#ecfeff,#fff7ed);
+      border:1px dashed rgba(15,118,110,.28);padding:16px;display:flex;align-items:center;justify-content:center;
+      text-align:center;font-size:24px;font-weight:950;letter-spacing:-.5px;color:#0f766e;white-space:pre-line;
+    }
+    .big-result{min-height:120px;font-size:30px;background:radial-gradient(circle at 20% 10%, rgba(249,115,22,.18), transparent 22%),linear-gradient(135deg,#ffffff,#ecfeff)}
+    .wheel-area{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
+    .wheel-box{position:relative;width:min(340px,90vw);aspect-ratio:1;margin:0 auto;display:grid;place-items:center}
+    .pointer{position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #ef4444;z-index:3;filter:drop-shadow(0 3px 2px rgba(0,0,0,.18))}
+    canvas#wheel{width:100%;height:100%;border-radius:50%;box-shadow:0 14px 34px rgba(15,118,110,.22);background:#fff;transition:transform 3.2s cubic-bezier(.12,.74,.16,1)}
+    .center-btn{position:absolute;width:96px;height:96px;border-radius:50%;background:#fff;color:#0f766e;border:8px solid #14b8a6;box-shadow:0 8px 20px rgba(0,0,0,.18);display:grid;place-items:center;font-size:18px;font-weight:950;cursor:pointer;z-index:2;text-align:center;line-height:1.1}
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .item{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;display:flex;gap:8px;justify-content:space-between;align-items:flex-start}
+    .item strong{font-size:15px}.item p{margin:3px 0 0;color:var(--muted);font-size:13px;font-weight:650;line-height:1.35}
+    .score{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.score b{min-width:28px;text-align:center;font-size:18px;color:#0f766e}
+    .badge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:999px;background:#0f766e;color:#fff;font-weight:950;font-size:12px}
+    .notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:12px;color:#9a3412;font-weight:750;line-height:1.45;margin-top:10px}
+    .danger-note{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+    .ok-note{background:#ecfdf5;border-color:#bbf7d0;color:#166534}
+    .room-card{margin-top:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:14px;position:relative;z-index:1}
+    .room-card label{display:block;font-size:13px;font-weight:900;margin-bottom:6px;color:#ecfeff}
+    .status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.18);font-weight:900;font-size:13px;margin-top:10px}
+    .dot{width:9px;height:9px;border-radius:50%;background:#fca5a5;display:inline-block}.dot.on{background:#86efac}
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.54);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
+    .modal.show{display:flex}
+    .modal-card{width:min(520px,100%);background:#fff;border-radius:26px;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,.28);text-align:center;animation:pop .18s ease-out}
+    @keyframes pop{from{transform:scale(.94);opacity:.2}to{transform:scale(1);opacity:1}}
+    .modal-card .emoji{font-size:52px}.modal-card h2{font-size:26px;margin:8px 0;color:#0f766e}
+    .modal-card p{font-size:17px;font-weight:750;color:#334155;line-height:1.5;white-space:pre-line}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid rgba(15,118,110,.13);display:flex;justify-content:center;padding:8px 8px env(safe-area-inset-bottom)}
+    .bottom-nav .inner{width:min(680px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .navbtn{border-radius:15px;background:#f1f5f9;color:#334155;box-shadow:none;font-size:11px;padding:8px 4px;display:flex;flex-direction:column;gap:1px}
+    .navbtn span{font-size:18px}.navbtn.on{background:#0f766e;color:#fff}
+    .confetti{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:120}
+    .team-grid{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:760px){.team-grid{grid-template-columns:1fr 1fr}}
+    .timer{font-size:42px;font-weight:950;color:#f97316;text-align:center;margin:8px 0}
+    .muted-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:12px}
+    .kicker{font-size:13px;color:#0f766e;font-weight:950;margin-bottom:4px}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+<canvas class="confetti" id="confetti"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="hero">
+      <h1>제주 P 여행<br/>복불복 공유판</h1>
+      <p>같은 방 코드로 접속하면 결과가 같이 보이는 실시간 웹앱</p>
+
+      <div class="room-card">
+        <label>방 코드</label>
+        <div class="input-row">
+          <input id="roomInput" placeholder="예: JEJU2026" value="JEJU2026" style="flex:1;min-width:150px;text-transform:uppercase" />
+          <button class="ghost" onclick="joinRoom()">입장/연결</button>
+          <button class="ghost" onclick="copyRoomLink()">링크 복사</button>
+        </div>
+        <div class="status-pill">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">연결 대기 중</span>
+        </div>
+        <div class="mini" id="lastSync" style="color:#ecfeff;margin-top:8px">방에 입장하면 결과가 공유됩니다.</div>
+      </div>
+
+      <div class="top-actions">
+        <button class="ghost" onclick="scrollToId('setup')">인원 세팅</button>
+        <button class="ghost" onclick="dailyReset()">오늘 새로 시작</button>
+        <button class="ghost" onclick="openHelp()">사용법</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" onclick="goTab('setup')">세팅</button>
+    <button class="tab" onclick="goTab('wheel-sec')">돌림판</button>
+    <button class="tab" onclick="goTab('character')">캐릭터</button>
+    <button class="tab" onclick="goTab('mission')">미션</button>
+    <button class="tab" onclick="goTab('court')">재판소</button>
+  </nav>
+
+  <section class="grid">
+    <div class="card" id="setup">
+      <h2>👥 여행 멤버 세팅</h2>
+      <p class="sub">여기서 이름을 추가하면 같은 방에 들어온 사람 화면에도 같이 보임.</p>
+      <div class="input-row">
+        <input id="nameInput" placeholder="이름 입력 예: 영언" style="flex:1;min-width:180px" onkeydown="if(event.key==='Enter') addName()" />
+        <button onclick="addName()">추가</button>
+        <button class="gray" onclick="loadSampleNames()">10명 예시</button>
+        <button class="red" onclick="clearNames()">전체 삭제</button>
+      </div>
+      <div class="chips" id="nameChips"></div>
+      <div class="notice ok-note">
+        같은 방 코드로 접속하면 <b>멤버·결과·점수·재판소 기록</b>이 전원에게 같이 반영됨.
+      </div>
+    </div>
+
+    <div class="card" id="wheel-sec">
+      <h2>🎡 운명의 제주 돌림판</h2>
+      <p class="sub">누군가 돌리면 결과가 저장되고, 같은 방 사람들 화면에도 표시됨.</p>
+
+      <div class="two">
+        <div>
+          <label class="mini">돌림판 종류</label>
+          <select id="wheelPreset" onchange="setWheelPreset(this.value)">
+            <option value="course">오늘 코스</option>
+            <option value="food">맛집 왕좌</option>
+            <option value="penalty">벌칙 카드</option>
+            <option value="budget">랜덤 예산</option>
+            <option value="weather">비 오면 코스</option>
+            <option value="custom">직접 입력</option>
+          </select>
+        </div>
+        <div>
+          <label class="mini">직접 추가</label>
+          <div class="input-row">
+            <input id="wheelAdd" placeholder="항목 추가" style="flex:1;min-width:120px" onkeydown="if(event.key==='Enter') addWheelItem()" />
+            <button class="small" onclick="addWheelItem()">추가</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="wheel-area">
+        <div class="wheel-box">
+          <div class="pointer"></div>
+          <canvas id="wheel" width="700" height="700"></canvas>
+          <div class="center-btn" onclick="spinWheel()">돌려!</div>
+        </div>
+        <div>
+          <div class="result big-result" id="wheelResult">오늘의 운명을 돌려봐</div>
+          <div class="chips" id="wheelChips"></div>
+          <div class="input-row">
+            <button class="orange" onclick="spinWheel()">돌림판 돌리기</button>
+            <button class="gray" onclick="shuffleWheel()">순서 섞기</button>
+            <button class="gray" onclick="removeLastWheel()">마지막 삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card half" id="character">
+      <h2>🎭 오늘의 캐릭터 뽑기</h2>
+      <p class="sub">뽑은 캐릭터가 같은 방 전체에 공유됨.</p>
+      <div class="input-row">
+        <select id="charName" style="flex:1;min-width:150px"></select>
+        <button onclick="drawCharacter()">뽑기</button>
+        <button class="gray" onclick="resetCharacters()">캐릭터 리셋</button>
+      </div>
+      <div class="result" id="charResult">멤버 선택 후 뽑기</div>
+      <div class="list" id="charList"></div>
+    </div>
+
+    <div class="card half" id="food-king">
+      <h2>🍖 맛집 왕좌의 게임</h2>
+      <p class="sub">메뉴 후보를 같이 넣고, 후보를 돌림판으로 넘길 수 있음.</p>
+      <div class="input-row">
+        <input id="foodInput" placeholder="메뉴 입력 예: 흑돼지" style="flex:1;min-width:140px" onkeydown="if(event.key==='Enter') addFood()" />
+        <button onclick="addFood()">메뉴 추가</button>
+      </div>
+      <div class="chips" id="foodChips"></div>
+      <div class="timer" id="timer">10</div>
+      <div class="input-row">
+        <button class="orange" onclick="startPitchTimer()">10초 발표 시작</button>
+        <button onclick="applyFoodToWheel()">메뉴로 돌림판 세팅</button>
+        <button class="gray" onclick="clearFoods()">메뉴 삭제</button>
+      </div>
+      <div class="notice">
+        걸린 메뉴를 낸 사람은 <b>오늘의 맛집 왕</b>. 맛없으면 밤에 재판소 피고인.
+      </div>
+    </div>
+
+    <div class="card" id="mission">
+      <h2>🕵️ 제주 미션 헌터</h2>
+      <p class="sub">팀 생성, 미션 지급, 점수 변경이 전원에게 공유됨.</p>
+      <div class="input-row">
+        <button onclick="makeTeams()">2인 팀 자동 생성</button>
+        <button onclick="assignMissions()">팀별 미션 지급</button>
+        <button class="gray" onclick="resetScores()">점수 초기화</button>
+      </div>
+      <div class="team-grid" id="teamList"></div>
+    </div>
+
+    <div class="card half">
+      <h2>💸 랜덤 예산 카드</h2>
+      <p class="sub">뽑은 예산 카드도 방 전체에 공유됨.</p>
+      <button onclick="drawBudget()">예산 카드 뽑기</button>
+      <div class="result" id="budgetResult">예산 카드 대기 중</div>
+    </div>
+
+    <div class="card half">
+      <h2>🌧️ 비 오는 날 긴급 버튼</h2>
+      <p class="sub">7월 제주에서 비 오거나 너무 더우면 누르기.</p>
+      <button onclick="rainyMode()">비/폭염 코스로 변경</button>
+      <div class="result" id="rainResult">실내·카페·시장 위주로 자동 변경</div>
+    </div>
+
+    <div class="card" id="court">
+      <h2>⚖️ 제주 재판소</h2>
+      <p class="sub">밤에 야식 먹으면서 오늘의 빌런, 레전드, 불운왕 뽑기.</p>
+      <div class="two">
+        <div>
+          <label class="mini">피고인</label>
+          <select id="courtName"></select>
+        </div>
+        <div>
+          <label class="mini">고발 내용</label>
+          <input id="courtText" placeholder="예: 흑돼지 먹자더니 제일 적게 먹음" onkeydown="if(event.key==='Enter') addCase()" />
+        </div>
+      </div>
+      <div class="input-row" style="margin-top:8px">
+        <button onclick="addCase()">고발 등록</button>
+        <button onclick="drawAward()">오늘의 수상 뽑기</button>
+        <button class="gray" onclick="clearCases()">재판 기록 삭제</button>
+      </div>
+      <div class="result" id="awardResult">밤에 재판 시작</div>
+      <div class="list" id="caseList"></div>
+    </div>
+
+    <div class="card">
+      <h2>📌 추천 진행 순서</h2>
+      <div class="three">
+        <div class="muted-box"><div class="kicker">아침</div><b>캐릭터 뽑기 → 오늘 코스 돌림판</b><p class="mini">오늘 하루 분위기 담당, 사진 감독, 맛집 평론가 등 배정.</p></div>
+        <div class="muted-box"><div class="kicker">점심/저녁</div><b>맛집 왕좌의 게임</b><p class="mini">각자 10초 발표 후 메뉴 돌림판. 걸린 사람은 맛집 왕.</p></div>
+        <div class="muted-box"><div class="kicker">밤</div><b>제주 재판소</b><p class="mini">오늘의 빌런/레전드/불운왕 뽑고 가벼운 벌칙.</p></div>
+      </div>
+      <div class="notice danger-note">
+        운전자 벌칙, 과한 술 벌칙, 금액 큰 벌칙은 제외 추천. 재미는 살리고 분위기 깨지는 건 빼는 게 좋음.
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="bottom-nav">
+  <div class="inner">
+    <button class="navbtn on" onclick="goTab('setup')"><span>👥</span>세팅</button>
+    <button class="navbtn" onclick="goTab('wheel-sec')"><span>🎡</span>돌림판</button>
+    <button class="navbtn" onclick="goTab('character')"><span>🎭</span>캐릭터</button>
+    <button class="navbtn" onclick="goTab('mission')"><span>🕵️</span>미션</button>
+    <button class="navbtn" onclick="goTab('court')"><span>⚖️</span>재판</button>
+  </div>
+</div>
+
+<div class="modal" id="modal" onclick="closeModal(event)">
+  <div class="modal-card">
+    <div class="emoji" id="modalEmoji">🎉</div>
+    <h2 id="modalTitle">결과</h2>
+    <p id="modalText"></p>
+    <button onclick="hideModal()">확인</button>
+  </div>
+</div>
+
+<script>
+const localStoreKey = 'jejuPTripShared.local.v2';
+const deviceIdKey = 'jejuPTripShared.deviceId';
+
+const defaultState = {
+  names: [],
+  wheelItems: [],
+  wheelType: 'course',
+  wheelResult: '',
+  usedCharacters: [],
+  characterAssignments: [],
+  foods: [],
+  teams: [],
+  cases: [],
+  awardResult: '',
+  budgetResult: '',
+  rainResult: '실내·카페·시장 위주로 자동 변경',
+  lastEvent: '',
+  lastActor: '',
+  lastUpdatedAt: ''
+};
+
+let state = loadLocalState();
+let activeRoom = '';
+let client = null;
+let channel = null;
+let sharedReady = false;
+let suppressSave = false;
+let spinning = false;
+let wheelRotation = 0;
+let timerId = null;
+
+const deviceId = getDeviceId();
+
+const presets = {
+  course: ['바다', '오름', '시장', '카페', '실내', '포토존', '숙소 근처', '아무 데나 좌회전', '제일 가까운 곳', '밥부터'],
+  food: ['흑돼지', '고기국수', '갈치조림', '해장국', '회', '해물라면', '햄버거', '돈까스', '치킨', '편의점 털기'],
+  penalty: ['다음 카페 음료 1잔', '단체사진 포즈 정하기', '편의점 심부름', '오늘 후기 30초 발표', '야식 세팅', '내일 아침 커피 주문', '다음 장소 소개 멘트', '사진 이상한 포즈 모델', '차 안 노래 선곡권 박탈', '말끝마다 제주 붙이기 10분'],
+  budget: ['5천원 간식 사오기', '1만원 쓸데없는 기념품', '1만5천원 야식 업그레이드', '0원으로 레전드 사진', '편의점 취향저격 간식', '귤 관련 제품 사오기', '팀원 몰래 작은 선물', '가장 제주스러운 물건'],
+  weather: ['대형 카페', '시장 투어', '아쿠아플라넷', '소품샵', '실내 맛집', '드라이브 코스', '숙소 보드게임', '편의점 야식 대결', '볼링/방탈출', '비 오는 바다 차 안 구경']
+};
+
+const characters = [
+  {name:'제주 왕', desc:'오늘 최종 선택권 1회 사용 가능'},
+  {name:'불평 금지 인간', desc:'덥다, 힘들다, 배고프다 말하면 벌칙'},
+  {name:'사진 감독', desc:'단체사진 포즈 지시 가능'},
+  {name:'맛집 평론가', desc:'밥 먹고 30초 리뷰 발표'},
+  {name:'분위기 담당', desc:'차 안 조용해지면 노래나 질문 던지기'},
+  {name:'네비 부사관', desc:'운전자 옆에서 길 안내 담당'},
+  {name:'감성 시인', desc:'장소 도착할 때마다 감성 멘트 1개'},
+  {name:'절약왕', desc:'비싼 거 보면 “이건 아닌 것 같습니다” 말하기'},
+  {name:'관광객 과몰입러', desc:'사진마다 처음 제주 온 것처럼 리액션'},
+  {name:'오늘의 막내', desc:'심부름 담당. 단, 하루 3회까지만'},
+  {name:'먹짱', desc:'맛있는 메뉴 발견하면 모두에게 추천'},
+  {name:'조용한 암살자', desc:'하루에 한 번 아무도 모르게 웃긴 사진 찍기'}
+];
+
+const missions = [
+  '돌하르방이랑 똑같은 표정으로 사진 찍기',
+  '바다 앞에서 영화 포스터처럼 사진 찍기',
+  '제주 사투리 한마디 배워오기',
+  '카페 직원에게 “제일 제주스러운 메뉴 뭐예요?” 물어보기',
+  '귤 관련 제품 하나 사오기',
+  '팀원끼리 관광객 인터뷰 영상 찍기',
+  '가장 이상한 간판 찾아서 사진 찍기',
+  '바람 때문에 머리 망가진 사진 찍기',
+  '제주도 왔는데 제주 아닌 척 사진 찍기',
+  '모래사장에 팀 이름 쓰고 인증샷',
+  '가장 맛있어 보이는 한입 사진 찍기',
+  '팀원 둘이 같은 포즈로 3장 찍기',
+  '차 안에서 15초 여행 예고편 영상 찍기',
+  '지나가다 보이는 파란색 물건 5개 찾기',
+  '오늘의 불운왕 후보 사진 확보하기',
+  '제주 느낌 나는 배경으로 프로필 사진 찍기'
+];
+
+const awards = ['오늘의 빌런','오늘의 레전드','오늘의 불운왕','오늘의 먹짱','오늘의 사진 망친 사람','오늘의 길치','오늘의 P 그 자체','오늘의 잠만 잔 사람','오늘의 말 제일 많은 사람','오늘의 의외의 에이스'];
+
+function getDeviceId(){
+  let id = localStorage.getItem(deviceIdKey);
+  if(!id){
+    id = 'D' + Math.random().toString(36).slice(2,10);
+    localStorage.setItem(deviceIdKey, id);
+  }
+  return id;
+}
+
+function loadLocalState(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(localStoreKey));
+    return {...defaultState, ...saved};
+  }catch(e){
+    return {...defaultState};
+  }
+}
+function saveLocalState(){
+  localStorage.setItem(localStoreKey, JSON.stringify(state));
+}
+
+function normalizeState(s){
+  const next = {...defaultState, ...(s || {})};
+  if(!next.wheelItems || !next.wheelItems.length) next.wheelItems = [...presets.course];
+  if(!next.wheelType) next.wheelType = 'course';
+  return next;
+}
+
+function supabaseConfigured(){
+  return !!(window.JEJU_SUPABASE_URL && window.JEJU_SUPABASE_ANON_KEY && window.supabase);
+}
+
+async function joinRoom(){
+  activeRoom = (document.getElementById('roomInput').value || 'JEJU2026').trim().toUpperCase().replace(/[^A-Z0-9가-힣_-]/g,'');
+  if(!activeRoom) activeRoom = 'JEJU2026';
+  document.getElementById('roomInput').value = activeRoom;
+  history.replaceState(null, '', location.pathname + '?room=' + encodeURIComponent(activeRoom));
+
+  if(!supabaseConfigured()){
+    sharedReady = false;
+    setStatus(false, 'Supabase 미연결 · 이 기기에서만 저장됨');
+    showModal('⚠️','공유 모드 미연결','config.js에 Supabase URL과 anon key를 넣어야 다른 사람과 결과를 같이 볼 수 있어.');
+    renderAll();
+    return;
+  }
+
+  try{
+    client = window.supabase.createClient(window.JEJU_SUPABASE_URL, window.JEJU_SUPABASE_ANON_KEY);
+    setStatus(false, activeRoom + ' 연결 중...');
+
+    const { data: existing, error: selectError } = await client
+      .from('jeju_game_rooms')
+      .select('state')
+      .eq('room_code', activeRoom)
+      .maybeSingle();
+
+    if(selectError) throw selectError;
+
+    if(existing && existing.state){
+      state = normalizeState(existing.state);
+    }else{
+      state = normalizeState(state);
+      await client.from('jeju_game_rooms').insert({
+        room_code: activeRoom,
+        state: withMeta('방 생성'),
+        updated_at: new Date().toISOString()
+      });
+    }
+
+    sharedReady = true;
+    saveLocalState();
+    renderAll();
+    subscribeRoom();
+    setStatus(true, activeRoom + ' 공유 연결됨');
+    updateLastSync();
+  }catch(err){
+    console.error(err);
+    sharedReady = false;
+    setStatus(false, '연결 실패 · SQL/config 확인 필요');
+    showModal('⚠️','연결 실패', String(err.message || err));
+  }
+}
+
+function subscribeRoom(){
+  if(channel && client){
+    client.removeChannel(channel);
+    channel = null;
+  }
+  channel = client
+    .channel('jeju-room-' + activeRoom)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'jeju_game_rooms',
+      filter: 'room_code=eq.' + activeRoom
+    }, payload => {
+      if(!payload.new || !payload.new.state) return;
+      const incoming = normalizeState(payload.new.state);
+      state = incoming;
+      saveLocalState();
+      renderAll();
+      updateLastSync();
+      if(incoming.lastActor !== deviceId && incoming.lastEvent){
+        document.getElementById('lastSync').textContent = '방금 반영됨: ' + incoming.lastEvent;
+      }
+    })
+    .subscribe(status => {
+      if(status === 'SUBSCRIBED') setStatus(true, activeRoom + ' 실시간 공유 중');
+    });
+}
+
+function withMeta(eventName){
+  return {
+    ...state,
+    lastEvent: eventName || '업데이트',
+    lastActor: deviceId,
+    lastUpdatedAt: new Date().toISOString()
+  };
+}
+
+async function persist(eventName){
+  state = normalizeState(state);
+  state.lastEvent = eventName || '업데이트';
+  state.lastActor = deviceId;
+  state.lastUpdatedAt = new Date().toISOString();
+  saveLocalState();
+  renderAll();
+
+  if(!sharedReady || !client || !activeRoom) return;
+
+  try{
+    const { error } = await client
+      .from('jeju_game_rooms')
+      .upsert({
+        room_code: activeRoom,
+        state: state,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'room_code' });
+    if(error) throw error;
+    updateLastSync();
+  }catch(err){
+    console.error(err);
+    setStatus(false, '저장 실패 · 연결 확인 필요');
+  }
+}
+
+function setStatus(on, text){
+  document.getElementById('statusDot').classList.toggle('on', !!on);
+  document.getElementById('statusText').textContent = text;
+}
+function updateLastSync(){
+  const t = state.lastUpdatedAt ? new Date(state.lastUpdatedAt).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
+  document.getElementById('lastSync').textContent = t ? `${t} · ${state.lastEvent || '동기화 완료'}` : '동기화 완료';
+}
+
+function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}); }
+function goTab(id){
+  scrollToId(id);
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('on'));
+  const idx = ['setup','wheel-sec','character','mission','court'].indexOf(id);
+  if(idx>=0){
+    document.querySelectorAll('.tab')[idx]?.classList.add('active');
+    document.querySelectorAll('.navbtn')[idx]?.classList.add('on');
+  }
+}
+function sample(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function addName(){
+  const input = document.getElementById('nameInput');
+  const name = input.value.trim();
+  if(!name) return;
+  if(!state.names.includes(name)) state.names.push(name);
+  input.value='';
+  persist('멤버 추가: ' + name);
+}
+function removeName(name){
+  state.names = state.names.filter(n=>n!==name);
+  state.characterAssignments = state.characterAssignments.filter(a=>a.person!==name);
+  state.cases = state.cases.filter(c=>c.name!==name);
+  persist('멤버 삭제: ' + name);
+}
+function clearNames(){
+  if(!confirm('멤버를 전부 삭제할까요?')) return;
+  state.names=[]; state.characterAssignments=[]; state.teams=[]; state.cases=[];
+  persist('멤버 전체 삭제');
+}
+function loadSampleNames(){
+  state.names = ['영언','민수','지훈','현우','성민','수진','지혜','유진','다은','서연'];
+  persist('10명 예시 멤버 입력');
+}
+function renderNames(){
+  const chips = document.getElementById('nameChips');
+  chips.innerHTML = state.names.length ? state.names.map(n=>`<span class="chip">${escapeHtml(n)} <span class="x" onclick="removeName('${escapeJs(n)}')">×</span></span>`).join('') : '<span class="mini">아직 등록된 멤버가 없음</span>';
+  ['charName','courtName'].forEach(id=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML = state.names.map(n=>`<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`).join('');
+    if(!state.names.length) sel.innerHTML='<option>멤버 없음</option>';
+  });
+}
+
+function setWheelPreset(type){
+  state.wheelType = type;
+  if(type !== 'custom'){
+    state.wheelItems = [...presets[type]];
+  }
+  persist('돌림판 변경: ' + labelWheelType(type));
+}
+function labelWheelType(type){
+  return {course:'오늘 코스',food:'맛집 왕좌',penalty:'벌칙 카드',budget:'랜덤 예산',weather:'비 오면 코스',custom:'직접 입력'}[type] || type;
+}
+function addWheelItem(){
+  const input=document.getElementById('wheelAdd');
+  const v=input.value.trim();
+  if(!v) return;
+  state.wheelType='custom';
+  state.wheelItems.push(v);
+  input.value='';
+  persist('돌림판 항목 추가: ' + v);
+}
+function removeWheelItem(idx){
+  const removed = state.wheelItems[idx];
+  state.wheelItems.splice(idx,1);
+  state.wheelType='custom';
+  persist('돌림판 항목 삭제: ' + removed);
+}
+function removeLastWheel(){
+  const removed = state.wheelItems.pop();
+  state.wheelType='custom';
+  persist('돌림판 마지막 항목 삭제: ' + (removed || ''));
+}
+function shuffleWheel(){
+  state.wheelItems = shuffle(state.wheelItems);
+  persist('돌림판 순서 섞기');
+}
+function renderWheel(){
+  if(!state.wheelItems.length) state.wheelItems = [...presets.course];
+  document.getElementById('wheelPreset').value=state.wheelType || 'course';
+  const chips=document.getElementById('wheelChips');
+  chips.innerHTML = state.wheelItems.map((x,i)=>`<span class="chip">${escapeHtml(x)} <span class="x" onclick="removeWheelItem(${i})">×</span></span>`).join('');
+  document.getElementById('wheelResult').textContent = state.wheelResult || '오늘의 운명을 돌려봐';
+  drawWheel();
+}
+function drawWheel(){
+  const canvas=document.getElementById('wheel');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2, r=W/2-8;
+  ctx.clearRect(0,0,W,H);
+  const items=state.wheelItems.length ? state.wheelItems : ['준비중'];
+  const colors=['#0f766e','#14b8a6','#fb923c','#f97316','#38bdf8','#22c55e','#f43f5e','#8b5cf6','#eab308','#06b6d4'];
+  const arc=2*Math.PI/items.length;
+  items.forEach((item,i)=>{
+    const start=i*arc - Math.PI/2;
+    const end=start+arc;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+    ctx.fillStyle=colors[i%colors.length]; ctx.fill();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 28px system-ui, sans-serif';
+    ctx.shadowColor='rgba(0,0,0,.25)'; ctx.shadowBlur=3;
+    const label=item.length>8 ? item.slice(0,8)+'…' : item;
+    ctx.fillText(label,r-28,9); ctx.restore();
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,70,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+}
+function spinWheel(){
+  if(spinning || !state.wheelItems.length) return;
+  spinning=true;
+  const items=state.wheelItems;
+  const selectedIndex=Math.floor(Math.random()*items.length);
+  const arc=360/items.length;
+  const targetDeg = 360 - (selectedIndex*arc + arc/2);
+  const spins = 5 + Math.floor(Math.random()*3);
+  wheelRotation += spins*360 + targetDeg;
+  const canvas=document.getElementById('wheel');
+  canvas.style.transform=`rotate(${wheelRotation}deg)`;
+  setTimeout(async ()=>{
+    spinning=false;
+    const result=items[selectedIndex];
+    state.wheelResult = result;
+    document.getElementById('wheelResult').textContent=result;
+    showModal('🎉','운명 결정',result);
+    burstConfetti();
+    await persist('돌림판 결과: ' + result);
+  },3300);
+}
+
+function drawCharacter(){
+  if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
+  const person=document.getElementById('charName').value;
+  const assignedPeople=state.characterAssignments.map(a=>a.person);
+  if(assignedPeople.includes(person)){
+    showModal('🎭','이미 뽑음',`${person}님은 이미 캐릭터를 받았어.`);
+    return;
+  }
+  let available = characters.filter(c=>!state.usedCharacters.includes(c.name));
+  if(!available.length){
+    state.usedCharacters=[];
+    available=[...characters];
+  }
+  const c=sample(available);
+  state.usedCharacters.push(c.name);
+  state.characterAssignments.push({person, char:c.name, desc:c.desc});
+  document.getElementById('charResult').textContent=`${person}\n${c.name}\n${c.desc}`;
+  showModal('🎭',`${person}님의 캐릭터`,`${c.name}\n${c.desc}`);
+  burstConfetti();
+  persist('캐릭터 뽑기: ' + person + ' · ' + c.name);
+}
+function resetCharacters(){
+  state.usedCharacters=[]; state.characterAssignments=[];
+  document.getElementById('charResult').textContent='멤버 선택 후 뽑기';
+  persist('캐릭터 리셋');
+}
+function renderCharacters(){
+  const list=document.getElementById('charList');
+  list.innerHTML = state.characterAssignments.length ? state.characterAssignments.map(a=>`
+    <div class="item">
+      <div><strong>${escapeHtml(a.person)} · ${escapeHtml(a.char)}</strong><p>${escapeHtml(a.desc)}</p></div>
+      <button class="small gray" onclick="removeChar('${escapeJs(a.person)}')">삭제</button>
+    </div>`).join('') : '<div class="mini">아직 뽑은 캐릭터가 없음</div>';
+}
+function removeChar(person){
+  state.characterAssignments=state.characterAssignments.filter(a=>a.person!==person);
+  persist('캐릭터 삭제: ' + person);
+}
+
+function addFood(){
+  const input=document.getElementById('foodInput');
+  const v=input.value.trim();
+  if(!v) return;
+  state.foods.push(v);
+  input.value='';
+  persist('메뉴 추가: ' + v);
+}
+function removeFood(idx){
+  const removed = state.foods[idx];
+  state.foods.splice(idx,1);
+  persist('메뉴 삭제: ' + removed);
+}
+function clearFoods(){ state.foods=[]; persist('메뉴 전체 삭제'); }
+function renderFoods(){
+  const chips=document.getElementById('foodChips');
+  chips.innerHTML = state.foods.length ? state.foods.map((f,i)=>`<span class="chip">${escapeHtml(f)} <span class="x" onclick="removeFood(${i})">×</span></span>`).join('') : '<span class="mini">메뉴를 추가해줘</span>';
+}
+function applyFoodToWheel(){
+  if(!state.foods.length){ showModal('🍖','메뉴 없음','먼저 먹고 싶은 메뉴를 추가해줘.'); return; }
+  state.wheelItems=[...state.foods];
+  state.wheelType='custom';
+  persist('맛집 메뉴를 돌림판으로 세팅');
+  goTab('wheel-sec');
+}
+function startPitchTimer(){
+  clearInterval(timerId);
+  let t=10;
+  const el=document.getElementById('timer');
+  el.textContent=t;
+  timerId=setInterval(()=>{
+    t--; el.textContent=t;
+    if(t<=0){
+      clearInterval(timerId);
+      showModal('⏰','발표 끝','이제 다음 사람 10초 발표!');
+    }
+  },1000);
+}
+
+function makeTeams(){
+  if(state.names.length < 2){ showModal('👥','멤버 부족','최소 2명 이상 등록해줘.'); return; }
+  const shuffled=shuffle(state.names);
+  const teams=[];
+  for(let i=0;i<shuffled.length;i+=2){
+    teams.push({name:`${teams.length+1}팀`, members:shuffled.slice(i,i+2), mission:'', score:0});
+  }
+  state.teams=teams;
+  persist('2인 팀 자동 생성');
+}
+function assignMissions(){
+  if(!state.teams.length) makeTeams();
+  const ms=shuffle(missions);
+  state.teams=state.teams.map((t,i)=>({...t, mission:ms[i%ms.length]}));
+  persist('팀별 미션 지급');
+}
+function changeScore(idx, delta){
+  state.teams[idx].score += delta;
+  persist(`${state.teams[idx].name || (idx+1)+'팀'} 점수 ${delta>0?'+':'-'}1`);
+}
+function resetScores(){
+  state.teams=state.teams.map(t=>({...t,score:0}));
+  persist('미션 점수 초기화');
+}
+function renderTeams(){
+  const el=document.getElementById('teamList');
+  if(!state.teams.length){ el.innerHTML='<div class="mini">팀을 생성해줘</div>'; return; }
+  el.innerHTML=state.teams.map((t,i)=>`
+    <div class="item">
+      <div>
+        <strong><span class="badge">${i+1}</span> ${escapeHtml(t.members.join(' · '))}</strong>
+        <p>${t.mission ? '미션: '+escapeHtml(t.mission) : '미션 대기 중'}</p>
+      </div>
+      <div class="score">
+        <button class="small gray" onclick="changeScore(${i},-1)">-</button>
+        <b>${t.score}</b>
+        <button class="small" onclick="changeScore(${i},1)">+</button>
+      </div>
+    </div>`).join('');
+}
+
+function drawBudget(){
+  const card=sample(presets.budget);
+  state.budgetResult = card;
+  document.getElementById('budgetResult').textContent=card;
+  showModal('💸','예산 카드',card);
+  persist('예산 카드: ' + card);
+}
+function rainyMode(){
+  state.wheelType='weather';
+  state.wheelItems=[...presets.weather];
+  state.rainResult='비/폭염 모드 적용 완료\n돌림판이 실내 코스로 바뀜';
+  document.getElementById('rainResult').textContent=state.rainResult;
+  showModal('🌧️','비/폭염 모드','돌림판을 실내·카페·시장 위주로 바꿨어.');
+  persist('비/폭염 모드 적용');
+}
+
+function addCase(){
+  if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
+  const name=document.getElementById('courtName').value;
+  const text=document.getElementById('courtText').value.trim();
+  if(!text) return;
+  state.cases.unshift({name,text,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('courtText').value='';
+  persist('고발 등록: ' + name);
+}
+function clearCases(){ state.cases=[]; persist('재판 기록 삭제'); }
+function renderCases(){
+  const el=document.getElementById('caseList');
+  el.innerHTML=state.cases.length ? state.cases.map((c,i)=>`
+    <div class="item">
+      <div><strong>${escapeHtml(c.name)} 고발</strong><p>${escapeHtml(c.text)} · ${escapeHtml(c.time)}</p></div>
+      <button class="small gray" onclick="removeCase(${i})">삭제</button>
+    </div>`).join('') : '<div class="mini">아직 고발 내용 없음</div>';
+}
+function removeCase(i){
+  const who = state.cases[i]?.name || '';
+  state.cases.splice(i,1);
+  persist('고발 삭제: ' + who);
+}
+function drawAward(){
+  if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
+  const award=sample(awards);
+  const person=sample(state.names);
+  const txt=`${award}\n${person}`;
+  state.awardResult=txt;
+  document.getElementById('awardResult').textContent=txt;
+  showModal('⚖️',award,`${person} 당첨\n가벼운 벌칙 카드 1장 추천!`);
+  burstConfetti();
+  persist('제주 재판소 수상: ' + award + ' · ' + person);
+}
+
+function dailyReset(){
+  if(!confirm('오늘 게임 기록을 새로 시작할까요? 멤버 이름은 유지됩니다.')) return;
+  const names=[...state.names];
+  state={...defaultState,names,wheelItems:[...presets.course],wheelType:'course'};
+  persist('오늘 게임 새로 시작');
+}
+function openHelp(){
+  showModal('🌴','사용법',`1. 방 코드 입력 후 입장
+2. 친구들도 같은 사이트 + 같은 방 코드로 입장
+3. 멤버 10명 이름 입력
+4. 아침에 캐릭터 뽑기
+5. 오늘 코스 돌림판
+6. 식사 때 맛집 왕좌의 게임
+7. 이동 중 미션 헌터
+8. 밤에 제주 재판소`);
+}
+async function copyRoomLink(){
+  const room = (document.getElementById('roomInput').value || 'JEJU2026').trim().toUpperCase();
+  const url = location.origin + location.pathname + '?room=' + encodeURIComponent(room);
+  try{
+    await navigator.clipboard.writeText(url);
+    showModal('🔗','링크 복사 완료',`친구들에게 이 링크를 보내면 돼.\n방 코드: ${room}`);
+  }catch(e){
+    prompt('아래 링크를 복사해서 보내줘.', url);
+  }
+}
+
+function showModal(emoji,title,text){
+  document.getElementById('modalEmoji').textContent=emoji;
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalText').textContent=text;
+  document.getElementById('modal').classList.add('show');
+}
+function hideModal(){ document.getElementById('modal').classList.remove('show'); }
+function closeModal(e){ if(e.target.id==='modal') hideModal(); }
+
+function burstConfetti(){
+  const canvas=document.getElementById('confetti');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const pieces=Array.from({length:90},()=>({
+    x:Math.random()*canvas.width, y:-20-Math.random()*100, s:5+Math.random()*8, v:2+Math.random()*5,
+    r:Math.random()*Math.PI, color:['#0f766e','#14b8a6','#fb923c','#ef4444','#38bdf8','#eab308'][Math.floor(Math.random()*6)]
+  }));
+  let frame=0;
+  function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.y+=p.v; p.x+=Math.sin((frame+p.s)*.05)*1.7; p.r+=.08;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.color; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*1.5); ctx.restore();
+    });
+    frame++;
+    if(frame<110) requestAnimationFrame(anim);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  anim();
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function escapeAttr(s){ return escapeHtml(s); }
+function escapeJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+function renderAll(){
+  state = normalizeState(state);
+  renderNames();
+  renderWheel();
+  renderCharacters();
+  renderFoods();
+  renderTeams();
+  renderCases();
+  document.getElementById('budgetResult').textContent = state.budgetResult || '예산 카드 대기 중';
+  document.getElementById('rainResult').textContent = state.rainResult || '실내·카페·시장 위주로 자동 변경';
+  document.getElementById('awardResult').textContent = state.awardResult || '밤에 재판 시작';
+  updateLastSync();
+}
+
+function initFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const room = params.get('room');
+  if(room) document.getElementById('roomInput').value = room.toUpperCase();
+}
+
+window.addEventListener('resize', drawWheel);
+initFromUrl();
+renderAll();
+setStatus(false, supabaseConfigured() ? '방 입장 필요' : 'Supabase 미설정');
+</script>
+</body>
+</html>
