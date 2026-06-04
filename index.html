@@ -118,19 +118,27 @@
     .navbtn span{font-size:18px}.navbtn.on{background:#0f766e;color:#fff}
     .confetti{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:120}
     .team-grid{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:760px){.team-grid{grid-template-columns:1fr 1fr}}
-    .timer{font-size:42px;font-weight:950;color:#f97316;text-align:center;margin:8px 0}
     .muted-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:12px}
     .kicker{font-size:13px;color:#0f766e;font-weight:950;margin-bottom:4px}
-    .hidden{display:none!important}
     .direction-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
     @media(min-width:760px){.direction-grid{grid-template-columns:repeat(4,1fr)}}
     .dir-btn{background:#f8fafc;color:#0f766e;border:1px solid #cfe2df;box-shadow:none;padding:13px 10px}
-    .dir-btn.active{background:#0f766e;color:#fff;border-color:#0f766e}
     .route-list{counter-reset:route;display:flex;flex-direction:column;gap:8px;margin-top:10px}
     .route-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;display:flex;gap:10px;align-items:center}
     .route-card:before{counter-increment:route;content:counter(route);width:28px;height:28px;border-radius:999px;background:#0f766e;color:#fff;font-weight:950;display:grid;place-items:center;flex:0 0 auto}
     .route-card b{font-size:16px}
     .route-card span{color:#64748b;font-weight:750;font-size:13px}
+    .ball-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    @media(min-width:760px){.ball-summary{grid-template-columns:repeat(5,1fr)}}
+    .ball-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;text-align:center}
+    .ball-card b{display:block;font-size:18px;color:#0f766e}
+    .ball-card span{font-size:12px;color:#64748b;font-weight:800}
+    .ladder-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:12px;max-height:420px;overflow:auto}
+    .ladder-row{display:grid;grid-template-columns:42px 1fr 1fr;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:9px;margin-bottom:7px}
+    .ladder-no{width:28px;height:28px;border-radius:999px;background:#0f766e;color:#fff;font-weight:950;display:grid;place-items:center;font-size:12px}
+    .ladder-person{font-weight:900;color:#102a43}
+    .ladder-task{font-weight:950;color:#ef4444;text-align:right}
+    .ladder-safe{color:#94a3b8;font-weight:800;text-align:right}
   </style>
 </head>
 <body>
@@ -170,7 +178,7 @@
     <button class="tab" onclick="goTab('drive-game')">차량 이동</button>
     <button class="tab" onclick="goTab('character')">캐릭터</button>
     <button class="tab" onclick="goTab('mission')">미션</button>
-    <button class="tab" onclick="goTab('court')">재판소</button>
+    <button class="tab" onclick="goTab('penalty-ladder')">벌칙공</button>
   </nav>
 
   <section class="grid">
@@ -185,7 +193,7 @@
       </div>
       <div class="chips" id="nameChips"></div>
       <div class="notice ok-note">
-        같은 방 코드로 접속하면 <b>멤버·결과·점수·재판소 기록</b>이 전원에게 같이 반영됨.
+        같은 방 코드로 접속하면 <b>멤버·차량 이동·벌칙공·사다리 결과</b>가 전원에게 같이 반영됨.
       </div>
     </div>
 
@@ -198,7 +206,7 @@
           <label class="mini">돌림판 종류</label>
           <select id="wheelPreset" onchange="setWheelPreset(this.value)">
             <option value="course">오늘 코스</option>
-            <option value="penalty">벌칙 카드</option>
+            <option value="penalty">가벼운 벌칙</option>
             <option value="budget">랜덤 예산</option>
             <option value="weather">비 오면 코스</option>
             <option value="custom">직접 입력</option>
@@ -233,7 +241,7 @@
 
     <div class="card" id="drive-game">
       <h2>🚗 차량 이동 복불복</h2>
-      <p class="sub">10명이 각자 방향을 고르고, 실행하면 선택한 10개가 랜덤 순서로 나열됨. 그 순서대로 이동하다가 첫 번째 목적지가 나오면 방문.</p>
+      <p class="sub">10명이 각자 방향을 고르고, 실행하면 선택한 방향이 랜덤 순서로 나열됨. 그 순서대로 이동하다가 첫 번째 목적지가 나오면 방문.</p>
 
       <div class="two">
         <div>
@@ -327,26 +335,55 @@
       </div>
     </div>
 
-    <div class="card" id="court">
-      <h2>⚖️ 제주 재판소</h2>
-      <p class="sub">밤에 야식 먹으면서 오늘의 빌런, 레전드, 불운왕 뽑기.</p>
+    <div class="card" id="penalty-ladder">
+      <h2>🔴 벌칙공 사다리</h2>
+      <p class="sub">낮에 벌칙공을 쌓아두고, 저녁에 총 벌칙공 개수만큼 사다리 줄을 만들어 벌칙을 뽑는 방식.</p>
+
       <div class="two">
         <div>
-          <label class="mini">피고인</label>
-          <select id="courtName"></select>
+          <label class="mini">벌칙공 받을 사람</label>
+          <select id="penaltyName"></select>
         </div>
         <div>
-          <label class="mini">고발 내용</label>
-          <input id="courtText" placeholder="예: 좌회전 골라놓고 본인이 멀미함" onkeydown="if(event.key==='Enter') addCase()" />
+          <label class="mini">벌칙공 추가 개수</label>
+          <select id="penaltyAmount">
+            <option value="1">1개</option>
+            <option value="2">2개</option>
+            <option value="3">3개</option>
+            <option value="5">5개</option>
+          </select>
         </div>
       </div>
+
       <div class="input-row" style="margin-top:8px">
-        <button onclick="addCase()">고발 등록</button>
-        <button onclick="drawAward()">오늘의 수상 뽑기</button>
-        <button class="gray" onclick="clearCases()">재판 기록 삭제</button>
+        <button class="orange" onclick="addPenaltyBalls()">벌칙공 추가</button>
+        <button class="gray" onclick="removePenaltyBall()">1개 빼기</button>
+        <button class="red" onclick="clearPenaltyBalls()">벌칙공 초기화</button>
       </div>
-      <div class="result" id="awardResult">밤에 재판 시작</div>
-      <div class="list" id="caseList"></div>
+
+      <div class="notice">
+        예: 벌칙공 총합이 <b>30개</b>면 저녁에 <b>30줄 사다리</b>가 자동 생성됨. 벌칙 받을 사람 수는 랜덤으로 정해짐.
+      </div>
+
+      <h3>벌칙공 현황</h3>
+      <div class="ball-summary" id="penaltyBallSummary"></div>
+
+      <h3>벌칙 목록 5개</h3>
+      <div class="two">
+        <input id="task0" placeholder="벌칙 1" oninput="editPenaltyTask(0,this.value)" />
+        <input id="task1" placeholder="벌칙 2" oninput="editPenaltyTask(1,this.value)" />
+        <input id="task2" placeholder="벌칙 3" oninput="editPenaltyTask(2,this.value)" />
+        <input id="task3" placeholder="벌칙 4" oninput="editPenaltyTask(3,this.value)" />
+        <input id="task4" placeholder="벌칙 5" oninput="editPenaltyTask(4,this.value)" />
+      </div>
+
+      <div class="input-row" style="margin-top:10px">
+        <button onclick="runPenaltyLadder()">저녁 벌칙 사다리 실행</button>
+        <button class="gray" onclick="resetPenaltyTasks()">벌칙 기본값</button>
+      </div>
+
+      <div class="result big-result" id="penaltyResult">저녁 벌칙 사다리 대기 중</div>
+      <div class="ladder-box" id="penaltyLadderList"></div>
     </div>
 
     <div class="card">
@@ -354,7 +391,7 @@
       <div class="three">
         <div class="muted-box"><div class="kicker">아침</div><b>캐릭터 뽑기 → 오늘 코스 돌림판</b><p class="mini">오늘 하루 분위기 담당, 사진 감독, 맛집 평론가 등 배정.</p></div>
         <div class="muted-box"><div class="kicker">이동 전</div><b>차량 이동 복불복</b><p class="mini">10명이 방향 선택 → 랜덤 순서 실행 → 첫 번째 목적지 방문.</p></div>
-        <div class="muted-box"><div class="kicker">밤</div><b>제주 재판소</b><p class="mini">오늘의 빌런/레전드/불운왕 뽑고 가벼운 벌칙.</p></div>
+        <div class="muted-box"><div class="kicker">저녁</div><b>벌칙공 사다리</b><p class="mini">총 벌칙공 개수만큼 사다리 생성 → 랜덤 인원 벌칙 확정.</p></div>
       </div>
       <div class="notice danger-note">
         운전자는 게임보다 안전 우선. 유턴/좌회전은 가능한 도로에서만 적용하고, 위험하면 무조건 패스.
@@ -369,7 +406,7 @@
     <button class="navbtn" onclick="goTab('wheel-sec')"><span>🎡</span>돌림판</button>
     <button class="navbtn" onclick="goTab('drive-game')"><span>🚗</span>차량</button>
     <button class="navbtn" onclick="goTab('mission')"><span>🕵️</span>미션</button>
-    <button class="navbtn" onclick="goTab('court')"><span>⚖️</span>재판</button>
+    <button class="navbtn" onclick="goTab('penalty-ladder')"><span>🔴</span>벌칙공</button>
   </div>
 </div>
 
@@ -383,8 +420,10 @@
 </div>
 
 <script>
-const localStoreKey = 'jejuPTripShared.local.v3';
+const localStoreKey = 'jejuPTripShared.local.v4';
 const deviceIdKey = 'jejuPTripShared.deviceId';
+
+const defaultPenaltyTasks = ['설거지', '쓰레기/분리수거', '야식 세팅', '편의점 심부름', '아침 커피 픽업'];
 
 const defaultState = {
   names: [],
@@ -394,14 +433,17 @@ const defaultState = {
   usedCharacters: [],
   characterAssignments: [],
   teams: [],
-  cases: [],
-  awardResult: '',
-  budgetResult: '',
-  rainResult: '실내·카페·시장 위주로 자동 변경',
   drivePicks: [],
   driveTarget: '식당',
   driveRoute: [],
   driveResult: '',
+  penaltyBalls: {},
+  penaltyTasks: [...defaultPenaltyTasks],
+  penaltyLadder: [],
+  penaltyResult: '',
+  awardResult: '',
+  budgetResult: '',
+  rainResult: '실내·카페·시장 위주로 자동 변경',
   lastEvent: '',
   lastActor: '',
   lastUpdatedAt: ''
@@ -419,24 +461,24 @@ const deviceId = getDeviceId();
 
 const presets = {
   course: ['바다', '오름', '시장', '카페', '실내', '포토존', '숙소 근처', '아무 데나 좌회전', '제일 가까운 곳', '밥부터'],
-  penalty: ['다음 카페 음료 1잔', '단체사진 포즈 정하기', '편의점 심부름', '오늘 후기 30초 발표', '야식 세팅', '내일 아침 커피 주문', '다음 장소 소개 멘트', '사진 이상한 포즈 모델', '차 안 노래 선곡권 박탈', '말끝마다 제주 붙이기 10분'],
+  penalty: ['벌칙공 1개', '벌칙공 2개', '다음 사진 포즈 담당', '편의점 심부름 후보', '음료 주문 담당', '차 안 노래 선곡', '단체사진 센터', '내비 보조'],
   budget: ['5천원 간식 사오기', '1만원 쓸데없는 기념품', '1만5천원 야식 업그레이드', '0원으로 레전드 사진', '편의점 취향저격 간식', '귤 관련 제품 사오기', '팀원 몰래 작은 선물', '가장 제주스러운 물건'],
   weather: ['대형 카페', '시장 투어', '아쿠아플라넷', '소품샵', '실내 맛집', '드라이브 코스', '숙소 보드게임', '편의점 야식 대결', '볼링/방탈출', '비 오는 바다 차 안 구경']
 };
 
 const characters = [
-  {name:'오늘은 내가 왕', desc:'오늘 최종 선택권 1회 사용 가능'},
-  {name:'불평 금지 인간', desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
-  {name:'사진 감독', desc:'단체사진 포즈 지시 가능, 안하면 벌칙 추가'},
-  {name:'막내 케어', desc:'아린, 이서 더위 담당, 외부에서 울 경우 1회당 벌칙 추가(내부 제외)'},
-  {name:'오늘의 시다바리', desc:'심부름 담당(운전 불가한 경우 1인 지목 동행 중복 지목X ex)철수/영희/철수는 가능'},
-  {name:'네비 부사관', desc:'운전자 옆에서 길 안내 담당, 틀리면 1회당 벌칙 추가'},
-  {name:'사장님~계세요~', desc:'장소 도착할 때마다(식당, 카페 등)자리 파악하기, 못하면 벌칙 추가x2'},
-  {name:'반대가 좋아요', desc:'오른손잡이 ↔ 왼속잡이 손 바꿔서 밥먹기(단, 아침, 점심만 깜빡하거나 안할 경우 1회당 벌칙 추가'},
-  {name:'관광객 과몰입러', desc:'사진마다 처음 제주 온 것처럼 리액션(혼자), 1회당 안하면 벌칙 추가'},
-  {name:'오늘의 시다바리2', desc:'숙소에서 냉장고 담당(술, 물, 음료 마실것만/불만 표시나 표정 안좋을 경우 1회당 벌칙 추가'},
-  {name:'공짜가 좋아', desc:'리뷰 공짜 음식 무조건 하기,안하거나 깜빡하면 1회당 벌칙 추가'},
-  {name:'조용한 암살자', desc:'6시간마다 아무도 모르게 웃긴 사진 찍기, 들키거나 안웃기면 1회당 벌칙 추가(딴 00~06시 제외'}
+  {name:'제주 왕', desc:'오늘 최종 선택권 1회 사용 가능'},
+  {name:'불평 금지 인간', desc:'덥다, 힘들다, 배고프다 말하면 벌칙공 1개'},
+  {name:'사진 감독', desc:'단체사진 포즈 지시 가능'},
+  {name:'맛집 평론가', desc:'밥 먹고 30초 리뷰 발표'},
+  {name:'분위기 담당', desc:'차 안 조용해지면 노래나 질문 던지기'},
+  {name:'네비 부사관', desc:'운전자 옆에서 길 안내 담당'},
+  {name:'감성 시인', desc:'장소 도착할 때마다 감성 멘트 1개'},
+  {name:'절약왕', desc:'비싼 거 보면 “이건 아닌 것 같습니다” 말하기'},
+  {name:'관광객 과몰입러', desc:'사진마다 처음 제주 온 것처럼 리액션'},
+  {name:'오늘의 막내', desc:'심부름 담당. 단, 하루 3회까지만'},
+  {name:'먹짱', desc:'맛있는 메뉴 발견하면 모두에게 추천'},
+  {name:'조용한 암살자', desc:'하루에 한 번 아무도 모르게 웃긴 사진 찍기'}
 ];
 
 const missions = [
@@ -457,8 +499,6 @@ const missions = [
   '오늘의 불운왕 후보 사진 확보하기',
   '제주 느낌 나는 배경으로 프로필 사진 찍기'
 ];
-
-const awards = ['오늘의 빌런','오늘의 레전드','오늘의 불운왕','오늘의 먹짱','오늘의 사진 망친 사람','오늘의 길치','오늘의 P 그 자체','오늘의 잠만 잔 사람','오늘의 말 제일 많은 사람','오늘의 의외의 에이스'];
 
 function getDeviceId(){
   let id = localStorage.getItem(deviceIdKey);
@@ -488,6 +528,11 @@ function normalizeState(s){
   if(!next.driveTarget) next.driveTarget = '식당';
   if(!Array.isArray(next.drivePicks)) next.drivePicks = [];
   if(!Array.isArray(next.driveRoute)) next.driveRoute = [];
+  if(!next.penaltyBalls || Array.isArray(next.penaltyBalls)) next.penaltyBalls = {};
+  if(!Array.isArray(next.penaltyTasks) || next.penaltyTasks.length < 5) next.penaltyTasks = [...defaultPenaltyTasks];
+  next.penaltyTasks = next.penaltyTasks.slice(0,5);
+  while(next.penaltyTasks.length < 5) next.penaltyTasks.push(defaultPenaltyTasks[next.penaltyTasks.length]);
+  if(!Array.isArray(next.penaltyLadder)) next.penaltyLadder = [];
   return next;
 }
 
@@ -623,11 +668,11 @@ function goTab(id){
   scrollToId(id);
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('on'));
-  const idxMap = {'setup':0,'wheel-sec':1,'drive-game':2,'mission':3,'court':4};
-  const idx = idxMap[id];
   document.querySelectorAll('.tab').forEach(tab=>{
     if(tab.getAttribute('onclick')?.includes("'" + id + "'")) tab.classList.add('active');
   });
+  const idxMap = {'setup':0,'wheel-sec':1,'drive-game':2,'mission':3,'penalty-ladder':4};
+  const idx = idxMap[id];
   if(idx>=0) document.querySelectorAll('.navbtn')[idx]?.classList.add('on');
 }
 function sample(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -651,14 +696,15 @@ function addName(){
 function removeName(name){
   state.names = state.names.filter(n=>n!==name);
   state.characterAssignments = state.characterAssignments.filter(a=>a.person!==name);
-  state.cases = state.cases.filter(c=>c.name!==name);
   state.drivePicks = state.drivePicks.filter(p=>p.person!==name);
   state.driveRoute = state.driveRoute.filter(p=>p.person!==name);
+  delete state.penaltyBalls[name];
+  state.penaltyLadder = state.penaltyLadder.filter(r=>r.person!==name);
   persist('멤버 삭제: ' + name);
 }
 function clearNames(){
   if(!confirm('멤버를 전부 삭제할까요?')) return;
-  state.names=[]; state.characterAssignments=[]; state.teams=[]; state.cases=[]; state.drivePicks=[]; state.driveRoute=[];
+  state.names=[]; state.characterAssignments=[]; state.teams=[]; state.drivePicks=[]; state.driveRoute=[]; state.penaltyBalls={}; state.penaltyLadder=[];
   persist('멤버 전체 삭제');
 }
 function loadSampleNames(){
@@ -668,7 +714,7 @@ function loadSampleNames(){
 function renderNames(){
   const chips = document.getElementById('nameChips');
   chips.innerHTML = state.names.length ? state.names.map(n=>`<span class="chip">${escapeHtml(n)} <span class="x" onclick="removeName('${escapeJs(n)}')">×</span></span>`).join('') : '<span class="mini">아직 등록된 멤버가 없음</span>';
-  ['charName','courtName','driveName'].forEach(id=>{
+  ['charName','driveName','penaltyName'].forEach(id=>{
     const sel=document.getElementById(id);
     if(!sel) return;
     sel.innerHTML = state.names.map(n=>`<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`).join('');
@@ -684,7 +730,7 @@ function setWheelPreset(type){
   persist('돌림판 변경: ' + labelWheelType(type));
 }
 function labelWheelType(type){
-  return {course:'오늘 코스',penalty:'벌칙 카드',budget:'랜덤 예산',weather:'비 오면 코스',custom:'직접 입력'}[type] || type;
+  return {course:'오늘 코스',penalty:'가벼운 벌칙',budget:'랜덤 예산',weather:'비 오면 코스',custom:'직접 입력'}[type] || type;
 }
 function addWheelItem(){
   const input=document.getElementById('wheelAdd');
@@ -919,39 +965,113 @@ function rainyMode(){
   persist('비/폭염 모드 적용');
 }
 
-function addCase(){
+function addPenaltyBalls(){
   if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
-  const name=document.getElementById('courtName').value;
-  const text=document.getElementById('courtText').value.trim();
-  if(!text) return;
-  state.cases.unshift({name,text,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
-  document.getElementById('courtText').value='';
-  persist('고발 등록: ' + name);
+  const person = document.getElementById('penaltyName').value;
+  if(!person || person === '멤버 없음'){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
+  const amount = Number(document.getElementById('penaltyAmount').value || 1);
+  state.penaltyBalls[person] = (state.penaltyBalls[person] || 0) + amount;
+  state.penaltyLadder = [];
+  state.penaltyResult = '';
+  persist(`벌칙공 추가: ${person} +${amount}`);
 }
-function clearCases(){ state.cases=[]; persist('재판 기록 삭제'); }
-function renderCases(){
-  const el=document.getElementById('caseList');
-  el.innerHTML=state.cases.length ? state.cases.map((c,i)=>`
-    <div class="item">
-      <div><strong>${escapeHtml(c.name)} 고발</strong><p>${escapeHtml(c.text)} · ${escapeHtml(c.time)}</p></div>
-      <button class="small gray" onclick="removeCase(${i})">삭제</button>
-    </div>`).join('') : '<div class="mini">아직 고발 내용 없음</div>';
+function removePenaltyBall(){
+  const person = document.getElementById('penaltyName').value;
+  if(!person || person === '멤버 없음') return;
+  state.penaltyBalls[person] = Math.max(0, (state.penaltyBalls[person] || 0) - 1);
+  if(state.penaltyBalls[person] <= 0) delete state.penaltyBalls[person];
+  state.penaltyLadder = [];
+  state.penaltyResult = '';
+  persist(`벌칙공 1개 빼기: ${person}`);
 }
-function removeCase(i){
-  const who = state.cases[i]?.name || '';
-  state.cases.splice(i,1);
-  persist('고발 삭제: ' + who);
+function clearPenaltyBalls(){
+  if(!confirm('벌칙공과 사다리 결과를 초기화할까요?')) return;
+  state.penaltyBalls = {};
+  state.penaltyLadder = [];
+  state.penaltyResult = '';
+  persist('벌칙공 초기화');
 }
-function drawAward(){
-  if(!state.names.length){ showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.'); return; }
-  const award=sample(awards);
-  const person=sample(state.names);
-  const txt=`${award}\n${person}`;
-  state.awardResult=txt;
-  document.getElementById('awardResult').textContent=txt;
-  showModal('⚖️',award,`${person} 당첨\n가벼운 벌칙 카드 1장 추천!`);
+function editPenaltyTask(idx, value){
+  state.penaltyTasks[idx] = value.trim() || defaultPenaltyTasks[idx];
+  saveLocalState();
+}
+function resetPenaltyTasks(){
+  state.penaltyTasks = [...defaultPenaltyTasks];
+  persist('벌칙 목록 기본값 적용');
+}
+function totalPenaltyBalls(){
+  return Object.values(state.penaltyBalls || {}).reduce((a,b)=>a+Number(b||0),0);
+}
+function runPenaltyLadder(){
+  const total = totalPenaltyBalls();
+  if(total <= 0){
+    showModal('🔴','벌칙공 없음','먼저 낮에 벌칙공을 추가해야 저녁 사다리를 만들 수 있어.');
+    return;
+  }
+
+  const entries = [];
+  Object.entries(state.penaltyBalls).forEach(([person,count])=>{
+    for(let i=0;i<Number(count||0);i++) entries.push({person});
+  });
+
+  const shuffledEntries = shuffle(entries);
+  const maxPenalty = Math.min(5, shuffledEntries.length);
+  const penaltyCount = Math.floor(Math.random() * maxPenalty) + 1;
+  const tasks = shuffle(state.penaltyTasks.filter(Boolean));
+  const taskSlots = new Set();
+  while(taskSlots.size < penaltyCount){
+    taskSlots.add(Math.floor(Math.random() * shuffledEntries.length));
+  }
+
+  state.penaltyLadder = shuffledEntries.map((entry, idx)=>{
+    const isPenalty = taskSlots.has(idx);
+    return {
+      no: idx + 1,
+      person: entry.person,
+      task: isPenalty ? tasks[[...taskSlots].indexOf(idx) % tasks.length] : ''
+    };
+  });
+
+  const winners = state.penaltyLadder.filter(r=>r.task);
+  state.penaltyResult = `사다리 ${total}줄 생성\n벌칙 인원 ${winners.length}명 랜덤 확정`;
+  const text = winners.map(w=>`${w.person} · ${w.task}`).join('\n');
+  showModal('🔴','저녁 벌칙 확정', `${state.penaltyResult}\n\n${text}`);
   burstConfetti();
-  persist('제주 재판소 수상: ' + award + ' · ' + person);
+  persist(`벌칙 사다리 실행: ${total}줄 · ${winners.length}명`);
+}
+function renderPenaltyLadder(){
+  const tasks = state.penaltyTasks || defaultPenaltyTasks;
+  for(let i=0;i<5;i++){
+    const el = document.getElementById('task'+i);
+    if(el && document.activeElement !== el) el.value = tasks[i] || defaultPenaltyTasks[i];
+  }
+
+  const summary = document.getElementById('penaltyBallSummary');
+  if(summary){
+    const total = totalPenaltyBalls();
+    const rows = state.names.length ? state.names.map(name=>{
+      const cnt = state.penaltyBalls[name] || 0;
+      return `<div class="ball-card"><b>${cnt}개</b><span>${escapeHtml(name)}</span></div>`;
+    }).join('') : '<div class="mini">멤버를 먼저 추가해줘</div>';
+    summary.innerHTML = `<div class="ball-card"><b>${total}개</b><span>총 벌칙공</span></div>` + rows;
+  }
+
+  const result = document.getElementById('penaltyResult');
+  if(result) result.textContent = state.penaltyResult || '저녁 벌칙 사다리 대기 중';
+
+  const list = document.getElementById('penaltyLadderList');
+  if(list){
+    if(!state.penaltyLadder.length){
+      list.innerHTML = '<div class="mini">사다리를 실행하면 총 벌칙공 개수만큼 줄이 표시됨</div>';
+    }else{
+      list.innerHTML = state.penaltyLadder.map(r=>`
+        <div class="ladder-row">
+          <div class="ladder-no">${r.no}</div>
+          <div class="ladder-person">${escapeHtml(r.person)}</div>
+          <div class="${r.task ? 'ladder-task' : 'ladder-safe'}">${r.task ? escapeHtml(r.task) : '통과'}</div>
+        </div>`).join('');
+    }
+  }
 }
 
 function dailyReset(){
@@ -965,10 +1085,10 @@ function openHelp(){
 2. 친구들도 같은 사이트 + 같은 방 코드로 입장
 3. 멤버 10명 이름 입력
 4. 차량 이동 복불복에서 각자 방향 선택
-5. 랜덤 순서 뽑기
-6. 나온 순서대로 이동
-7. 첫 번째 식당/카페/목적지가 나오면 방문
-8. 밤에 제주 재판소`);
+5. 낮에 실수하거나 게임 지면 벌칙공 추가
+6. 저녁에 벌칙공 사다리 실행
+7. 총 벌칙공 수만큼 사다리 줄 생성
+8. 랜덤 인원이 설거지/분리수거 같은 벌칙 수행`);
 }
 async function copyRoomLink(){
   const room = (document.getElementById('roomInput').value || 'JEJU2026').trim().toUpperCase();
@@ -1023,10 +1143,9 @@ function renderAll(){
   renderDriveGame();
   renderCharacters();
   renderTeams();
-  renderCases();
+  renderPenaltyLadder();
   document.getElementById('budgetResult').textContent = state.budgetResult || '예산 카드 대기 중';
   document.getElementById('rainResult').textContent = state.rainResult || '실내·카페·시장 위주로 자동 변경';
-  document.getElementById('awardResult').textContent = state.awardResult || '밤에 재판 시작';
   updateLastSync();
 }
 
