@@ -134,11 +134,12 @@
     .ball-card b{display:block;font-size:18px;color:#0f766e}
     .ball-card span{font-size:12px;color:#64748b;font-weight:800}
     .ladder-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:12px;max-height:420px;overflow:auto}
-    .ladder-row{display:grid;grid-template-columns:42px 1fr 1fr;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:9px;margin-bottom:7px}
+    .ladder-row{display:grid;cursor:pointer;grid-template-columns:42px 1fr 1fr;gap:8px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:9px;margin-bottom:7px}
     .ladder-no{width:28px;height:28px;border-radius:999px;background:#0f766e;color:#fff;font-weight:950;display:grid;place-items:center;font-size:12px}
     .ladder-person{font-weight:900;color:#102a43}
     .ladder-task{font-weight:950;color:#ef4444;text-align:right}
     .ladder-safe{color:#94a3b8;font-weight:800;text-align:right}
+    .ladder-hidden{color:#0f766e;font-weight:900;text-align:right}
   </style>
 </head>
 <body>
@@ -337,7 +338,7 @@
 
     <div class="card" id="penalty-ladder">
       <h2>🔴 벌칙공 사다리</h2>
-      <p class="sub">낮에 벌칙공을 쌓아두고, 저녁에 총 벌칙공 개수만큼 사다리 줄을 만들어 벌칙을 뽑는 방식.</p>
+      <p class="sub">낮에 벌칙공을 쌓아두고, 저녁에는 벌칙공 총합만큼 사다리 줄을 생성해서 한 줄씩 눌러 내려가거나 한 번에 결과를 볼 수 있음.</p>
 
       <div class="two">
         <div>
@@ -362,24 +363,40 @@
       </div>
 
       <div class="notice">
-        예: 벌칙공 총합이 <b>30개</b>면 저녁에 <b>30줄 사다리</b>가 자동 생성됨. 벌칙 받을 사람 수는 랜덤으로 정해짐.
+        예: 벌칙공 총합이 <b>30개</b>면 저녁에 <b>30줄 사다리</b>가 자동 생성됨. 벌칙 인원과 중복 여부는 아래에서 직접 설정.
       </div>
 
       <h3>벌칙공 현황</h3>
       <div class="ball-summary" id="penaltyBallSummary"></div>
 
-      <h3>벌칙 목록 5개</h3>
-      <div class="two">
-        <input id="task0" placeholder="벌칙 1" oninput="editPenaltyTask(0,this.value)" />
-        <input id="task1" placeholder="벌칙 2" oninput="editPenaltyTask(1,this.value)" />
-        <input id="task2" placeholder="벌칙 3" oninput="editPenaltyTask(2,this.value)" />
-        <input id="task3" placeholder="벌칙 4" oninput="editPenaltyTask(3,this.value)" />
-        <input id="task4" placeholder="벌칙 5" oninput="editPenaltyTask(4,this.value)" />
+      <h3>저녁 벌칙 설정</h3>
+      <div class="three">
+        <div>
+          <label class="mini">벌칙 내용</label>
+          <input id="penaltyTaskInput" placeholder="예: 설거지" oninput="editPenaltyTask(this.value)" />
+        </div>
+        <div>
+          <label class="mini">벌칙 인원</label>
+          <input id="penaltyCountInput" type="number" min="1" max="30" value="4" onchange="editPenaltyCount(this.value)" oninput="editPenaltyCount(this.value)" />
+        </div>
+        <div>
+          <label class="mini">중복 여부</label>
+          <select id="penaltyDuplicateMode" onchange="editPenaltyDuplicateMode(this.value)">
+            <option value="allow">중복 허용</option>
+            <option value="unique">중복 불가능</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="notice">
+        중복 허용: 영언/영언/철수/영희 가능<br>
+        중복 불가능: 영언/철수/영희/민수처럼 같은 사람은 한 번만 가능
       </div>
 
       <div class="input-row" style="margin-top:10px">
-        <button onclick="runPenaltyLadder()">저녁 벌칙 사다리 실행</button>
-        <button class="gray" onclick="resetPenaltyTasks()">벌칙 기본값</button>
+        <button onclick="runPenaltyLadder()">사다리 생성</button>
+        <button class="orange" onclick="revealAllPenaltyRows()">한번에 보기</button>
+        <button class="gray" onclick="hideAllPenaltyRows()">다시 가리기</button>
       </div>
 
       <div class="result big-result" id="penaltyResult">저녁 벌칙 사다리 대기 중</div>
@@ -420,10 +437,10 @@
 </div>
 
 <script>
-const localStoreKey = 'jejuPTripShared.local.v4';
+const localStoreKey = 'jejuPTripShared.local.v5';
 const deviceIdKey = 'jejuPTripShared.deviceId';
 
-const defaultPenaltyTasks = ['설거지', '쓰레기/분리수거', '야식 세팅', '편의점 심부름', '아침 커피 픽업'];
+const defaultPenaltyTask = '설거지';
 
 const defaultState = {
   names: [],
@@ -438,7 +455,9 @@ const defaultState = {
   driveRoute: [],
   driveResult: '',
   penaltyBalls: {},
-  penaltyTasks: [...defaultPenaltyTasks],
+  penaltyTask: defaultPenaltyTask,
+  penaltyCount: 4,
+  penaltyDuplicateMode: 'allow',
   penaltyLadder: [],
   penaltyResult: '',
   awardResult: '',
@@ -467,7 +486,6 @@ const presets = {
 };
 
 const characters = [
- const characters = [
   {name:'오늘은 내가 왕', desc:'오늘 최종 선택권 1회 사용 가능'},
   {name:'불평 금지 인간', desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
   {name:'사진 감독', desc:'단체사진 포즈 지시 가능, 안하면 벌칙 추가'},
@@ -481,6 +499,7 @@ const characters = [
   {name:'공짜가 좋아', desc:'리뷰 공짜 음식 무조건 하기, 안하거나 깜빡하면 1회당 벌칙 추가'},
   {name:'조용한 암살자', desc:'6시간마다 아무도 모르게 웃긴 사진 찍기, 들키거나 안웃기면 1회당 벌칙 추가(단 00~06시 제외)'}
 ];
+
 const missions = [
   '돌하르방이랑 똑같은 표정으로 사진 찍기',
   '바다 앞에서 영화 포스터처럼 사진 찍기',
@@ -529,9 +548,9 @@ function normalizeState(s){
   if(!Array.isArray(next.drivePicks)) next.drivePicks = [];
   if(!Array.isArray(next.driveRoute)) next.driveRoute = [];
   if(!next.penaltyBalls || Array.isArray(next.penaltyBalls)) next.penaltyBalls = {};
-  if(!Array.isArray(next.penaltyTasks) || next.penaltyTasks.length < 5) next.penaltyTasks = [...defaultPenaltyTasks];
-  next.penaltyTasks = next.penaltyTasks.slice(0,5);
-  while(next.penaltyTasks.length < 5) next.penaltyTasks.push(defaultPenaltyTasks[next.penaltyTasks.length]);
+  if(!next.penaltyTask) next.penaltyTask = defaultPenaltyTask;
+  next.penaltyCount = Math.max(1, Number(next.penaltyCount || 4));
+  if(!['allow','unique'].includes(next.penaltyDuplicateMode)) next.penaltyDuplicateMode = 'allow';
   if(!Array.isArray(next.penaltyLadder)) next.penaltyLadder = [];
   return next;
 }
@@ -991,16 +1010,28 @@ function clearPenaltyBalls(){
   state.penaltyResult = '';
   persist('벌칙공 초기화');
 }
-function editPenaltyTask(idx, value){
-  state.penaltyTasks[idx] = value.trim() || defaultPenaltyTasks[idx];
+function editPenaltyTask(value){
+  state.penaltyTask = value.trim() || defaultPenaltyTask;
   saveLocalState();
 }
-function resetPenaltyTasks(){
-  state.penaltyTasks = [...defaultPenaltyTasks];
-  persist('벌칙 목록 기본값 적용');
+function editPenaltyCount(value){
+  const n = Math.max(1, Math.min(30, Number(value || 1)));
+  state.penaltyCount = n;
+  saveLocalState();
+}
+function editPenaltyDuplicateMode(value){
+  state.penaltyDuplicateMode = value === 'unique' ? 'unique' : 'allow';
+  saveLocalState();
 }
 function totalPenaltyBalls(){
   return Object.values(state.penaltyBalls || {}).reduce((a,b)=>a+Number(b||0),0);
+}
+function buildPenaltyEntries(){
+  const entries = [];
+  Object.entries(state.penaltyBalls).forEach(([person,count])=>{
+    for(let i=0;i<Number(count||0);i++) entries.push({person});
+  });
+  return entries;
 }
 function runPenaltyLadder(){
   const total = totalPenaltyBalls();
@@ -1009,42 +1040,75 @@ function runPenaltyLadder(){
     return;
   }
 
-  const entries = [];
-  Object.entries(state.penaltyBalls).forEach(([person,count])=>{
-    for(let i=0;i<Number(count||0);i++) entries.push({person});
-  });
+  const entries = shuffle(buildPenaltyEntries());
+  const task = state.penaltyTask || defaultPenaltyTask;
+  const wantedCount = Math.max(1, Number(state.penaltyCount || 1));
+  const duplicateMode = state.penaltyDuplicateMode || 'allow';
 
-  const shuffledEntries = shuffle(entries);
-  const maxPenalty = Math.min(5, shuffledEntries.length);
-  const penaltyCount = Math.floor(Math.random() * maxPenalty) + 1;
-  const tasks = shuffle(state.penaltyTasks.filter(Boolean));
-  const taskSlots = new Set();
-  while(taskSlots.size < penaltyCount){
-    taskSlots.add(Math.floor(Math.random() * shuffledEntries.length));
+  let winnerIndexes = [];
+
+  if(duplicateMode === 'allow'){
+    const maxCount = Math.min(wantedCount, entries.length);
+    winnerIndexes = shuffle(entries.map((_, idx)=>idx)).slice(0, maxCount);
+  }else{
+    const uniquePeople = [...new Set(entries.map(e=>e.person))];
+    const maxCount = Math.min(wantedCount, uniquePeople.length);
+    const selectedPeople = shuffle(uniquePeople).slice(0, maxCount);
+    selectedPeople.forEach(person=>{
+      const indexes = entries.map((e, idx)=>e.person === person ? idx : -1).filter(idx=>idx >= 0);
+      winnerIndexes.push(sample(indexes));
+    });
   }
 
-  state.penaltyLadder = shuffledEntries.map((entry, idx)=>{
-    const isPenalty = taskSlots.has(idx);
-    return {
-      no: idx + 1,
-      person: entry.person,
-      task: isPenalty ? tasks[[...taskSlots].indexOf(idx) % tasks.length] : ''
-    };
-  });
+  const winnerSet = new Set(winnerIndexes);
+
+  state.penaltyLadder = entries.map((entry, idx)=>({
+    no: idx + 1,
+    person: entry.person,
+    task: winnerSet.has(idx) ? task : '',
+    revealed: false
+  }));
 
   const winners = state.penaltyLadder.filter(r=>r.task);
-  state.penaltyResult = `사다리 ${total}줄 생성\n벌칙 인원 ${winners.length}명 랜덤 확정`;
-  const text = winners.map(w=>`${w.person} · ${w.task}`).join('\n');
-  showModal('🔴','저녁 벌칙 확정', `${state.penaltyResult}\n\n${text}`);
+  state.penaltyResult = `사다리 ${total}줄 생성\n벌칙 인원 ${winners.length}명 확정\n${duplicateMode === 'allow' ? '중복 허용' : '중복 불가능'}`;
+  showModal('🔴','저녁 벌칙 사다리 생성', `${state.penaltyResult}\n\n한 줄씩 눌러서 내려가거나\n한번에 보기 버튼을 눌러 확인`);
   burstConfetti();
-  persist(`벌칙 사다리 실행: ${total}줄 · ${winners.length}명`);
+  persist(`벌칙 사다리 생성: ${total}줄 · ${winners.length}명`);
+}
+function revealPenaltyRow(idx){
+  if(!state.penaltyLadder[idx]) return;
+  state.penaltyLadder[idx].revealed = true;
+  const row = state.penaltyLadder[idx];
+  persist(`사다리 ${idx+1}번 확인: ${row.person}`);
+  if(row.task){
+    showModal('🔴','벌칙 당첨', `${row.person} · ${row.task}`);
+  }
+}
+function revealAllPenaltyRows(){
+  if(!state.penaltyLadder.length){
+    showModal('🔴','사다리 없음','먼저 사다리를 생성해줘.');
+    return;
+  }
+  state.penaltyLadder = state.penaltyLadder.map(r=>({...r, revealed:true}));
+  const winners = state.penaltyLadder.filter(r=>r.task);
+  const text = winners.length ? winners.map(w=>`${w.person} · ${w.task}`).join('\n') : '벌칙 당첨 없음';
+  showModal('🔴','벌칙 한번에 보기', text);
+  persist('벌칙 사다리 한번에 보기');
+}
+function hideAllPenaltyRows(){
+  if(!state.penaltyLadder.length) return;
+  state.penaltyLadder = state.penaltyLadder.map(r=>({...r, revealed:false}));
+  persist('벌칙 사다리 다시 가리기');
 }
 function renderPenaltyLadder(){
-  const tasks = state.penaltyTasks || defaultPenaltyTasks;
-  for(let i=0;i<5;i++){
-    const el = document.getElementById('task'+i);
-    if(el && document.activeElement !== el) el.value = tasks[i] || defaultPenaltyTasks[i];
-  }
+  const taskInput = document.getElementById('penaltyTaskInput');
+  if(taskInput && document.activeElement !== taskInput) taskInput.value = state.penaltyTask || defaultPenaltyTask;
+
+  const countInput = document.getElementById('penaltyCountInput');
+  if(countInput && document.activeElement !== countInput) countInput.value = state.penaltyCount || 4;
+
+  const duplicateSelect = document.getElementById('penaltyDuplicateMode');
+  if(duplicateSelect) duplicateSelect.value = state.penaltyDuplicateMode || 'allow';
 
   const summary = document.getElementById('penaltyBallSummary');
   if(summary){
@@ -1062,14 +1126,23 @@ function renderPenaltyLadder(){
   const list = document.getElementById('penaltyLadderList');
   if(list){
     if(!state.penaltyLadder.length){
-      list.innerHTML = '<div class="mini">사다리를 실행하면 총 벌칙공 개수만큼 줄이 표시됨</div>';
+      list.innerHTML = '<div class="mini">사다리를 생성하면 총 벌칙공 개수만큼 줄이 표시됨</div>';
     }else{
-      list.innerHTML = state.penaltyLadder.map(r=>`
-        <div class="ladder-row">
+      list.innerHTML = state.penaltyLadder.map((r, idx)=>{
+        const hidden = !r.revealed;
+        let rightText = '눌러서 확인';
+        let cls = 'ladder-hidden';
+        if(!hidden){
+          rightText = r.task ? r.task : '통과';
+          cls = r.task ? 'ladder-task' : 'ladder-safe';
+        }
+        return `
+        <div class="ladder-row" onclick="revealPenaltyRow(${idx})">
           <div class="ladder-no">${r.no}</div>
           <div class="ladder-person">${escapeHtml(r.person)}</div>
-          <div class="${r.task ? 'ladder-task' : 'ladder-safe'}">${r.task ? escapeHtml(r.task) : '통과'}</div>
-        </div>`).join('');
+          <div class="${cls}">${escapeHtml(rightText)}</div>
+        </div>`;
+      }).join('');
     }
   }
 }
@@ -1086,9 +1159,9 @@ function openHelp(){
 3. 멤버 10명 이름 입력
 4. 차량 이동 복불복에서 각자 방향 선택
 5. 낮에 실수하거나 게임 지면 벌칙공 추가
-6. 저녁에 벌칙공 사다리 실행
-7. 총 벌칙공 수만큼 사다리 줄 생성
-8. 랜덤 인원이 설거지/분리수거 같은 벌칙 수행`);
+6. 저녁에 벌칙 내용/인원/중복 여부 설정
+7. 벌칙공 총합만큼 사다리 줄 생성
+8. 한 줄씩 눌러서 확인하거나 한번에 보기`);
 }
 async function copyRoomLink(){
   const room = (document.getElementById('roomInput').value || 'JEJU2026').trim().toUpperCase();
