@@ -2,601 +2,389 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>제주 P 여행 게임 관리자 잠금판 v13</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>제주 P 여행 게임</title>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--p:#0f766e;--p2:#14b8a6;--o:#f97316;--r:#ef4444;--ink:#102a43;--mut:#64748b;--bg:#e9fbf7;--card:#fff;--sh:0 16px 45px rgba(15,118,110,.16)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;color:var(--ink);background:radial-gradient(circle at 0 0,rgba(20,184,166,.22),transparent 34%),radial-gradient(circle at 90% 10%,rgba(249,115,22,.18),transparent 30%),linear-gradient(135deg,#e9fbf7,#fff7ed);min-height:100vh;padding-bottom:86px}.wrap{width:min(1120px,100%);margin:auto;padding:18px 14px 34px}.hero{background:linear-gradient(135deg,#0f766e,#14b8a6 55%,#fb923c);color:#fff;border-radius:30px;padding:24px 18px;box-shadow:var(--sh);overflow:hidden;position:relative}.hero:after{content:"🌊";position:absolute;right:22px;bottom:16px;font-size:58px;opacity:.25}h1{font-size:34px;line-height:1.12;margin:0 0 8px;letter-spacing:-.8px}.hero p{margin:0;color:rgba(255,255,255,.92);font-weight:750}.room{margin-top:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:14px;position:relative;z-index:1}.room label,.mini{font-size:12px;font-weight:800;color:var(--mut)}.room label{display:block;color:#ecfeff;margin-bottom:6px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}button{border:0;border-radius:14px;padding:12px 14px;font-weight:850;cursor:pointer;color:#fff;background:var(--p);box-shadow:0 8px 18px rgba(15,118,110,.18);font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}button:active{transform:scale(.98)}button.orange{background:var(--o)}button.red{background:var(--r)}button.gray{background:#e2e8f0;color:#334155;box-shadow:none}button.ghost{background:#fff;color:var(--p);border:1px solid rgba(15,118,110,.18);box-shadow:none}input,select,textarea{width:100%;border:1px solid #cfe2df;border-radius:14px;padding:12px;font-size:15px;outline:none;background:#fff;color:var(--ink);font-family:inherit}textarea{min-height:100px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#14b8a6;box-shadow:0 0 0 4px rgba(20,184,166,.12)}.status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.18);font-weight:900;font-size:13px;margin-top:10px}.dot{width:9px;height:9px;border-radius:50%;background:#fca5a5}.dot.on{background:#86efac}.tabs{position:sticky;top:0;z-index:10;background:rgba(233,251,247,.9);backdrop-filter:blur(12px);padding:10px 14px;display:flex;gap:8px;overflow:auto;margin:0 -14px 10px;border-bottom:1px solid rgba(15,118,110,.12)}.tab{color:#0f766e;background:#fff;border:1px solid rgba(15,118,110,.15);box-shadow:none;padding:10px 13px;border-radius:999px;font-size:14px;flex:0 0 auto}.tab.active{background:#0f766e;color:#fff}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{grid-column:span 12;background:rgba(255,255,255,.92);border:1px solid rgba(15,118,110,.13);border-radius:22px;box-shadow:var(--sh);padding:16px}.card h2{margin:0 0 8px;font-size:22px;letter-spacing:-.5px}.card h3{margin:16px 0 8px}.sub{color:var(--mut);margin:0 0 12px;font-weight:650;line-height:1.5}.two,.three{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:760px){.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}h1{font-size:40px}}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.chip{display:inline-flex;align-items:center;gap:5px;background:#ecfeff;border:1px solid #bae6fd;color:#155e75;border-radius:999px;padding:8px 10px;font-weight:800;font-size:13px}.chip .x{cursor:pointer;color:#ef4444;font-weight:950}.result{min-height:68px;border-radius:18px;background:linear-gradient(135deg,#ecfeff,#fff7ed);border:1px dashed rgba(15,118,110,.28);padding:16px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:24px;font-weight:950;color:#0f766e;white-space:pre-line}.big{min-height:110px;font-size:30px}.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:12px;color:#9a3412;font-weight:750;line-height:1.45;margin-top:10px}.locknote{background:#eff6ff;border:1px solid #bfdbfe;border-radius:16px;padding:12px;color:#1d4ed8;font-weight:800;line-height:1.45;margin-top:10px}.ok{background:#ecfdf5;border-color:#bbf7d0;color:#166534}.wheelbox{position:relative;width:min(340px,90vw);aspect-ratio:1;margin:12px auto;display:grid;place-items:center}.pointer{position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #ef4444;z-index:3}#wheel{width:100%;height:100%;border-radius:50%;box-shadow:0 14px 34px rgba(15,118,110,.22);background:#fff;transition:transform 3s cubic-bezier(.12,.74,.16,1)}.center{position:absolute;width:96px;height:96px;border-radius:50%;background:#fff;color:#0f766e;border:8px solid #14b8a6;box-shadow:0 8px 20px rgba(0,0,0,.18);display:grid;place-items:center;font-size:18px;font-weight:950;cursor:pointer;z-index:2}.dirs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}@media(min-width:760px){.dirs{grid-template-columns:repeat(4,1fr)}}.dir{background:#f8fafc;color:#0f766e;border:1px solid #cfe2df;box-shadow:none}.route{counter-reset:r;display:flex;flex-direction:column;gap:8px;margin-top:10px}.routecard{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;display:flex;gap:10px;align-items:center}.routecard:before{counter-increment:r;content:counter(r);width:28px;height:28px;border-radius:999px;background:#0f766e;color:#fff;font-weight:950;display:grid;place-items:center}.bottom{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid rgba(15,118,110,.13);display:flex;justify-content:center;padding:8px 8px env(safe-area-inset-bottom)}.bottom .inner{width:min(680px,100%);display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.nav{border-radius:15px;background:#f1f5f9;color:#334155;box-shadow:none;font-size:11px;padding:8px 4px;display:flex;flex-direction:column;gap:1px}.nav span{font-size:18px}.nav.on{background:#0f766e;color:#fff}.modal{position:fixed;inset:0;background:rgba(15,23,42,.54);display:none;align-items:center;justify-content:center;padding:16px;z-index:120}.modal.show{display:flex}.modal-card{width:min(520px,100%);background:#fff;border-radius:26px;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,.28);text-align:center}.modal-card .emoji{font-size:52px}.modal-card h2{font-size:26px;margin:8px 0;color:#0f766e}.modal-card p{font-size:17px;font-weight:750;color:#334155;line-height:1.5;white-space:pre-line}.ladderpage{position:fixed;inset:0;z-index:95;background:linear-gradient(135deg,#ecfeff,#fff7ed);display:none;overflow:auto;padding:14px}.ladderpage.show{display:block}.ladshell{width:min(980px,100%);margin:0 auto;padding-bottom:34px}.ladtop{background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border-radius:24px;padding:16px;box-shadow:var(--sh);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:10px;z-index:2}.ladtop h2{margin:0;font-size:22px}.ladtop p{margin:4px 0 0;color:rgba(255,255,255,.88);font-weight:800;font-size:13px}.ladstage{background:#fff;border:1px solid rgba(15,118,110,.15);border-radius:24px;box-shadow:var(--sh);padding:14px;margin-top:12px}.ladctrl{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}@media(min-width:760px){.ladctrl{grid-template-columns:1fr auto auto}}.canvaswrap{background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:8px;overflow:auto}#ladderCanvas{display:block;width:100%;min-height:600px;background:#fff;border-radius:16px}.ladinfo{background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:18px;padding:14px;margin-top:12px;font-weight:900;white-space:pre-line;text-align:center}.ladinfo.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}.confetti{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:130}
-
-/* ===== v12 Mobile First Design Patch ===== */
-.mobile-only{display:none}
-.quick-home{
-  display:none;
+:root{
+  --bg:#ecfeff;--card:#ffffff;--ink:#0f172a;--muted:#64748b;
+  --main:#0f766e;--sub:#14b8a6;--orange:#f97316;--red:#ef4444;
+  --line:#dbeafe;--soft:#f8fafc;
 }
-@media(max-width:720px){
-  .mobile-only{display:block}
-
-  body{
-    padding-bottom:118px;
-    background:
-      radial-gradient(circle at top left, rgba(20,184,166,.18), transparent 34%),
-      linear-gradient(180deg,#ecfeff,#fff7ed);
-  }
-  .wrap{
-    padding:10px 10px 28px;
-  }
-  .hero{
-    border-radius:24px;
-    padding:18px 14px;
-    margin-bottom:8px;
-  }
-  .hero:after{
-    font-size:42px;
-    right:16px;
-    bottom:12px;
-  }
-  h1{
-    font-size:27px;
-    line-height:1.08;
-    letter-spacing:-.8px;
-  }
-  .hero p{
-    font-size:14px;
-    line-height:1.35;
-    padding-right:48px;
-  }
-  .room{
-    margin-top:12px;
-    padding:12px;
-    border-radius:18px;
-  }
-  .row,.input-row{
-    display:grid !important;
-    grid-template-columns:1fr;
-    gap:8px;
-    width:100%;
-  }
-  .row > input,
-  .row > select,
-  .row > textarea,
-  .input-row > input,
-  .input-row > select,
-  .input-row > textarea{
-    min-width:0 !important;
-    width:100% !important;
-  }
-  button{
-    width:100%;
-    min-height:46px;
-    border-radius:15px;
-    font-size:15px;
-    padding:12px 12px;
-  }
-  button.small{
-    min-height:38px;
-    width:auto;
-  }
-  input,select,textarea{
-    min-height:46px;
-    border-radius:15px;
-    font-size:16px;
-    padding:12px 12px;
-  }
-  textarea{
-    min-height:112px;
-  }
-  .tabs{
-    position:sticky;
-    top:0;
-    z-index:40;
-    margin:0 -10px 8px;
-    padding:8px 10px;
-    gap:6px;
-    overflow-x:auto;
-    scroll-snap-type:x mandatory;
-  }
-  .tab{
-    min-width:88px;
-    min-height:40px;
-    padding:9px 11px;
-    font-size:13px;
-    scroll-snap-align:start;
-    width:auto;
-  }
-  .grid{
-    display:block;
-  }
-  .card{
-    padding:14px;
-    border-radius:22px;
-    margin-bottom:12px;
-    box-shadow:0 10px 28px rgba(15,118,110,.12);
-  }
-  .card h2{
-    font-size:21px;
-    margin-bottom:6px;
-  }
-  .card h3{
-    font-size:16px;
-    margin:14px 0 7px;
-  }
-  .sub{
-    font-size:13px;
-    line-height:1.42;
-    margin-bottom:10px;
-  }
-  .notice,.locknote,.lock-note{
-    font-size:13px;
-    padding:10px;
-    border-radius:14px;
-  }
-  .result{
-    min-height:78px;
-    font-size:20px;
-    padding:14px;
-    border-radius:17px;
-  }
-  .big,.big-result{
-    min-height:94px;
-    font-size:24px;
-  }
-  .chips{
-    gap:6px;
-    margin:8px 0;
-  }
-  .chip{
-    font-size:12px;
-    padding:7px 9px;
-    max-width:100%;
-    word-break:keep-all;
-  }
-  .two,.three{
-    display:grid;
-    grid-template-columns:1fr !important;
-    gap:8px;
-  }
-  .wheelbox,.wheel-box{
-    width:min(300px,86vw);
-    margin:10px auto;
-  }
-  .center,.center-btn{
-    width:82px !important;
-    height:82px !important;
-    font-size:16px !important;
-    border-width:7px !important;
-  }
-  .direction-grid{
-    grid-template-columns:repeat(2,1fr) !important;
-    gap:8px;
-  }
-  .direction-grid button{
-    min-height:58px;
-    font-size:16px;
-  }
-  .route-card{
-    padding:10px;
-    border-radius:14px;
-  }
-  .bottom-nav{
-    padding:7px 8px calc(7px + env(safe-area-inset-bottom));
-  }
-  .bottom-nav .inner{
-    grid-template-columns:repeat(3,1fr) !important;
-    gap:6px;
-  }
-  .navbtn{
-    min-height:50px;
-    font-size:11px;
-    border-radius:14px;
-    padding:6px 4px;
-  }
-  .navbtn span{
-    font-size:18px;
-  }
-  .modal-card{
-    border-radius:24px;
-    padding:18px 14px;
-  }
-  .modal-card .emoji{
-    font-size:44px;
-  }
-  .modal-card h2{
-    font-size:23px;
-  }
-  .modal-card p{
-    font-size:15px;
-  }
-  .ladder-page{
-    padding:8px;
-  }
-  .ladder-top{
-    border-radius:20px;
-    padding:12px;
-    align-items:flex-start;
-  }
-  .ladder-top h2{
-    font-size:20px;
-  }
-  .ladder-top p{
-    font-size:12px;
-  }
-  .ladder-top button{
-    width:auto;
-    min-width:86px;
-    min-height:38px;
-    padding:9px 10px;
-  }
-  .ladder-stage{
-    padding:10px;
-    border-radius:20px;
-  }
-  .ladder-control{
-    grid-template-columns:1fr !important;
-    gap:8px;
-  }
-  .ladder-canvas-wrap{
-    border-radius:16px;
-    padding:6px;
-  }
-  #ladderCanvas{
-    min-height:520px;
-  }
-  .ladder-picked{
-    font-size:14px;
-    padding:12px;
-    border-radius:15px;
-  }
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:linear-gradient(180deg,#ecfeff 0%,#f8fafc 62%,#fff 100%);
+  color:var(--ink);
+  -webkit-tap-highlight-color:transparent;
 }
-@media(max-width:390px){
-  h1{font-size:25px}
-  .card{padding:12px}
-  .card h2{font-size:20px}
-  .result{font-size:18px}
-  .big,.big-result{font-size:22px}
-  .bottom-nav .inner{gap:5px}
-  .navbtn{font-size:10px}
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 96px}
+.hero{
+  background:linear-gradient(135deg,#0f766e,#14b8a6);
+  color:#fff;
+  border-radius:26px;
+  padding:20px;
+  box-shadow:0 12px 30px rgba(15,118,110,.22);
 }
-
-
-/* ===== v13 Lobby Screen Patch ===== */
-.lobby-card{
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(15,118,110,.16);
+.hero-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+h1{margin:0;font-size:26px;line-height:1.15}
+h2{margin:0 0 8px;font-size:21px}
+h3{margin:18px 0 8px}
+.sub{color:var(--muted);font-weight:700;font-size:13px;line-height:1.45}
+.hero .sub{color:#dffdfa}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:999px;padding:7px 10px;font-weight:900;font-size:12px;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25)
+}
+.version-badge{background:#fff;color:#0f766e;border:none}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
   border-radius:24px;
-  box-shadow:var(--shadow);
   padding:16px;
   margin-top:14px;
+  box-shadow:0 8px 24px rgba(15,23,42,.06);
 }
-.lobby-title{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-.lobby-title h2{margin:0;font-size:22px}
-.game-menu{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin-top:10px;
-}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.two{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .game-card{
-  background:#fff;
-  border:1px solid rgba(15,118,110,.15);
-  border-radius:20px;
-  padding:16px 12px;
-  box-shadow:0 8px 22px rgba(15,118,110,.10);
   cursor:pointer;
+  border:1px solid #ccfbf1;
+  background:#fff;
+  border-radius:22px;
+  padding:16px;
   min-height:104px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  transition:.16s transform,.16s box-shadow;
+  box-shadow:0 8px 18px rgba(20,184,166,.09);
 }
-.game-card:active{transform:scale(.98)}
-.game-card b{
-  display:block;
-  font-size:17px;
-  color:#0f766e;
-  letter-spacing:-.3px;
-}
-.game-card span{
-  display:block;
-  margin-top:6px;
-  color:#64748b;
-  font-size:12px;
-  font-weight:750;
-  line-height:1.35;
-}
-.game-card .emoji{
-  font-size:28px;
-  margin-bottom:8px;
-}
-.game-section{
-  display:none;
-}
-.game-section.active-game{
-  display:block;
-}
-#setup.game-section{
-  display:none;
-}
-.top-game-bar{
-  display:none;
-  position:sticky;
-  top:0;
-  z-index:70;
-  background:rgba(236,254,255,.94);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(15,118,110,.12);
-  padding:9px 10px;
-  margin:0 -10px 10px;
-}
-.top-game-bar.show{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-}
-.top-game-bar b{
-  color:#0f766e;
-  font-size:16px;
-}
-.top-game-bar button{
-  width:auto;
-  min-height:38px;
-  padding:9px 12px;
-}
-.main-only.hidden-main{
-  display:none !important;
-}
-@media(max-width:720px){
-  .lobby-card{
-    border-radius:22px;
-    padding:14px;
-    margin-top:10px;
-  }
-  .lobby-title h2{
-    font-size:21px;
-  }
-  .game-menu{
-    grid-template-columns:1fr;
-    gap:8px;
-  }
-  .game-card{
-    min-height:88px;
-    padding:14px;
-    border-radius:18px;
-  }
-  .game-card{
-    flex-direction:row;
-    align-items:center;
-    justify-content:flex-start;
-    gap:12px;
-  }
-  .game-card .emoji{
-    font-size:30px;
-    margin:0;
-    flex:0 0 36px;
-    text-align:center;
-  }
-  .game-card b{
-    font-size:16px;
-  }
-  .game-card span{
-    font-size:12px;
-    margin-top:4px;
-  }
-  .bottom-nav{
-    display:none;
-  }
-  body{
-    padding-bottom:24px;
-  }
-}
-
-
-/* ===== v14 Fix Patch ===== */
-.bottom{display:none!important}
-#setup.game-section.active-game{display:block!important}
-.character-detail-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.character-detail-card{background:#fff;border:1px solid #dbeafe;border-radius:16px;padding:12px;box-shadow:0 5px 14px rgba(15,118,110,.08)}
-.character-detail-card b{display:block;color:#0f766e;font-size:15px;margin-bottom:5px}
-.character-detail-card span{display:block;color:#334155;font-size:13px;font-weight:800;line-height:1.45}
-@media(max-width:720px){.bottom{display:none!important}.character-detail-card{padding:11px;border-radius:15px}}
-
-
-/* ===== v15 Fix Patch ===== */
-.character-preview-list{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:8px;
-  margin:10px 0 12px;
-}
-.character-preview-card{
-  background:#fff;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:11px 12px;
-}
-.character-preview-card b{
-  display:block;
-  color:#0f766e;
-  font-size:15px;
-  margin-bottom:4px;
-}
-.character-preview-card span{
-  display:block;
-  color:#334155;
-  font-size:13px;
-  line-height:1.35;
-  font-weight:650;
-}
-.character-preview-card.used{
-  opacity:.55;
-  background:#f8fafc;
-}
-.member-list{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-  margin-top:10px;
-}
-.member-card{
-  background:#fff;
-  border:1px solid #dbeafe;
+.game-card .emoji{font-size:28px;margin-bottom:8px}
+.game-card b{display:block;font-size:17px}
+.game-card span{display:block;color:var(--muted);font-weight:800;font-size:12px;margin-top:5px;line-height:1.35}
+label.mini,.mini{font-size:12px;color:var(--muted);font-weight:900}
+input,textarea,select{
+  width:100%;
+  border:1px solid #cbd5e1;
   border-radius:15px;
-  padding:10px;
-  font-weight:900;
-  color:#0f766e;
-}
-.member-card span{
-  color:#64748b;
-  margin-right:6px;
-}
-#setup.game-section.active-game{display:block!important}
-@media(max-width:720px){
-  .member-list{grid-template-columns:1fr}
-  .character-preview-card{padding:10px}
-}
-
-
-/* ===== v18 Final Fix ===== */
-.assignment-list{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:8px;
-  margin-top:10px;
-}
-.assignment-card{
-  background:#fff;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:12px;
-  box-shadow:0 5px 14px rgba(15,118,110,.08);
-}
-.assignment-card b{
-  display:block;
-  color:#0f766e;
-  font-size:15px;
-  margin-bottom:5px;
-}
-.assignment-card span{
-  display:block;
-  color:#334155;
-  font-size:13px;
+  padding:12px 13px;
+  font-size:16px;
   font-weight:800;
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+}
+textarea{min-height:88px;resize:vertical}
+button{
+  border:0;
+  border-radius:15px;
+  padding:12px 14px;
+  background:var(--main);
+  color:#fff;
+  font-weight:950;
+  font-size:15px;
+  cursor:pointer;
+  min-height:46px;
+}
+button.gray{background:#64748b}
+button.orange{background:var(--orange)}
+button.red{background:var(--red)}
+button.ghost{background:#fff;color:#0f766e}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.result{
+  white-space:pre-line;
+  background:#f0fdfa;
+  border:1px solid #99f6e4;
+  color:#0f766e;
+  border-radius:18px;
+  padding:14px;
+  margin-top:10px;
+  font-weight:950;
   line-height:1.45;
 }
-.assignment-card.empty{
-  background:#f8fafc;
-  opacity:.75;
+.result.big{font-size:20px;text-align:center;padding:20px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:999px;padding:8px 10px;
+  background:#ecfeff;border:1px solid #99f6e4;
+  color:#0f766e;font-weight:900;font-size:13px
 }
-#setup.game-section.active-game{display:block!important}
-
+.x{cursor:pointer;color:#ef4444;font-weight:1000}
+.notice{
+  background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
+  border-radius:16px;padding:11px;margin-top:10px;
+  font-weight:850;font-size:13px;line-height:1.45
+}
+.notice.ok{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+.locknote{color:#64748b;font-weight:900;font-size:12px;margin-top:8px}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(248,250,252,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid #e2e8f0;
+  padding:9px 12px;
+  display:none;align-items:center;gap:8px;justify-content:space-between
+}
+.topbar.show{display:flex}
+.topbar b{color:#0f766e}
+.main-only.hidden-main{display:none!important}
+.game-section{display:none}
+.game-section.active-game{display:block}
+.member-list,.assignment-list,.preview-list{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.member-card,.assignment-card,.preview-card{
+  background:#fff;border:1px solid #dbeafe;border-radius:16px;padding:12px;
+  box-shadow:0 5px 14px rgba(15,118,110,.06)
+}
+.member-card b,.assignment-card b,.preview-card b{display:block;color:#0f766e;font-size:15px;margin-bottom:4px}
+.member-card span,.assignment-card span,.preview-card span{display:block;color:#334155;font-size:13px;font-weight:800;line-height:1.45}
+.preview-card.used{opacity:.6;background:#f8fafc}
+.status{
+  display:flex;align-items:center;gap:7px;font-size:12px;font-weight:900;margin-top:10px;color:#eaffff
+}
+.dot{width:9px;height:9px;border-radius:999px;background:#ef4444}
+.dot.on{background:#22c55e}
+.modal{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);
+  display:none;align-items:center;justify-content:center;padding:18px;z-index:100
+}
+.modal.show{display:flex}
+.modalbox{background:#fff;border-radius:24px;padding:20px;max-width:420px;width:100%;box-shadow:0 16px 40px rgba(0,0,0,.22)}
+.modalbox .emoji{font-size:34px}
+.modalbox h2{margin-top:8px}
+.ladder-board{overflow:auto;border:1px solid #dbeafe;border-radius:18px;margin-top:10px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{border-bottom:1px solid #e2e8f0;padding:10px;text-align:center;font-weight:900}
+th{background:#ecfeff;color:#0f766e}
+td.bad{color:#ef4444}
+@media(max-width:720px){
+  .wrap{padding:12px 10px 86px}
+  h1{font-size:23px}
+  .grid,.two,.three{grid-template-columns:1fr}
+  .hero{border-radius:22px;padding:17px}
+  .card{padding:14px;border-radius:20px}
+  button,input,textarea,select{font-size:16px}
+  .game-card{min-height:auto}
+}
 </style>
-</head><body>
-<canvas class="confetti"></canvas>
-<div class="wrap"><header><div class="hero"><h1>제주 P 여행<br>게임 로비</h1><p>관리자가 리셋하기 전까지 결과가 유지되는 공유 게임판</p><div class="room main-only">
-  <label>방 입장</label>
-  <div class="row">
-    <input id="roomInput" value="JEJU2026" placeholder="방 코드 예: JEJU2026" style="flex:1;min-width:150px;text-transform:uppercase">
-    <input id="myNameInput" placeholder="본인 이름 예: 영언" style="flex:1;min-width:130px">
-    <button class="ghost" onclick="joinRoomWithName()">입장하기</button>
-    <button class="ghost" onclick="copyRoomLink()">링크 복사</button>
-  </div>
-  <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">연결 대기 중</span></div>
-  <div class="mini" id="lastSync" style="color:#ecfeff;margin-top:8px">방 코드와 이름을 입력하면 멤버에 자동 저장됩니다.</div>
-  <div class="row" style="margin-top:12px">
-    <button class="ghost" onclick="openAdminLogin()">관리자 로그인/설정</button>
-    <button class="ghost" onclick="adminLogout()">관리자 로그아웃</button>
-  </div>
-  <div class="status"><span class="dot" id="adminDot"></span><span id="adminStatus">관리자 미인증</span></div>
-</div></div><div class="notice ok mobile-only" style="margin-top:10px">📱 모바일에서는 아래 메뉴로 게임을 빠르게 이동할 수 있어.</div></header>
-
-<div class="top-game-bar" id="topGameBar">
+</head>
+<body>
+<div class="topbar" id="topGameBar">
   <button class="ghost" onclick="showLobby()">← 메인</button>
   <b id="currentGameTitle">게임</b>
-  <button class="ghost" onclick="copyRoomLink()">공유</button>
+  <span class="badge version-badge" id="topVersion">v21</span>
 </div>
 
-<div class="lobby-card main-only" id="gameLobby">
-  <div class="lobby-title">
-    <h2>🎮 게임 목록</h2>
-    <span class="mini" id="lobbyMemberCount">멤버 0명</span>
-  </div>
-  <p class="sub">원하는 게임만 눌러서 들어가면 돼. 결과는 관리자 리셋 전까지 유지.</p>
-  <div class="game-menu">
-    <div class="game-card" onclick="openGame('king-sec','👑 왕 뽑기')">
-      <div class="emoji">👑</div>
-      <div><b>왕 뽑기</b><span>왕 1명과 결정권 뽑기</span></div>
+<div class="wrap">
+  <section class="hero main-only">
+    <div class="hero-top">
+      <div>
+        <h1>🏝️ 제주 P 여행 게임</h1>
+        <p class="sub">방 코드와 본인 이름 입력 후 게임 선택</p>
+      </div>
+      <span class="badge version-badge" id="visibleVersion">v21</span>
     </div>
-    <div class="game-card" onclick="openGame('character-sec','🎭 캐릭터')">
-      <div class="emoji">🎭</div>
-      <div><b>캐릭터</b><span>친구별 역할/벌칙 캐릭터</span></div>
+
+    <div class="two" style="margin-top:14px">
+      <div>
+        <label class="mini" style="color:#dffdfa">방 코드</label>
+        <input id="roomInput" value="JEJU2026" placeholder="JEJU2026">
+      </div>
+      <div>
+        <label class="mini" style="color:#dffdfa">본인 이름</label>
+        <input id="myNameInput" placeholder="예: 영언" autocomplete="name">
+      </div>
     </div>
-    <div class="game-card" onclick="openGame('wheel-sec','🎡 돌림판')">
-      <div class="emoji">🎡</div>
-      <div><b>돌림판</b><span>수기 입력 선택지 랜덤</span></div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="ghost" onclick="joinRoomWithName()">입장하기</button>
+      <button class="ghost" onclick="copyRoomLink()">링크 복사</button>
+      <button class="ghost" onclick="forceRefresh()">새 버전 새로고침</button>
     </div>
-    <div class="game-card" onclick="openGame('drive-game','🚗 랜덤 운행')">
-      <div class="emoji">🚗</div>
-      <div><b>랜덤 운행</b><span>직진/좌회전/우회전/유턴</span></div>
+
+    <div class="status">
+      <span class="dot" id="connDot"></span>
+      <span id="connText">방 입장 필요</span>
+      <span>·</span>
+      <span id="lastSync">버전 확인 중</span>
     </div>
-    <div class="game-card" onclick="openGame('ladder-sec','🪜 사다리')">
-      <div class="emoji">🪜</div>
-      <div><b>사다리</b><span>본인이 줄 선택하고 내려가기</span></div>
+  </section>
+
+  <section class="card main-only">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <h2>게임 목록</h2>
+        <p class="sub" id="lobbyMemberCount">멤버 0명</p>
+      </div>
+      <div class="row">
+        <button class="gray" onclick="openAdminLogin()">관리자</button>
+        <button class="gray" onclick="adminLogout()">로그아웃</button>
+      </div>
     </div>
-    <div class="game-card" onclick="openGame('setup','👥 멤버')">
-      <div class="emoji">👥</div>
-      <div><b>멤버 보기</b><span>현재 방 참여자 확인</span></div>
+    <div class="chips"><span class="chip" id="adminStatus">관리자 미인증</span></div>
+    <div class="grid" style="margin-top:12px">
+      <div class="game-card" onclick="openGame('king-sec','왕 뽑기')"><div class="emoji">👑</div><b>왕 뽑기</b><span>오늘의 선택권자 뽑기</span></div>
+      <div class="game-card" onclick="openGame('character-sec','캐릭터')"><div class="emoji">🎭</div><b>캐릭터</b><span>벌칙 캐릭터 배정</span></div>
+      <div class="game-card" onclick="openGame('wheel-sec','돌림판')"><div class="emoji">🎡</div><b>돌림판</b><span>랜덤 선택</span></div>
+      <div class="game-card" onclick="openGame('drive-sec','랜덤 운행')"><div class="emoji">🚗</div><b>랜덤 운행</b><span>운전자/목적지 랜덤</span></div>
+      <div class="game-card" onclick="openGame('ladder-sec','사다리')"><div class="emoji">🪜</div><b>사다리</b><span>줄 직접 선택</span></div>
+      <div class="game-card" onclick="openGame('setup-sec','멤버 보기')"><div class="emoji">👥</div><b>멤버 보기</b><span>현재 방 멤버 확인</span></div>
     </div>
+  </section>
+
+  <section class="card game-section" id="setup-sec">
+    <h2>👥 멤버 보기</h2>
+    <div class="two">
+      <input id="nameInput" placeholder="멤버 이름 추가">
+      <button onclick="addName()">멤버 추가</button>
+    </div>
+    <div class="chips" id="nameChips"></div>
+    <div class="member-list" id="memberList"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="gray" onclick="adminResetMembers()">멤버/전체 리셋</button>
+    </div>
+  </section>
+
+  <section class="card game-section" id="king-sec">
+    <h2>👑 왕 뽑기</h2>
+    <p class="sub">결정권 없이 왕만 뽑으려면 아래는 비워두면 됨</p>
+    <textarea id="kingDecisionText" placeholder="결정권 없이 왕만 뽑으려면 비워두기&#10;필요할 때만 한 줄씩 직접 입력"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button onclick="applyKingDecisions()">결정권 반영</button>
+      <button class="orange" onclick="drawKing()">왕 뽑기</button>
+      <button class="gray" onclick="clearKingDecisions()">결정권 기록 삭제</button>
+      <button class="gray" onclick="adminResetKing()">왕/결정권 리셋</button>
+    </div>
+    <div class="result big" id="kingResult">왕 뽑기 대기 중</div>
+    <div class="chips" id="kingDecisionChips"></div>
+    <div class="locknote" id="kingLockNote">왕이 뽑히면 자동 잠금됨.</div>
+  </section>
+
+  <section class="card game-section" id="character-sec">
+    <h2>🎭 캐릭터</h2>
+    <div class="two">
+      <select id="charName"></select>
+      <button class="orange" onclick="drawCharacter()">캐릭터 뽑기</button>
+    </div>
+    <div class="row" style="margin-top:8px"><button class="gray" onclick="adminResetCharacters()">캐릭터만 리셋</button></div>
+    <h3>캐릭터 목록</h3>
+    <div class="preview-list" id="characterPreviewList"></div>
+    <div class="result" id="charResult">캐릭터 뽑기 대기 중</div>
+    <div class="chips" id="characterList"></div>
+    <div class="assignment-list" id="characterDetailList"></div>
+    <div class="locknote" id="characterLockNote">뽑힌 캐릭터는 리셋 전까지 유지됨.</div>
+  </section>
+
+  <section class="card game-section" id="wheel-sec">
+    <h2>🎡 돌림판</h2>
+    <textarea id="wheelText" placeholder="한 줄에 하나씩 입력&#10;예: 흑돼지&#10;예: 회&#10;예: 고기국수"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button onclick="applyWheelText()">목록 반영</button>
+      <button class="orange" onclick="spinWheel()">돌리기</button>
+      <button class="gray" onclick="adminResetWheel()">돌림판만 리셋</button>
+    </div>
+    <div class="result big" id="wheelResult">돌림판 대기 중</div>
+    <div class="chips" id="wheelChips"></div>
+  </section>
+
+  <section class="card game-section" id="drive-sec">
+    <h2>🚗 랜덤 운행</h2>
+    <div class="two">
+      <select id="driveName"></select>
+      <input id="driveTarget" placeholder="목적지/미션 예: 카페">
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="orange" onclick="pickDriver()">랜덤 운행 뽑기</button>
+      <button class="gray" onclick="adminResetDrive()">랜덤 운행만 리셋</button>
+    </div>
+    <div class="result big" id="driveResult">랜덤 운행 대기 중</div>
+    <div class="chips" id="driveChips"></div>
+  </section>
+
+  <section class="card game-section" id="ladder-sec">
+    <h2>🪜 선택형 사다리</h2>
+    <p class="sub">모바일에서도 선택한 사람/줄이 유지되게 새로 정리함</p>
+    <div class="two">
+      <div>
+        <label class="mini">사다리 선택할 사람</label>
+        <select id="ladderPerson"></select>
+      </div>
+      <div>
+        <label class="mini">선택할 줄 번호</label>
+        <select id="ladderLine"></select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button onclick="chooseLadderLine()">내 줄 선택</button>
+      <button class="gray" onclick="adminResetLadder()">사다리만 리셋</button>
+    </div>
+    <div class="chips" id="ladderChoiceChips"></div>
+
+    <h3>벌칙 설정</h3>
+    <div class="three">
+      <input id="penaltyTaskInput" placeholder="벌칙 내용 예: 설거지">
+      <input id="penaltyCountInput" type="number" min="1" value="4">
+      <select id="penaltyDuplicateMode"><option value="allow">중복 허용</option><option value="unique">중복 불가능</option></select>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="orange" onclick="createLadder()">사다리 만들기</button>
+      <button onclick="runSelectedLadder()">선택한 줄 내려가기</button>
+      <button class="gray" onclick="revealAllLadder()">전체 결과 보기</button>
+    </div>
+    <div class="result big" id="ladderResult">사다리 대기 중</div>
+    <div class="ladder-board" id="ladderBoard"></div>
+  </section>
+</div>
+
+<div class="modal" id="modal" onclick="closeModal(event)">
+  <div class="modalbox">
+    <div class="emoji" id="modalEmoji">⚠️</div>
+    <h2 id="modalTitle">알림</h2>
+    <p id="modalText" style="white-space:pre-line;font-weight:800;color:#334155;line-height:1.45"></p>
+    <button onclick="hideModal()">확인</button>
   </div>
 </div>
 
-<nav class="tabs" style="display:none"></nav>
-<section class="grid">
-<div class="card game-section" id="setup"><h2>👥 멤버 세팅</h2><p class="sub">멤버 이름은 돌림판, 랜덤 운행, 사다리에서 같이 사용됨.</p><div class="row"><input id="nameInput" placeholder="이름 입력 예: 영언" style="flex:1;min-width:180px" onkeydown="if(event.key==='Enter')addName()"><button onclick="addName()">추가</button><button class="gray" onclick="loadSampleNames()">10명 예시</button><button class="red" onclick="adminResetMembers()">멤버만 리셋</button></div><div class="chips" id="nameChips"></div><div class="member-list" id="memberList"></div><div class="notice ok">같은 방 코드로 접속하면 전원 화면에 같이 반영됨.</div></div>
-<div class="card game-section" id="king-sec"><h2>👑 왕 뽑기</h2><p class="sub">왕은 뽑힐 때마다 결정권 하나를 같이 받음. 결과가 나오면 이 게임만 리셋하기 전까지 유지.</p><textarea id="kingDecisionText" placeholder="결정권 없이 왕만 뽑으려면 비워두기&#10;필요할 때만 한 줄씩 직접 입력"></textarea><div class="row" style="margin-top:8px"><button onclick="applyKingDecisions()">결정권 반영</button><button class="orange" onclick="drawKing()">왕 뽑기</button><button class="gray" onclick="clearKingDecisions()">결정권 기록 삭제</button><button class="gray" onclick="adminResetKing()">왕/결정권 리셋</button></div><div class="result big" id="kingResult">왕 뽑기 대기 중</div><div class="chips" id="kingDecisionChips"></div><div class="locknote" id="kingLockNote">왕이 뽑히면 자동 잠금됨.</div></div>
-<div class="card game-section" id="character-sec"><h2>🎭 캐릭터 뽑기</h2><p class="sub">요청한 캐릭터 내용 반영. 누가 어떤 캐릭터에 걸렸는지 아래에 표시됨.</p><div class="row"><select id="charName" style="flex:1;min-width:160px"></select><button class="orange" onclick="drawCharacter()">캐릭터 뽑기</button><button class="gray" onclick="adminResetCharacters()">캐릭터만 리셋</button></div><div class="character-preview-list" id="characterPreviewList"></div><div class="result" id="charResult">캐릭터 뽑기 대기 중</div><div class="chips" id="characterList"></div><div class="character-detail-list assignment-list" id="characterDetailList"></div><div class="locknote" id="characterLockNote">뽑힌 캐릭터는 관리자 리셋 전까지 유지됨.</div></div>
-<div class="card game-section" id="wheel-sec"><h2>🎡 수기 입력 돌림판</h2><p class="sub">프리셋 없이 직접 입력한 내용만 돌림판에 들어감. 결과가 나오면 돌림판만 리셋하기 전까지 유지.</p><textarea id="wheelText" placeholder="한 줄에 하나씩 입력&#10;예: 카페&#10;예: 바다&#10;예: 흑돼지"></textarea><div class="row" style="margin-top:8px"><button onclick="applyWheelText()">돌림판 반영</button><button class="gray" onclick="adminResetWheel()">돌림판만 리셋</button></div><div class="wheelbox"><div class="pointer"></div><canvas id="wheel" width="700" height="700"></canvas><div class="center" onclick="spinWheel()">돌려!</div></div><div class="result big" id="wheelResult">돌림판 대기 중</div><div class="chips" id="wheelChips"></div><div class="locknote" id="wheelLockNote">결과가 나오면 자동 잠금됨.</div></div>
-<div class="card game-section" id="drive-game"><h2>🚗 랜덤 운행</h2><p class="sub">각자 직진/좌회전/우회전/유턴 중 하나를 고르고, 랜덤 순서대로 이동.</p><div class="two"><div><label class="mini">선택할 사람</label><select id="driveName"></select></div><div><label class="mini">목적지 기준</label><select id="driveTarget" onchange="setDriveTarget(this.value)"><option value="식당">첫 번째 식당</option><option value="카페">첫 번째 카페</option><option value="맛집/카페">첫 번째 식당 또는 카페</option><option value="편의점">첫 번째 편의점</option><option value="바다">첫 번째 바다 보이는 곳</option><option value="아무 목적지">첫 번째 괜찮아 보이는 곳</option></select></div></div><div class="dirs"><button class="dir" onclick="pickDirection('직진')">⬆️ 직진</button><button class="dir" onclick="pickDirection('좌회전')">⬅️ 좌회전</button><button class="dir" onclick="pickDirection('우회전')">➡️ 우회전</button><button class="dir" onclick="pickDirection('유턴')">↩️ 유턴</button></div><div class="notice">운전자는 안전 우선. 실제 유턴/좌회전이 불가능하면 다음 가능한 길에서 적용.</div><h3>선택 현황</h3><div class="chips" id="drivePickChips"></div><div class="row"><button class="orange" onclick="runDriveGame()">랜덤 순서 뽑기</button><button class="gray" onclick="adminResetDrive()">랜덤 운행만 리셋</button></div><div class="result big" id="driveResult">랜덤 운행 대기 중</div><div class="route" id="driveRouteList"></div><div class="locknote" id="driveLockNote">결과가 나오면 자동 잠금됨.</div></div>
-<div class="card game-section" id="ladder-sec"><h2>🪜 선택형 사다리</h2><p class="sub">본인이 줄을 직접 선택. 한 명이 내려가기 누르면 같은 방 전원이 내려가는 모션을 같이 봄.</p><div class="two"><div><label class="mini">사다리 선택할 사람</label><select id="ladderPerson" onchange="renderLadderLineSelects()"></select></div><div><label class="mini">선택할 줄 번호</label><select id="ladderLine"></select></div></div><div class="row" style="margin-top:8px"><button onclick="chooseLadderLine()">내 줄 선택</button><button class="gray" onclick="adminResetLadder()">사다리만 리셋</button></div><div class="chips" id="ladderChoiceChips"></div><h3>벌칙 설정</h3><div class="three"><div><label class="mini">벌칙 내용</label><input id="penaltyTaskInput" placeholder="예: 설거지" oninput="editPenaltyTask(this.value)"></div><div><label class="mini">벌칙 인원</label><input id="penaltyCountInput" type="number" min="1" max="30" value="4" oninput="editPenaltyCount(this.value)"></div><div><label class="mini">중복 여부</label><select id="penaltyDuplicateMode" onchange="editPenaltyDuplicateMode(this.value)"><option value="allow">중복 허용</option><option value="unique">중복 불가능</option></select></div></div><div class="notice">중복 허용: 같은 사람이 여러 번 걸릴 수 있음 / 중복 불가능: 같은 사람은 한 번만 걸림</div><div class="row" style="margin-top:10px"><button onclick="createLadder()">사다리 만들기</button><button class="orange" onclick="startMyLadder()">선택한 줄 내려가기</button><button class="gray" onclick="openLadderPage()">사다리 화면 보기</button></div><div class="result big" id="ladderResult">사다리 대기 중</div><div class="locknote" id="ladderLockNote">사다리를 만들면 자동 잠금됨.</div></div>
-</section></div>
-<div class="bottom"><div class="inner"><button class="nav on" onclick="goTab('setup')"><span>👥</span>세팅</button><button class="nav" onclick="goTab('king-sec')"><span>👑</span>왕</button><button class="nav" onclick="goTab('character-sec')"><span>🎭</span>캐릭터</button><button class="nav" onclick="goTab('wheel-sec')"><span>🎡</span>돌림판</button><button class="nav" onclick="goTab('drive-game')"><span>🚗</span>운행</button><button class="nav" onclick="goTab('ladder-sec')"><span>🪜</span>사다리</button></div></div>
-<div class="ladderpage" id="ladderPage"><div class="ladshell"><div class="ladtop"><div><h2>🪜 실시간 사다리</h2><p>누가 내려가면 같은 방 전원이 같이 봄</p></div><button class="ghost" onclick="closeLadderPage()">돌아가기</button></div><div class="ladstage"><div class="ladctrl"><select id="ladderRunSelect"></select><button class="orange" onclick="startSelectedLadderFromPage()">선택한 줄 내려가기</button><button onclick="revealAllLadder()">전체 결과 보기</button></div><div class="canvaswrap"><canvas id="ladderCanvas" width="900" height="700"></canvas></div><div class="ladinfo" id="ladderPickedInfo">사다리를 만들고 줄을 선택해줘.</div></div></div></div>
-<div class="modal" id="modal" onclick="closeModal(event)"><div class="modal-card"><div class="emoji" id="modalEmoji">🎉</div><h2 id="modalTitle">결과</h2><p id="modalText"></p><button onclick="hideModal()">확인</button></div></div>
 <script>
-
-// v17 compatibility aliases
-function escapeHtmlSafe(s){ return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-if(typeof esc !== 'function'){ var esc = escapeHtmlSafe; }
-if(typeof escAttr !== 'function'){ var escAttr = esc; }
-if(typeof escJs !== 'function'){
-  var escJs = function(s){ return String(s ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"'); };
-}
-if(typeof escapeJs !== 'function'){ var escapeJs = escJs; }
-if(typeof escapeAttr !== 'function'){ var escapeAttr = escAttr; }
-if(typeof escapeHtml !== 'function'){ var escapeHtml = esc; }
-
-const localStoreKey='jejuPTripAdminLock.v20',deviceIdKey='jejuPTripSimple.deviceId',defaultPenaltyTask='설거지';
-const defaultState={names:[],adminPinHash:'',adminPinSetAt:'',kingDecisions:[],kingResult:'',kingLocked:false,characterAssignments:[],usedCharacters:[],characterLocked:false,wheelItems:[],wheelResult:'',wheelLocked:false,drivePicks:[],driveTarget:'식당',driveRoute:[],driveResult:'',driveLocked:false,ladderChoices:{},ladderRows:[],ladderLinks:[],ladderLevels:0,ladderResult:'',ladderLocked:false,penaltyTask:defaultPenaltyTask,penaltyCount:4,penaltyDuplicateMode:'allow',activeLadderRun:null,lastEvent:'',lastActor:'',lastUpdatedAt:'',selfName:'',lastLadderPerson:'',lastLadderLine:0};
-const defaultKingDecisions=[];
+const APP_VERSION='v21';
+const roomTable='jeju_game_rooms';
+const localStoreKey='jejuPTripStable.'+APP_VERSION;
+const deviceIdKey='jejuPTrip.deviceId';
+const defaultPenaltyTask='설거지';
+const defaultState={
+  names:[],
+  selfName:'',
+  adminPinHash:'',
+  adminPinSetAt:'',
+  kingDecisions:[],
+  kingResult:'',
+  kingLocked:false,
+  characterAssignments:[],
+  wheelItems:[],
+  wheelResult:'',
+  wheelLocked:false,
+  drivePicks:[],
+  driveResult:'',
+  driveLocked:false,
+  driveTarget:'카페',
+  ladderChoices:{},
+  ladderRows:[],
+  ladderResult:'',
+  ladderLocked:false,
+  penaltyTask:defaultPenaltyTask,
+  penaltyCount:4,
+  penaltyDuplicateMode:'allow',
+  lastLadderPerson:'',
+  lastLadderLine:0,
+  lastEvent:'',
+  lastActor:'',
+  lastUpdatedAt:''
+};
 const legacyKingDefaults=[
-'다음 목적지 정하기',
-'다음 식당/카페 후보 정하기',
-'차량 음악 3곡 선택',
-'단체사진 포즈 정하기',
-'편의점 메뉴 정하기',
-'야식 메뉴 정하기',
-'숙소 게임 선택',
-'내일 첫 일정 정하기',
-'랜덤 운행 목적지 기준 정하기',
-'벌칙 면제권 1회 사용 여부 정하기'
+'다음 목적지 정하기','다음 식당/카페 후보 정하기','차량 음악 3곡 선택','단체사진 포즈 정하기','편의점 메뉴 정하기','야식 메뉴 정하기','숙소 게임 선택','내일 첫 일정 정하기','랜덤 운행 목적지 기준 정하기','벌칙 면제권 1회 사용 여부 정하기'
 ];
 const characterDeck=[
 {name:'불평 금지 인간',desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
@@ -610,278 +398,431 @@ const characterDeck=[
 {name:'오늘의 시다바리2',desc:'숙소에서 냉장고 담당(술, 물, 음료 마실것만 / 불만 표시나 표정 안좋을 경우 1회당 벌칙 추가)'},
 {name:'공짜가 좋아',desc:'리뷰 공짜 음식 무조건 하기, 안하거나 깜빡하면 1회당 벌칙 추가'}
 ];
-let state=loadLocalState(),activeRoom='',client=null,channel=null,sharedReady=false,spinning=false,wheelRotation=0,lastPlayedRunId='';const deviceId=getDeviceId();let isAdmin=sessionStorage.getItem('jeju_admin_ok')==='Y';
 
-async function sha256(text){const data=new TextEncoder().encode(text);const buf=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
-async function openAdminLogin(){if(!state.adminPinHash){const pin=prompt('관리자 PIN을 처음 설정해줘. 숫자 4자리 이상 추천');if(!pin||pin.length<4){showModal('🔐','설정 취소','PIN은 4자리 이상으로 설정해줘.');return}const pin2=prompt('관리자 PIN을 한 번 더 입력해줘.');if(pin!==pin2){showModal('🔐','설정 실패','PIN이 서로 달라.');return}state.adminPinHash=await sha256(pin);state.adminPinSetAt=new Date().toISOString();isAdmin=true;sessionStorage.setItem('jeju_admin_ok','Y');await persist('관리자 PIN 설정');showModal('🔐','관리자 설정 완료','이 브라우저는 관리자 모드야.');renderAdmin();return}const pin=prompt('관리자 PIN 입력');if(!pin)return;const hash=await sha256(pin);if(hash===state.adminPinHash){isAdmin=true;sessionStorage.setItem('jeju_admin_ok','Y');showModal('🔐','관리자 로그인 완료','리셋/초기화가 가능해졌어.')}else showModal('❌','PIN 오류','관리자 PIN이 틀렸어.');renderAdmin()}
-function adminLogout(){isAdmin=false;sessionStorage.removeItem('jeju_admin_ok');renderAdmin();showModal('🔐','로그아웃','관리자 모드가 해제됐어.')}
-function requireAdmin(name='이 작업'){if(isAdmin)return true;showModal('🔐','관리자 전용',`${name}은 관리자만 가능해.\n상단에서 관리자 로그인 후 진행해줘.`);return false}
-function renderAdmin(){const d=document.getElementById('adminDot'),s=document.getElementById('adminStatus');if(!d||!s)return;d.classList.toggle('on',!!isAdmin);s.textContent=isAdmin?'관리자 인증됨':(state.adminPinHash?'관리자 미인증':'관리자 PIN 미설정')}
-function adminResetAll(){if(!requireAdmin('전체 리셋'))return;if(!confirm('관리자 PIN은 유지하고 모든 게임 결과를 초기화할까요?'))return;const adminPinHash=state.adminPinHash,adminPinSetAt=state.adminPinSetAt;state={...defaultState,adminPinHash,adminPinSetAt};persist('관리자 전체 리셋')}
-function adminResetMembers(){if(!requireAdmin('멤버 리셋'))return;if(!confirm('멤버와 모든 게임 결과를 같이 초기화할까요?'))return;const adminPinHash=state.adminPinHash,adminPinSetAt=state.adminPinSetAt;state={...defaultState,adminPinHash,adminPinSetAt};persist('관리자 멤버/전체 리셋')}
-function adminResetWheel(){if(!requireAdmin('돌림판 리셋'))return;state.wheelItems=[];state.wheelResult='';state.wheelLocked=false;const t=document.getElementById('wheelText');if(t)t.value='';persist('돌림판만 리셋')}
-function adminResetDrive(){if(!requireAdmin('랜덤 운행 리셋'))return;state.drivePicks=[];state.driveRoute=[];state.driveResult='';state.driveLocked=false;persist('관리자 랜덤 운행 리셋')}
-function adminResetLadder(){if(!requireAdmin('사다리 리셋'))return;state.ladderChoices={};state.ladderRows=[];state.ladderLinks=[];state.ladderLevels=0;state.ladderResult='';state.ladderLocked=false;state.activeLadderRun=null;state.lastLadderLine=0;persist('사다리만 리셋')}
-function getDeviceId(){let id=localStorage.getItem(deviceIdKey);if(!id){id='D'+Math.random().toString(36).slice(2,10);localStorage.setItem(deviceIdKey,id)}return id}function loadLocalState(){try{return{...defaultState,...JSON.parse(localStorage.getItem(localStoreKey))}}catch(e){return{...defaultState}}}function saveLocalState(){localStorage.setItem(localStoreKey,JSON.stringify(state))}function cleanSupabaseUrl(url){return String(url||'').trim().replace(/\/rest\/v1\/?$/,'').replace(/\/+$/,'')}function normalizeState(s){const n={...defaultState,...(s||{})};
-if(Array.isArray(n.kingDecisions)&&n.kingDecisions.length&&n.kingDecisions.every(x=>legacyKingDefaults.includes(x))){n.kingDecisions=[];}if(!Array.isArray(n.names))n.names=[];if(!Array.isArray(n.wheelItems))n.wheelItems=[];if(!Array.isArray(n.drivePicks))n.drivePicks=[];if(!Array.isArray(n.driveRoute))n.driveRoute=[];if(!n.ladderChoices||Array.isArray(n.ladderChoices))n.ladderChoices={};if(!Array.isArray(n.ladderRows))n.ladderRows=[];if(!Array.isArray(n.ladderLinks))n.ladderLinks=[];n.ladderLevels=Number(n.ladderLevels||0);if(!n.penaltyTask)n.penaltyTask=defaultPenaltyTask;n.penaltyCount=Math.max(1,Number(n.penaltyCount||4));if(!['allow','unique'].includes(n.penaltyDuplicateMode))n.penaltyDuplicateMode='allow';return n}function supabaseConfigured(){return!!(cleanSupabaseUrl(window.JEJU_SUPABASE_URL)&&window.JEJU_SUPABASE_ANON_KEY&&window.supabase)}
+let state=loadLocalState();
+let activeRoom='';
+let client=null;
+let channel=null;
+let sharedReady=false;
+const deviceId=getDeviceId();
+let isAdmin=sessionStorage.getItem('jeju_admin_ok')==='Y';
 
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function escAttr(s){return esc(s)}
+function escJs(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}
+function sample(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function getDeviceId(){let id=localStorage.getItem(deviceIdKey);if(!id){id='D'+Math.random().toString(36).slice(2,10);localStorage.setItem(deviceIdKey,id)}return id}
+function loadLocalState(){try{return normalizeState(JSON.parse(localStorage.getItem(localStoreKey)||'{}'))}catch(e){return normalizeState({})}}
+function saveLocalState(){localStorage.setItem(localStoreKey,JSON.stringify(state))}
+function cleanSupabaseUrl(url){return String(url||'').trim().replace(/\/rest\/v1\/?$/,'').replace(/\/+$/,'')}
+function supabaseConfigured(){return !!(cleanSupabaseUrl(window.JEJU_SUPABASE_URL)&&window.JEJU_SUPABASE_ANON_KEY&&window.supabase)}
+function normalizeState(s){
+  const n={...defaultState,...(s||{})};
+  if(!Array.isArray(n.names))n.names=[];
+  if(!Array.isArray(n.kingDecisions))n.kingDecisions=[];
+  if(n.kingDecisions.length&&n.kingDecisions.every(x=>legacyKingDefaults.includes(x)))n.kingDecisions=[];
+  if(!Array.isArray(n.characterAssignments))n.characterAssignments=[];
+  if(!Array.isArray(n.wheelItems))n.wheelItems=[];
+  if(!Array.isArray(n.drivePicks))n.drivePicks=[];
+  if(!n.ladderChoices||Array.isArray(n.ladderChoices))n.ladderChoices={};
+  if(!Array.isArray(n.ladderRows))n.ladderRows=[];
+  n.penaltyCount=Math.max(1,Number(n.penaltyCount||4));
+  if(!n.penaltyTask)n.penaltyTask=defaultPenaltyTask;
+  if(!['allow','unique'].includes(n.penaltyDuplicateMode))n.penaltyDuplicateMode='allow';
+  n.lastLadderLine=Number(n.lastLadderLine||0);
+  return n;
+}
+function withMeta(eventName){return {...state,lastEvent:eventName||'업데이트',lastActor:deviceId,lastUpdatedAt:new Date().toISOString()}}
+function setStatus(ok,msg){document.getElementById('connDot').classList.toggle('on',!!ok);document.getElementById('connText').textContent=msg}
+function updateLastSync(){
+  const el=document.getElementById('lastSync');
+  if(!el)return;
+  el.textContent=state.lastUpdatedAt?('마지막 반영 '+new Date(state.lastUpdatedAt).toLocaleTimeString()):('현재 '+APP_VERSION);
+}
+function currentRoom(){return (document.getElementById('roomInput').value||'JEJU2026').trim().toUpperCase().replace(/[^A-Z0-9가-힣_-]/g,'')||'JEJU2026'}
+function updateUrl(){
+  const params=new URLSearchParams(location.search);
+  params.set('room',activeRoom||currentRoom());
+  params.set('v',APP_VERSION.replace(/^v/,''));
+  history.replaceState(null,'',location.pathname+'?'+params.toString());
+}
 async function joinRoomWithName(){
-  const nameInput = document.getElementById('myNameInput');
-  const name = nameInput ? nameInput.value.trim() : '';
-  if(!name){
-    showModal('👤','이름 필요','방에 들어가기 전에 본인 이름을 입력해줘.');
-    return;
-  }
-  state.selfName = name;
-  await joinRoom();
+  const name=(document.getElementById('myNameInput').value||'').trim();
+  if(!name){showModal('👤','이름 필요','방에 들어가기 전에 본인 이름을 입력해줘.');return}
+  state.selfName=name;
+  activeRoom=currentRoom();
+  document.getElementById('roomInput').value=activeRoom;
+  updateUrl();
 
-  // 방 상태를 불러온 뒤 본인 이름 자동 저장
-  if(name && !state.names.includes(name)){
-    state.names.push(name);
-    await persist('입장 멤버 자동 저장: ' + name);
-  }else{
+  try{
+    await joinRoom();
+    if(!state.names.includes(name)){
+      state.names.push(name);
+      await persist('입장 멤버 자동 저장: '+name);
+    }else{
+      saveLocalState();
+      renderAll();
+    }
+    showLobby();
+  }catch(err){
+    console.error(err);
+    sharedReady=false;
+    setStatus(false,'연결 실패');
+    showModal('⚠️','방 입장 실패',String(err.message||err)+'\n\n상단 버전이 '+APP_VERSION+'인지 확인하고, config.js는 건드리지 마.');
+  }
+}
+async function joinRoom(){
+  activeRoom=currentRoom();
+  updateUrl();
+  if(!supabaseConfigured()){
+    sharedReady=false;
     saveLocalState();
     renderAll();
+    throw new Error('Supabase 미설정 또는 config.js 로드 실패');
   }
-  showLobby();
+  const url=cleanSupabaseUrl(window.JEJU_SUPABASE_URL);
+  client=window.supabase.createClient(url,window.JEJU_SUPABASE_ANON_KEY);
+  setStatus(false,activeRoom+' 연결 중...');
+  const {data:existing,error:selectError}=await client.from(roomTable).select('state').eq('room_code',activeRoom).maybeSingle();
+  if(selectError)throw selectError;
+  if(existing&&existing.state){
+    state=normalizeState(existing.state);
+  }else{
+    state=normalizeState(state);
+    const {error:insertError}=await client.from(roomTable).insert({room_code:activeRoom,state:withMeta('방 생성'),updated_at:new Date().toISOString()});
+    if(insertError)throw insertError;
+  }
+  sharedReady=true;
+  saveLocalState();
+  renderAll();
+  subscribeRoom();
+  setStatus(true,activeRoom+' 공유 연결됨 · '+APP_VERSION);
+  updateLastSync();
 }
-
+function subscribeRoom(){
+  if(!client||!activeRoom)return;
+  if(channel)client.removeChannel(channel);
+  channel=client.channel('jeju-room-'+activeRoom+'-'+deviceId)
+    .on('postgres_changes',{event:'*',schema:'public',table:roomTable,filter:'room_code=eq.'+activeRoom},payload=>{
+      if(!payload.new||!payload.new.state)return;
+      state=normalizeState(payload.new.state);
+      saveLocalState();
+      renderAll();
+      updateLastSync();
+    })
+    .subscribe(st=>{if(st==='SUBSCRIBED')setStatus(true,activeRoom+' 실시간 공유 중 · '+APP_VERSION)});
+}
+async function persist(eventName){
+  state=normalizeState(state);
+  state.lastEvent=eventName||'업데이트';
+  state.lastActor=deviceId;
+  state.lastUpdatedAt=new Date().toISOString();
+  saveLocalState();
+  renderAll();
+  if(!sharedReady||!client||!activeRoom)return;
+  const {error}=await client.from(roomTable).upsert({room_code:activeRoom,state,updated_at:new Date().toISOString()});
+  if(error){console.error(error);showModal('⚠️','저장 실패',String(error.message||error));}
+}
 function openGame(id,title){
   document.querySelectorAll('.main-only').forEach(el=>el.classList.add('hidden-main'));
   document.querySelectorAll('.game-section').forEach(el=>el.classList.remove('active-game'));
-  const target = document.getElementById(id);
-  if(target) target.classList.add('active-game');
-  const bar = document.getElementById('topGameBar');
-  if(bar) bar.classList.add('show');
-  const titleEl = document.getElementById('currentGameTitle');
-  if(titleEl) titleEl.textContent = title || '게임';
+  const target=document.getElementById(id);
+  if(target)target.classList.add('active-game');
+  document.getElementById('topGameBar').classList.add('show');
+  document.getElementById('currentGameTitle').textContent=title||'게임';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
 function showLobby(){
   document.querySelectorAll('.game-section').forEach(el=>el.classList.remove('active-game'));
   document.querySelectorAll('.main-only').forEach(el=>el.classList.remove('hidden-main'));
-  const bar = document.getElementById('topGameBar');
-  if(bar) bar.classList.remove('show');
+  document.getElementById('topGameBar').classList.remove('show');
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function updateLobby(){
-  const c = document.getElementById('lobbyMemberCount');
-  if(c) c.textContent = '멤버 ' + (state.names ? state.names.length : 0) + '명';
+function renderAll(){
+  state=normalizeState(state);
+  renderAdmin();renderMembers();renderKing();renderCharacters();renderWheel();renderDrive();renderLadder();updateLastSync();
 }
-
-async function joinRoom(){activeRoom=(document.getElementById('roomInput').value||'JEJU2026').trim().toUpperCase().replace(/[^A-Z0-9가-힣_-]/g,'');if(!activeRoom)activeRoom='JEJU2026';document.getElementById('roomInput').value=activeRoom;history.replaceState(null,'',location.pathname+'?room='+encodeURIComponent(activeRoom));if(!supabaseConfigured()){sharedReady=false;setStatus(false,'Supabase 미설정 · config.js 확인');showModal('⚠️','공유 모드 미연결','config.js에 Supabase URL과 anon/publishable key를 넣어야 해.');renderAll();return}try{const url=cleanSupabaseUrl(window.JEJU_SUPABASE_URL);client=window.supabase.createClient(url,window.JEJU_SUPABASE_ANON_KEY);setStatus(false,activeRoom+' 연결 중...');const{data:existing,error:selectError}=await client.from('jeju_game_rooms').select('state').eq('room_code',activeRoom).maybeSingle();if(selectError)throw selectError;if(existing&&existing.state){state=normalizeState(existing.state)}else{state=normalizeState(state);const{error:insertError}=await client.from('jeju_game_rooms').insert({room_code:activeRoom,state:withMeta('방 생성'),updated_at:new Date().toISOString()});if(insertError)throw insertError}sharedReady=true;saveLocalState();renderAll();subscribeRoom();setStatus(true,activeRoom+' 공유 연결됨');updateLastSync()}catch(err){console.error(err);sharedReady=false;setStatus(false,'연결 실패 · config/Supabase 확인');showModal('⚠️','연결 실패',String(err.message||err)+'\n\n확인:\n1. config.js URL/key\n2. URL 끝 /rest/v1 삭제\n3. anon 또는 publishable key 사용\n4. Supabase 프로젝트 일시정지 여부')}}
-function subscribeRoom(){if(channel&&client)client.removeChannel(channel);channel=client.channel('jeju-simple-room-'+activeRoom).on('postgres_changes',{event:'*',schema:'public',table:'jeju_game_rooms',filter:'room_code=eq.'+activeRoom},p=>{if(!p.new||!p.new.state)return;state=normalizeState(p.new.state);saveLocalState();renderAll();updateLastSync();maybePlaySharedLadderRun();if(state.lastActor!==deviceId&&state.lastEvent)document.getElementById('lastSync').textContent='방금 반영됨: '+state.lastEvent}).subscribe(st=>{if(st==='SUBSCRIBED')setStatus(true,activeRoom+' 실시간 공유 중')})}function withMeta(e){return{...state,lastEvent:e||'업데이트',lastActor:deviceId,lastUpdatedAt:new Date().toISOString()}}async function persist(e){state=normalizeState(state);state.lastEvent=e||'업데이트';state.lastActor=deviceId;state.lastUpdatedAt=new Date().toISOString();saveLocalState();renderAll();if(!sharedReady||!client||!activeRoom)return;try{const{error}=await client.from('jeju_game_rooms').upsert({room_code:activeRoom,state,updated_at:new Date().toISOString()},{onConflict:'room_code'});if(error)throw error;updateLastSync()}catch(err){console.error(err);setStatus(false,'저장 실패 · 연결 확인')}}
-function setStatus(on,t){document.getElementById('statusDot').classList.toggle('on',!!on);document.getElementById('statusText').textContent=t}function updateLastSync(){const t=state.lastUpdatedAt?new Date(state.lastUpdatedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';document.getElementById('lastSync').textContent=t?`${t} · ${state.lastEvent||'동기화 완료'}`:'동기화 완료'}function goTab(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.tab,.nav').forEach(b=>b.classList.remove('active','on'));document.querySelectorAll('.tab').forEach(tab=>{if(tab.getAttribute('onclick')?.includes("'"+id+"'"))tab.classList.add('active')});const m={'setup':0,'wheel-sec':1,'drive-game':2,'ladder-sec':3},idx=m[id];if(idx>=0)document.querySelectorAll('.nav')[idx]?.classList.add('on')}function sample(a){return a[Math.floor(Math.random()*a.length)]}function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function escj(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}
-function addName(){if(state.kingLocked||state.characterLocked||state.wheelLocked||state.driveLocked||state.ladderLocked){showModal('🔒','결과 잠금 중','결과가 확정된 게임이 있어 멤버 변경은 관리자 리셋 후 가능해.');return}const i=document.getElementById('nameInput'),n=i.value.trim();if(!n)return;if(!state.names.includes(n))state.names.push(n);i.value='';persist('멤버 추가: '+n)}function removeName(n){if(!requireAdmin('멤버 삭제'))return;state.names=state.names.filter(x=>x!==n);state.drivePicks=state.drivePicks.filter(p=>p.person!==n);delete state.ladderChoices[n];state.characterAssignments=state.characterAssignments.filter(a=>a.person!==n);state.kingResult=state.kingResult&&state.kingResult.includes(n)?'':state.kingResult;state.ladderRows=[];state.ladderResult='';persist('멤버 삭제: '+n)}function clearNames(){adminResetMembers()}function loadSampleNames(){if(state.kingLocked||state.characterLocked||state.wheelLocked||state.driveLocked||state.ladderLocked){showModal('🔒','결과 잠금 중','결과가 확정된 게임이 있어 멤버 변경은 관리자 리셋 후 가능해.');return}state.names=['영언','민수','지훈','현우','성민','수진','지혜','유진','다은','서연'];persist('10명 예시 입력')}function renderNames(){
+function renderMembers(){
+  const count=document.getElementById('lobbyMemberCount');
+  if(count)count.textContent='멤버 '+state.names.length+'명 · '+APP_VERSION;
   const chips=document.getElementById('nameChips');
-  if(chips)chips.innerHTML=state.names.length?state.names.map(n=>`<span class="chip">${esc(n)} <span class="x" onclick="removeName('${escJs(n)}')">×</span></span>`).join(''):'<span class="mini">아직 등록된 멤버가 없음</span>';
+  if(chips)chips.innerHTML=state.names.length?state.names.map(n=>`<span class="chip">${esc(n)} <span class="x" onclick="removeName('${escJs(n)}')">×</span></span>`).join(''):'<span class="mini">아직 등록된 멤버 없음</span>';
+  const list=document.getElementById('memberList');
+  if(list)list.innerHTML=state.names.length?state.names.map((n,i)=>`<div class="member-card"><b>${i+1}. ${esc(n)}</b><span>${n===state.selfName?'본인':''}</span></div>`).join(''):'<div class="member-card"><b>멤버 없음</b><span>입장하면 자동으로 추가됨</span></div>';
 
-  const memberList=document.getElementById('memberList');
-  if(memberList)memberList.innerHTML=state.names.length?state.names.map((n,i)=>`<div class="member-card"><span>${i+1}</span>${esc(n)}</div>`).join(''):'<div class="mini">방에 입장한 멤버가 여기에 표시됨</div>';
-
-  ['driveName','ladderPerson','charName'].forEach(id=>{
-    const sel=document.getElementById(id);
-    if(!sel)return;
+  ['driveName','charName','ladderPerson'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;
     const before=sel.value;
-    sel.innerHTML=state.names.map(n=>`<option value="${escAttr(n)}">${esc(n)}</option>`).join('');
-    if(!state.names.length){
-      sel.innerHTML='<option>멤버 없음</option>';
-    }else if(id==='ladderPerson' && state.lastLadderPerson && state.names.includes(state.lastLadderPerson)){
-      sel.value=state.lastLadderPerson;
-    }else if(before && state.names.includes(before)){
-      sel.value=before;
-    }else if(id==='ladderPerson' && state.selfName && state.names.includes(state.selfName)){
-      sel.value=state.selfName;
-    }
-    if(id==='ladderPerson'){
-      sel.onchange=()=>{
-        state.lastLadderPerson=sel.value;
-        saveLocalState();
-        renderLadderLineSelects();
-      };
-    }
+    sel.innerHTML=state.names.length?state.names.map(n=>`<option value="${escAttr(n)}">${esc(n)}</option>`).join(''):'<option value="">멤버 없음</option>';
+    if(id==='ladderPerson'&&state.lastLadderPerson&&state.names.includes(state.lastLadderPerson))sel.value=state.lastLadderPerson;
+    else if(before&&state.names.includes(before))sel.value=before;
+    else if(state.selfName&&state.names.includes(state.selfName))sel.value=state.selfName;
+    if(id==='ladderPerson')sel.onchange=()=>{state.lastLadderPerson=sel.value;saveLocalState();renderLadderLineSelects()};
   });
-  renderLadderLineSelects()
 }
+function addName(){
+  const input=document.getElementById('nameInput');
+  const name=(input.value||'').trim();
+  if(!name)return;
+  if(!state.names.includes(name))state.names.push(name);
+  input.value='';
+  persist('멤버 추가: '+name);
+}
+function removeName(name){
+  if(!requireAdmin('멤버 삭제'))return;
+  state.names=state.names.filter(n=>n!==name);
+  delete state.ladderChoices[name];
+  state.characterAssignments=state.characterAssignments.filter(a=>a.person!==name);
+  persist('멤버 삭제: '+name);
+}
+
+async function sha256(text){const data=new TextEncoder().encode(text);const buf=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function openAdminLogin(){
+  if(!state.adminPinHash){
+    const pin=prompt('관리자 PIN 처음 설정');
+    if(!pin||pin.length<4){showModal('🔐','설정 취소','PIN은 4자리 이상으로 해줘.');return}
+    const pin2=prompt('관리자 PIN 다시 입력');
+    if(pin!==pin2){showModal('🔐','설정 실패','PIN이 달라.');return}
+    state.adminPinHash=await sha256(pin);
+    state.adminPinSetAt=new Date().toISOString();
+    isAdmin=true;sessionStorage.setItem('jeju_admin_ok','Y');
+    await persist('관리자 PIN 설정');
+    showModal('🔐','관리자 설정 완료','관리자 모드야.');
+    return;
+  }
+  const pin=prompt('관리자 PIN 입력');
+  if(!pin)return;
+  if(await sha256(pin)===state.adminPinHash){isAdmin=true;sessionStorage.setItem('jeju_admin_ok','Y');renderAdmin();showModal('🔐','관리자 로그인','리셋 가능.')}
+  else showModal('❌','PIN 오류','관리자 PIN이 틀렸어.');
+}
+function adminLogout(){isAdmin=false;sessionStorage.removeItem('jeju_admin_ok');renderAdmin()}
+function requireAdmin(name='이 작업'){if(isAdmin)return true;showModal('🔐','관리자 전용',name+'은 관리자만 가능해.');return false}
+function renderAdmin(){const el=document.getElementById('adminStatus');if(el)el.textContent=isAdmin?'관리자 인증됨':(state.adminPinHash?'관리자 미인증':'관리자 PIN 미설정')}
+function adminResetMembers(){if(!requireAdmin('멤버/전체 리셋'))return;if(!confirm('멤버와 모든 게임을 초기화할까?'))return;const keep={adminPinHash:state.adminPinHash,adminPinSetAt:state.adminPinSetAt};state=normalizeState({...defaultState,...keep});persist('멤버/전체 리셋')}
+function adminResetKing(){if(!requireAdmin('왕/결정권 리셋'))return;state.kingDecisions=[];state.kingResult='';state.kingLocked=false;const t=document.getElementById('kingDecisionText');if(t)t.value='';persist('왕/결정권 리셋')}
+function adminResetCharacters(){if(!requireAdmin('캐릭터 리셋'))return;state.characterAssignments=[];persist('캐릭터 리셋')}
+function adminResetWheel(){if(!requireAdmin('돌림판 리셋'))return;state.wheelItems=[];state.wheelResult='';state.wheelLocked=false;const t=document.getElementById('wheelText');if(t)t.value='';persist('돌림판 리셋')}
+function adminResetDrive(){if(!requireAdmin('랜덤 운행 리셋'))return;state.drivePicks=[];state.driveResult='';state.driveLocked=false;persist('랜덤 운행 리셋')}
+function adminResetLadder(){if(!requireAdmin('사다리 리셋'))return;state.ladderChoices={};state.ladderRows=[];state.ladderResult='';state.ladderLocked=false;state.lastLadderLine=0;persist('사다리 리셋')}
 
 function applyKingDecisions(){
-  if(state.kingLocked){showModal('🔒','왕 뽑기 잠금','이미 왕이 뽑혔어. 관리자 리셋 전까지 수정할 수 없어.');return}
-  const text=document.getElementById('kingDecisionText').value;
-  state.kingDecisions=text.split(/\n/).map(x=>x.trim()).filter(Boolean);
-  persist('왕 결정권 반영')
+  const text=document.getElementById('kingDecisionText').value||'';
+  state.kingDecisions=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  persist('왕 결정권 반영');
+}
+function clearKingDecisions(){
+  if(!requireAdmin('결정권 기록 삭제'))return;
+  state.kingDecisions=[];const t=document.getElementById('kingDecisionText');if(t)t.value='';
+  persist('결정권 기록 삭제');
 }
 function drawKing(){
-  if(state.kingLocked){showModal('🔒','왕 뽑기 잠금','이미 왕이 뽑혔어.\n관리자 리셋 전까지 결과는 유지돼.');return}
-  if(!state.names.length){showModal('👑','멤버 없음','멤버를 먼저 추가해줘.');return}
+  if(state.kingLocked){showModal('🔒','왕 뽑기 잠금','왕/결정권 리셋 후 다시 뽑을 수 있어.');return}
+  if(!state.names.length){showModal('👥','멤버 없음','먼저 방에 입장하거나 멤버를 추가해줘.');return}
   const king=sample(state.names);
-  const decision=(state.kingDecisions&&state.kingDecisions.length)?sample(state.kingDecisions):'';
-  state.kingResult=decision?`${king}\n${decision}`:`${king}`;
+  const extra=state.kingDecisions.length?'\n결정권: '+sample(state.kingDecisions):'';
+  state.kingResult='👑 오늘의 왕: '+king+extra;
   state.kingLocked=true;
-  showModal('👑','오늘의 왕',decision?`${king}\n\n결정권: ${decision}`:`${king}\n\n결정권은 공백 상태야.`);
-  burstConfetti();
-  persist('왕 뽑기 결과 확정: '+king)
+  persist('왕 뽑기: '+king);
 }
-
-function clearKingDecisions(){
-  if(!requireAdmin('왕 결정권 기록 삭제'))return;
-  state.kingDecisions=[];
-  const t=document.getElementById('kingDecisionText');
-  if(t)t.value='';
-  persist('관리자 왕 결정권 기록 삭제')
-}
-function adminResetKing(){
-  if(!requireAdmin('왕 뽑기 리셋'))return;
-  state.kingDecisions=[];
-  state.kingResult='';
-  state.kingLocked=false;
-  const t=document.getElementById('kingDecisionText');
-  if(t)t.value='';
-  persist('관리자 왕 뽑기/결정권 전체 리셋')
-}
-
 function renderKing(){
   const t=document.getElementById('kingDecisionText');
-  if(t&&document.activeElement!==t)t.value=(state.kingDecisions&&state.kingDecisions.length?state.kingDecisions:[]).join('\n');
-  const r=document.getElementById('kingResult');
-  if(r)r.textContent=state.kingResult||'왕 뽑기 대기 중';
-  const c=document.getElementById('kingDecisionChips');
-  if(c)c.innerHTML=(state.kingDecisions&&state.kingDecisions.length)
-    ? state.kingDecisions.map(x=>`<span class="chip">${esc(x)}</span>`).join('')
-    : '<span class="mini">결정권 내용 없음 · 공백 상태</span>';
-  const n=document.getElementById('kingLockNote');
-  if(n)n.textContent=state.kingLocked?'🔒 왕 뽑기 결과 잠금 중 · 왕/결정권 리셋 전까지 유지':'왕이 뽑히면 자동 잠금됨.'
+  if(t&&document.activeElement!==t)t.value=state.kingDecisions.join('\n');
+  document.getElementById('kingResult').textContent=state.kingResult||'왕 뽑기 대기 중';
+  document.getElementById('kingDecisionChips').innerHTML=state.kingDecisions.length?state.kingDecisions.map(x=>`<span class="chip">${esc(x)}</span>`).join(''):'<span class="mini">결정권 내용 없음 · 공백 상태</span>';
+  document.getElementById('kingLockNote').textContent=state.kingLocked?'🔒 왕 뽑기 잠금 중':'왕이 뽑히면 자동 잠금됨.';
 }
 
-function drawCharacter(){if(!state.names.length){showModal('🎭','멤버 없음','멤버를 먼저 추가해줘.');return}if(state.characterLocked){showModal('🔒','캐릭터 잠금','캐릭터 배정이 완료됐어. 관리자 리셋 전까지 유지돼.');return}const person=document.getElementById('charName').value;if(state.characterAssignments.some(a=>a.person===person)){showModal('🎭','이미 뽑음',person+'님은 이미 캐릭터가 있어.');return}const used=state.characterAssignments.map(a=>a.character);const available=characterDeck.filter(c=>!used.includes(c.name));if(!available.length){state.characterLocked=true;persist('캐릭터 전체 배정 완료');showModal('🎭','캐릭터 없음','남은 캐릭터가 없어.');return}const ch=sample(available);state.characterAssignments.push({person,character:ch.name,desc:ch.desc});if(state.characterAssignments.length>=Math.min(state.names.length,characterDeck.length))state.characterLocked=true;document.getElementById('charResult').textContent=`${person}\n${ch.name}\n${ch.desc}`;showModal('🎭',person+'님의 캐릭터',`${ch.name}\n${ch.desc}`);burstConfetti();persist('캐릭터 뽑기: '+person+' · '+ch.name)}
-function adminResetCharacters(){if(!requireAdmin('캐릭터 리셋'))return;state.characterAssignments=[];state.usedCharacters=[];state.characterLocked=false;persist('캐릭터만 리셋')}
+function drawCharacter(){
+  const person=document.getElementById('charName').value;
+  if(!person){showModal('👥','멤버 없음','멤버를 먼저 추가해줘.');return}
+  if(state.characterAssignments.some(a=>a.person===person)){showModal('🎭','이미 뽑음',person+'님은 이미 캐릭터가 있어.');return}
+  const used=state.characterAssignments.map(a=>a.character);
+  const remain=characterDeck.filter(c=>!used.includes(c.name));
+  if(!remain.length){showModal('🎭','캐릭터 없음','남은 캐릭터가 없어.');return}
+  const c=sample(remain);
+  state.characterAssignments.push({person,character:c.name,desc:c.desc});
+  persist('캐릭터 뽑기: '+person+' · '+c.name);
+}
 function renderCharacters(){
   const preview=document.getElementById('characterPreviewList');
-  if(preview)preview.innerHTML=characterDeck.map(c=>{
-    const assigned=state.characterAssignments.find(a=>a.character===c.name);
-    const usedClass=assigned?' used':'';
-    const prefix=assigned?`${assigned.person} 배정 완료 · `:'';
-    return `<div class="character-preview-card${usedClass}"><b>${esc(prefix+c.name)}</b><span>${esc(c.desc)}</span></div>`
+  preview.innerHTML=characterDeck.map(c=>{
+    const a=state.characterAssignments.find(x=>x.character===c.name);
+    return `<div class="preview-card ${a?'used':''}"><b>${a?esc(a.person)+' 배정 완료 · ':''}${esc(c.name)}</b><span>${esc(c.desc)}</span></div>`;
   }).join('');
-
-  const list=document.getElementById('characterList');
-  if(list)list.innerHTML=state.characterAssignments.length
-    ? state.characterAssignments.map(a=>`<span class="chip">${esc(a.person)} · ${esc(a.character)}</span>`).join('')
-    : '<span class="mini">아직 뽑은 캐릭터가 없음</span>';
-
-  const detail=document.getElementById('characterDetailList');
-  if(detail)detail.innerHTML=state.characterAssignments.length
-    ? state.characterAssignments.map(a=>`<div class="assignment-card"><b>${esc(a.person)} · ${esc(a.character)}</b><span>${esc(a.desc||'')}</span></div>`).join('')
-    : '<div class="assignment-card empty"><b>캐릭터 배정 전</b><span>누가 뽑으면 여기에서 모든 사람의 배정 결과를 같이 볼 수 있음.</span></div>';
-
-  const res=document.getElementById('charResult');
-  if(res)res.textContent=state.characterAssignments.length?'모든 사람 캐릭터 배정 현황 아래 확인':'캐릭터 뽑기 대기 중';
-  const note=document.getElementById('characterLockNote');
-  if(note)note.textContent=state.characterLocked?'🔒 캐릭터 결과 잠금 중 · 캐릭터만 리셋 전까지 유지':'뽑힌 캐릭터는 캐릭터만 리셋 전까지 유지됨.'
+  document.getElementById('characterList').innerHTML=state.characterAssignments.length?state.characterAssignments.map(a=>`<span class="chip">${esc(a.person)} · ${esc(a.character)}</span>`).join(''):'<span class="mini">아직 뽑은 캐릭터 없음</span>';
+  document.getElementById('characterDetailList').innerHTML=state.characterAssignments.length?state.characterAssignments.map(a=>`<div class="assignment-card"><b>${esc(a.person)} · ${esc(a.character)}</b><span>${esc(a.desc)}</span></div>`).join(''):'<div class="assignment-card"><b>캐릭터 배정 전</b><span>뽑으면 모든 사람의 배정 결과가 여기 표시됨.</span></div>';
+  document.getElementById('charResult').textContent=state.characterAssignments.length?'모든 사람 캐릭터 배정 현황 아래 확인':'캐릭터 뽑기 대기 중';
 }
 
-function applyWheelText(){if(state.wheelLocked){showModal('🔒','돌림판 잠금','이미 결과가 나왔어. 관리자 리셋 전까지 수정할 수 없어.');return}state.wheelItems=document.getElementById('wheelText').value.split(/\n/).map(x=>x.trim()).filter(Boolean);state.wheelResult='';persist('돌림판 수기 입력 반영')}function clearWheel(){adminResetWheel()}function renderWheel(){const t=document.getElementById('wheelText');if(document.activeElement!==t)t.value=state.wheelItems.join('\n');document.getElementById('wheelResult').textContent=state.wheelResult||'돌림판 대기 중';document.getElementById('wheelChips').innerHTML=state.wheelItems.length?state.wheelItems.map(x=>`<span class="chip">${esc(x)}</span>`).join(''):'<span class="mini">수기 입력 후 반영 버튼을 눌러줘</span>';const ln=document.getElementById('wheelLockNote');if(ln)ln.textContent=state.wheelLocked?'🔒 돌림판 결과 잠금 중 · 관리자 리셋 전까지 유지':'결과가 나오면 자동 잠금됨.';drawWheel()}function drawWheel(){const c=document.getElementById('wheel'),ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=W/2-8;ctx.clearRect(0,0,W,H);const items=state.wheelItems.length?state.wheelItems:['대기중'],colors=['#0f766e','#14b8a6','#fb923c','#f97316','#38bdf8','#22c55e','#f43f5e','#8b5cf6','#eab308','#06b6d4'],arc=2*Math.PI/items.length;items.forEach((it,i)=>{const st=i*arc-Math.PI/2,en=st+arc;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,st,en);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate(st+arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';ctx.font='bold 28px system-ui,sans-serif';ctx.fillText(it.length>8?it.slice(0,8)+'…':it,r-28,9);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,70,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill()}function spinWheel(){if(state.wheelLocked){showModal('🔒','돌림판 잠금','이미 결과가 확정됐어.\n관리자 리셋 전까지 결과는 유지돼.');return}if(spinning||!state.wheelItems.length){showModal('🎡','내용 없음','돌림판 내용을 먼저 입력해줘.');return}spinning=true;const items=state.wheelItems,idx=Math.floor(Math.random()*items.length),arc=360/items.length,target=360-(idx*arc+arc/2),spins=5+Math.floor(Math.random()*3);wheelRotation+=spins*360+target;document.getElementById('wheel').style.transform=`rotate(${wheelRotation}deg)`;setTimeout(()=>{spinning=false;state.wheelResult=items[idx];state.wheelLocked=true;showModal('🎉','돌림판 결과',items[idx]);burstConfetti();persist('돌림판 결과: '+items[idx])},3100)}
-function setDriveTarget(v){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','이미 운행 결과가 확정됐어.');renderDrive();return}state.driveTarget=v;persist('목적지 기준 변경: '+v)}function pickDirection(d){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','이미 운행 결과가 확정됐어. 관리자 리셋 전까지 수정 불가.');return}if(!state.names.length){showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.');return}const p=document.getElementById('driveName').value,e=state.drivePicks.find(x=>x.person===p);if(e)e.direction=d;else state.drivePicks.push({person:p,direction:d});persist('운행 방향 선택: '+p+' · '+d)}function clearDrivePicks(){adminResetDrive()}function runDriveGame(){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','이미 결과가 확정됐어.\n관리자 리셋 전까지 결과는 유지돼.');return}if(!state.drivePicks.length){showModal('🚗','선택 없음','방향을 먼저 선택해줘.');return}state.driveRoute=shuffle(state.drivePicks);state.driveResult=`${state.driveRoute.length}개 랜덤 순서 확정\n첫 번째 ${state.driveTarget} 나오면 방문`;state.driveLocked=true;showModal('🚗','랜덤 운행 순서',state.driveRoute.map((p,i)=>`${i+1}. ${p.person} · ${p.direction}`).join('\n')+`\n\n첫 번째 ${state.driveTarget} 방문`);burstConfetti();persist('랜덤 운행 순서 확정')}function renderDrive(){document.getElementById('driveTarget').value=state.driveTarget;document.getElementById('drivePickChips').innerHTML=state.drivePicks.length?state.drivePicks.map(p=>`<span class="chip">${esc(p.person)} · ${esc(p.direction)} <span class="x" onclick="removeDrivePick('${escj(p.person)}')">×</span></span>`).join(''):'<span class="mini">아직 선택 없음</span>';document.getElementById('driveResult').textContent=state.driveResult||'랜덤 운행 대기 중';document.getElementById('driveRouteList').innerHTML=state.driveRoute.length?state.driveRoute.map(p=>`<div class="routecard"><div><b>${esc(p.direction)}</b><br><span>${esc(p.person)} 선택</span></div></div>`).join(''):'<div class="mini">랜덤 순서를 뽑으면 표시됨</div>';const ln=document.getElementById('driveLockNote');if(ln)ln.textContent=state.driveLocked?'🔒 랜덤 운행 결과 잠금 중 · 관리자 리셋 전까지 유지':'결과가 나오면 자동 잠금됨.'}function removeDrivePick(p){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','관리자 리셋 전까지 수정 불가.');return}state.drivePicks=state.drivePicks.filter(x=>x.person!==p);state.driveRoute=state.driveRoute.filter(x=>x.person!==p);persist('운행 방향 삭제: '+p)}
+function applyWheelText(){
+  const text=document.getElementById('wheelText').value||'';
+  state.wheelItems=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  state.wheelResult='';
+  state.wheelLocked=false;
+  persist('돌림판 목록 반영');
+}
+function spinWheel(){
+  if(state.wheelLocked){showModal('🔒','돌림판 잠금','돌림판 리셋 후 다시 돌릴 수 있어.');return}
+  if(!state.wheelItems.length)applyWheelText();
+  if(!state.wheelItems.length){showModal('🎡','목록 없음','돌림판 항목을 먼저 넣어줘.');return}
+  const pick=sample(state.wheelItems);
+  state.wheelResult='🎉 결과: '+pick;
+  state.wheelLocked=true;
+  persist('돌림판 결과: '+pick);
+}
+function renderWheel(){
+  const t=document.getElementById('wheelText');
+  if(t&&document.activeElement!==t)t.value=state.wheelItems.join('\n');
+  document.getElementById('wheelResult').textContent=state.wheelResult||'돌림판 대기 중';
+  document.getElementById('wheelChips').innerHTML=state.wheelItems.length?state.wheelItems.map(x=>`<span class="chip">${esc(x)}</span>`).join(''):'<span class="mini">항목 없음</span>';
+}
+
+function pickDriver(){
+  if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','랜덤 운행 리셋 후 다시 가능.');return}
+  if(!state.names.length){showModal('👥','멤버 없음','멤버를 먼저 추가해줘.');return}
+  const target=(document.getElementById('driveTarget').value||state.driveTarget||'카페').trim();
+  const pick=sample(state.names);
+  state.driveTarget=target;
+  state.driveResult='🚗 '+pick+' · '+target+' 담당';
+  state.drivePicks.push({person:pick,target,at:new Date().toISOString()});
+  state.driveLocked=true;
+  persist('랜덤 운행: '+pick);
+}
+function renderDrive(){
+  const input=document.getElementById('driveTarget');
+  if(input&&document.activeElement!==input)input.value=state.driveTarget||'카페';
+  document.getElementById('driveResult').textContent=state.driveResult||'랜덤 운행 대기 중';
+  document.getElementById('driveChips').innerHTML=state.drivePicks.length?state.drivePicks.map(x=>`<span class="chip">${esc(x.person)} · ${esc(x.target)}</span>`).join(''):'<span class="mini">기록 없음</span>';
+}
+
+function getPersonByLine(line){return Object.keys(state.ladderChoices||{}).find(n=>Number(state.ladderChoices[n])===Number(line))}
 function renderLadderLineSelects(){
   const personEl=document.getElementById('ladderPerson');
-  const currentPerson=personEl?personEl.value:'';
-  const chosenValues=Object.values(state.ladderChoices||{}).map(v=>Number(v)).filter(v=>!Number.isNaN(v));
-  const maxChosen=chosenValues.length?Math.max(...chosenValues)+1:0;
-  const cnt=Math.max(10,state.names.length,maxChosen,1);
-
   const lineEl=document.getElementById('ladderLine');
-  const before=lineEl?Number(lineEl.value):Number(state.lastLadderLine||0);
-
-  const opts=Array.from({length:cnt},(_,i)=>{
+  if(!personEl||!lineEl)return;
+  const currentPerson=personEl.value||state.lastLadderPerson||state.selfName||state.names[0]||'';
+  const chosenValues=Object.values(state.ladderChoices||{}).map(v=>Number(v)).filter(v=>!Number.isNaN(v));
+  const cnt=Math.max(10,state.names.length,chosenValues.length?Math.max(...chosenValues)+1:0);
+  const before=Number(lineEl.value||state.lastLadderLine||0);
+  lineEl.innerHTML=Array.from({length:cnt},(_,i)=>{
     const owner=getPersonByLine(i);
     const disabled=owner&&owner!==currentPerson?'disabled':'';
     const label=owner?`${i+1}번 줄 · ${owner} 선택됨`:`${i+1}번 줄`;
     return `<option value="${i}" ${disabled}>${esc(label)}</option>`;
   }).join('');
-
-  if(lineEl){
-    lineEl.innerHTML=opts;
-
-    let targetLine = before;
-    if(currentPerson && state.ladderChoices[currentPerson]!==undefined){
-      targetLine = Number(state.ladderChoices[currentPerson]);
-    }else if(state.lastLadderLine!==undefined && state.lastLadderLine!==null){
-      targetLine = Number(state.lastLadderLine);
-    }
-
-    const targetOwner=getPersonByLine(targetLine);
-    if(Number.isNaN(targetLine) || targetLine<0 || targetLine>=cnt || (targetOwner && targetOwner!==currentPerson)){
-      const firstFree=Array.from({length:cnt},(_,i)=>i).find(i=>!getPersonByLine(i));
-      targetLine = firstFree===undefined ? 0 : firstFree;
-    }
-
-    lineEl.value=String(targetLine);
-    lineEl.onchange=()=>{
-      state.lastLadderLine=Number(lineEl.value);
-      saveLocalState();
-    };
+  let target=before;
+  if(currentPerson&&state.ladderChoices[currentPerson]!==undefined)target=Number(state.ladderChoices[currentPerson]);
+  const owner=getPersonByLine(target);
+  if(Number.isNaN(target)||target<0||target>=cnt||(owner&&owner!==currentPerson)){
+    const free=Array.from({length:cnt},(_,i)=>i).find(i=>!getPersonByLine(i));
+    target=free===undefined?0:free;
   }
-
-  const runSel=document.getElementById('ladderRunSelect');
-  if(runSel){
-    const rows=state.ladderRows.length?state.ladderRows:Array.from({length:cnt},(_,i)=>({line:i,person:getPersonByLine(i)||`${i+1}번 줄`}));
-    runSel.innerHTML=rows.map((x,i)=>`<option value="${i}">${esc(x.person)} · ${i+1}번 줄</option>`).join('');
-  }
+  lineEl.value=String(target);
+  lineEl.onchange=()=>{state.lastLadderLine=Number(lineEl.value);saveLocalState()};
 }
-function getPersonByLine(line){return Object.keys(state.ladderChoices||{}).find(n=>Number(state.ladderChoices[n])===Number(line))}async function chooseLadderLine(){
-  if(state.ladderLocked){showModal('🔒','사다리 잠금','이미 사다리가 확정됐어. 관리자 리셋 전까지 수정 불가.');return}
-  if(!state.names.length){showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.');return}
-
+async function chooseLadderLine(){
+  if(state.ladderLocked){showModal('🔒','사다리 잠금','사다리 리셋 후 다시 선택 가능.');return}
+  if(!state.names.length){showModal('👥','멤버 없음','멤버를 먼저 추가해줘.');return}
   const personEl=document.getElementById('ladderPerson');
   const lineEl=document.getElementById('ladderLine');
-  const selectedPerson=personEl?personEl.value:'';
-  const selectedLine=lineEl?Number(lineEl.value):0;
-
-  if(!selectedPerson||selectedPerson==='멤버 없음'){showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.');return}
-
+  const selectedPerson=personEl.value;
+  const selectedLine=Number(lineEl.value||0);
   state.lastLadderPerson=selectedPerson;
   state.lastLadderLine=selectedLine;
   saveLocalState();
 
   if(sharedReady&&client&&activeRoom){
     try{
-      const {data,error}=await client.from('jeju_game_rooms').select('state').eq('room_code',activeRoom).maybeSingle();
+      const {data,error}=await client.from(roomTable).select('state').eq('room_code',activeRoom).maybeSingle();
       if(!error&&data&&data.state){
         const latest=normalizeState(data.state);
         state={...latest,lastLadderPerson:selectedPerson,lastLadderLine:selectedLine};
-        saveLocalState();
       }
-    }catch(e){console.warn('latest ladder choice check failed',e)}
+    }catch(e){console.warn(e)}
   }
 
   const owner=Object.entries(state.ladderChoices||{}).find(([name,val])=>Number(val)===selectedLine&&name!==selectedPerson);
-  if(owner){
-    showModal('🪜','이미 선택된 줄',`${selectedLine+1}번 줄은 ${owner[0]}님이 먼저 선택했어.\n다른 줄을 선택해줘.`);
-    if(personEl)personEl.value=selectedPerson;
-    renderLadderLineSelects();
-    return
-  }
-
+  if(owner){showModal('🪜','이미 선택된 줄',`${selectedLine+1}번 줄은 ${owner[0]}님이 먼저 선택했어.`);renderLadder();return}
   state.ladderChoices[selectedPerson]=selectedLine;
-  state.lastLadderPerson=selectedPerson;
-  state.lastLadderLine=selectedLine;
   state.ladderRows=[];
   state.ladderResult='';
-
   await persist('사다리 줄 선택: '+selectedPerson+' · '+(selectedLine+1)+'번');
-
-  if(personEl)personEl.value=selectedPerson;
-  if(lineEl)lineEl.value=String(selectedLine);
+}
+function createLadder(){
+  if(!state.names.length){showModal('👥','멤버 없음','멤버를 먼저 추가해줘.');return}
+  const task=(document.getElementById('penaltyTaskInput').value||defaultPenaltyTask).trim();
+  const count=Math.max(1,Number(document.getElementById('penaltyCountInput').value||4));
+  const mode=document.getElementById('penaltyDuplicateMode').value||'allow';
+  state.penaltyTask=task;state.penaltyCount=count;state.penaltyDuplicateMode=mode;
+  const chosen=Object.entries(state.ladderChoices||{}).map(([person,line])=>({person,line:Number(line)}));
+  const cnt=Math.max(10,state.names.length,chosen.length?Math.max(...chosen.map(x=>x.line))+1:0);
+  const people=Array.from({length:cnt},(_,i)=>getPersonByLine(i)||`${i+1}번 줄`);
+  let badLines=[];
+  if(mode==='unique'){
+    badLines=shuffle(Array.from({length:cnt},(_,i)=>i)).slice(0,Math.min(count,cnt));
+  }else{
+    for(let i=0;i<count;i++)badLines.push(Math.floor(Math.random()*cnt));
+  }
+  state.ladderRows=people.map((p,i)=>({line:i,person:p,task:badLines.includes(i)?task:'통과',revealed:false}));
+  state.ladderResult=`사다리 ${cnt}줄 생성\n벌칙 인원 ${badLines.length}명`;
+  state.ladderLocked=true;
+  persist('사다리 생성');
+}
+function runSelectedLadder(){
+  if(!state.ladderRows.length)createLadder();
+  const line=Number(document.getElementById('ladderLine').value||0);
+  const row=state.ladderRows.find(r=>Number(r.line)===line);
+  if(!row)return;
+  row.revealed=true;
+  state.ladderResult=`${row.person}\n결과: ${row.task}`;
+  persist('사다리 결과 공개: '+row.person);
+}
+function revealAllLadder(){
+  if(!state.ladderRows.length){showModal('🪜','사다리 없음','먼저 사다리를 만들어줘.');return}
+  state.ladderRows=state.ladderRows.map(r=>({...r,revealed:true}));
+  persist('사다리 전체 공개');
+}
+function renderLadder(){
+  const task=document.getElementById('penaltyTaskInput');
+  if(task&&document.activeElement!==task)task.value=state.penaltyTask||defaultPenaltyTask;
+  const count=document.getElementById('penaltyCountInput');
+  if(count&&document.activeElement!==count)count.value=state.penaltyCount||4;
+  const mode=document.getElementById('penaltyDuplicateMode');
+  if(mode)mode.value=state.penaltyDuplicateMode||'allow';
   renderLadderLineSelects();
-}
-function clearLadderChoices(){adminResetLadder()}function editPenaltyTask(v){if(!state.ladderLocked){state.penaltyTask=v.trim()||defaultPenaltyTask;saveLocalState()}else showModal('🔒','사다리 잠금','관리자 리셋 전까지 벌칙 설정 수정 불가.')}function editPenaltyCount(v){if(!state.ladderLocked){state.penaltyCount=Math.max(1,Math.min(30,Number(v||1)));saveLocalState()}else showModal('🔒','사다리 잠금','관리자 리셋 전까지 벌칙 설정 수정 불가.')}function editPenaltyDuplicateMode(v){if(!state.ladderLocked){state.penaltyDuplicateMode=v==='unique'?'unique':'allow';saveLocalState()}else showModal('🔒','사다리 잠금','관리자 리셋 전까지 벌칙 설정 수정 불가.')}
-function createLadder(){if(state.ladderLocked){showModal('🔒','사다리 잠금','이미 사다리가 확정됐어. 관리자 리셋 전까지 결과는 유지돼.');openLadderPage();return}const cnt=Math.max(1,state.names.length),people=Array.from({length:cnt},(_,i)=>getPersonByLine(i)||`${i+1}번 줄`),data=makeLadderLinks(cnt),links=data.links,levels=data.levels,task=state.penaltyTask||defaultPenaltyTask,wanted=Math.max(1,Number(state.penaltyCount||1));let starts=[];if(state.penaltyDuplicateMode==='unique'){const up=[...new Set(people)],chosen=shuffle(up).slice(0,Math.min(wanted,up.length));chosen.forEach(p=>{const idxs=people.map((x,i)=>x===p?i:-1).filter(i=>i>=0);starts.push(sample(idxs))})}else starts=shuffle(Array.from({length:cnt},(_,i)=>i)).slice(0,Math.min(wanted,cnt));const bottom=Array(cnt).fill('');starts.forEach(s=>{bottom[resolveLadderEnd(s,links)]=task});state.ladderRows=people.map((p,line)=>{const end=resolveLadderEnd(line,links);return{line,person:p,endIndex:end,task:bottom[end]||'',revealed:false}});state.ladderLinks=links;state.ladderLevels=levels;const win=state.ladderRows.filter(r=>r.task);state.ladderResult=`사다리 ${cnt}줄 생성\n벌칙 인원 ${win.length}명\n${state.penaltyDuplicateMode==='allow'?'중복 허용':'중복 불가능'}`;state.ladderLocked=true;persist('사다리 생성/잠금');openLadderPage()}function makeLadderLinks(c){const links=[];if(c<=1)return{links,levels:0};const levels=Math.max(14,Math.min(34,Math.ceil(c*1.25)));for(let lv=0;lv<levels;lv++){const off=lv%2;for(let left=off;left<c-1;left+=2)if(Math.random()>0.18)links.push({level:lv,left,right:left+1});if(lv%3===1){const poss=[];for(let left=0;left<c-1;left++){const ex=links.some(l=>l.level===lv&&Math.abs(l.left-left)<=1);if(!ex)poss.push(left)}if(poss.length){const left=sample(poss);links.push({level:lv,left,right:left+1})}}}return{links,levels}}function getLadderLevelCount(c){if(state.ladderLevels)return state.ladderLevels;if(state.ladderLinks.length)return Math.max(...state.ladderLinks.map(l=>l.level))+1;return Math.max(14,Math.min(34,Math.ceil(c*1.25)))}function resolveLadderEnd(st,links){let pos=st;[...links].sort((a,b)=>a.level-b.level||a.left-b.left).forEach(l=>{if(l.left===pos)pos=l.right;else if(l.right===pos)pos=l.left});return pos}function openLadderPage(){if(!state.ladderRows.length)createLadder();document.getElementById('ladderPage').classList.add('show');renderLadderPage()}function closeLadderPage(){document.getElementById('ladderPage').classList.remove('show')}function startMyLadder(){if(!state.ladderRows.length)createLadder();const p=document.getElementById('ladderPerson').value;let idx=state.ladderRows.findIndex(r=>r.person===p);if(idx<0)idx=Number(document.getElementById('ladderLine').value||0);triggerSharedLadderRun(idx)}function startSelectedLadderFromPage(){triggerSharedLadderRun(Number(document.getElementById('ladderRunSelect').value||0))}function triggerSharedLadderRun(idx){if(!state.ladderRows.length){showModal('🪜','사다리 없음','사다리를 먼저 만들어줘.');return}state.activeLadderRun={id:'R'+Date.now()+Math.random().toString(36).slice(2,6),index:idx,actor:state.ladderRows[idx]?.person||`${idx+1}번`,createdAt:Date.now()};persist('사다리 내려가기: '+state.activeLadderRun.actor);playLadderRun(state.activeLadderRun)}function maybePlaySharedLadderRun(){const run=state.activeLadderRun;if(!run||!run.id||run.id===lastPlayedRunId)return;playLadderRun(run)}function playLadderRun(run){lastPlayedRunId=run.id;openLadderPage();setTimeout(()=>animateLadder(Number(run.index)),120)}function renderLadderPage(sel=null,ball=null,trace=[]){renderLadderLineSelects();drawLadder(sel,ball,trace);const info=document.getElementById('ladderPickedInfo');if(info&&sel===null){info.className='ladinfo';info.textContent='줄을 선택하면 같은 방 전원이 내려가는 모션을 같이 봄.'}}function geom(c){const canvas=document.getElementById('ladderCanvas'),w=Math.max(820,c*76),h=700;canvas.width=w;canvas.height=h;const mx=52,ty=82,by=h-86,g=c>1?(w-mx*2)/(c-1):0;return{canvas,w,h,mx,ty,by,g}}function drawLadder(sel=null,ball=null,trace=[]){const rows=state.ladderRows.length?state.ladderRows:Array.from({length:Math.max(1,state.names.length)},(_,i)=>({line:i,person:getPersonByLine(i)||`${i+1}번 줄`,endIndex:i,task:'',revealed:false})),c=rows.length,links=state.ladderLinks||[],{canvas,w,h,mx,ty,by,g}=geom(c),ctx=canvas.getContext('2d');ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';ctx.textAlign='center';for(let i=0;i<c;i++){const x=mx+i*g;ctx.strokeStyle='#cbd5e1';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,ty);ctx.lineTo(x,by);ctx.stroke();ctx.font='bold 12px system-ui';ctx.fillStyle='#0f766e';ctx.fillText(rows[i].person,x,34);ctx.fillStyle='#334155';ctx.fillText(`${i+1}`,x,54)}const lv=getLadderLevelCount(c);links.forEach(l=>{const y=ty+((l.level+1)/(lv+1))*(by-ty),x1=mx+l.left*g,x2=mx+l.right*g;ctx.strokeStyle='#f97316';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke()});if(trace&&trace.length>1){ctx.strokeStyle='#0f766e';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(trace[0].x,trace[0].y);for(let i=1;i<trace.length;i++)ctx.lineTo(trace[i].x,trace[i].y);ctx.stroke()}rows.forEach((r,i)=>{const x=mx+i*g,rev=rows.find(rr=>rr.revealed&&rr.endIndex===i);ctx.font='bold 12px system-ui';ctx.fillStyle=rev?(rev.task?'#ef4444':'#94a3b8'):'#94a3b8';ctx.fillText(rev?(rev.task||'통과'):'결과 숨김',x,by+38)});if(sel!==null){const x=mx+sel*g;ctx.beginPath();ctx.strokeStyle='#0f766e';ctx.lineWidth=3;ctx.arc(x,54,15,0,Math.PI*2);ctx.stroke()}if(ball){ctx.beginPath();ctx.fillStyle='#ef4444';ctx.shadowColor='rgba(239,68,68,.35)';ctx.shadowBlur=12;ctx.arc(ball.x,ball.y,13,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0}}function buildPath(st){const c=state.ladderRows.length,links=[...(state.ladderLinks||[])].sort((a,b)=>a.level-b.level||a.left-b.left),{mx,ty,by,g}=geom(c),lv=getLadderLevelCount(c);let pos=st;const pts=[{x:mx+pos*g,y:ty}];for(let level=0;level<lv;level++){const y=ty+((level+1)/(lv+1))*(by-ty);pts.push({x:mx+pos*g,y});const link=links.find(l=>l.level===level&&(l.left===pos||l.right===pos));if(link){pos=link.left===pos?link.right:link.left;pts.push({x:mx+pos*g,y})}}pts.push({x:mx+pos*g,y:by});return{points:pts,endIndex:pos}}function animateLadder(idx){const row=state.ladderRows[idx];if(!row)return;const info=document.getElementById('ladderPickedInfo');info.className='ladinfo';info.textContent=`${row.person} 내려가는 중...`;const path=buildPath(idx);let seg=0,t=0;const traveled=[path.points[0]];function frame(){if(seg>=path.points.length-1){state.ladderRows[idx].revealed=true;state.ladderRows[idx].endIndex=path.endIndex;const res=state.ladderRows[idx].task?`${state.ladderRows[idx].person} · ${state.ladderRows[idx].task}`:`${state.ladderRows[idx].person} · 통과`;drawLadder(idx,path.points[path.points.length-1],path.points);info.className=state.ladderRows[idx].task?'ladinfo bad':'ladinfo';info.textContent=res;persist('사다리 결과 공개: '+res);if(state.ladderRows[idx].task)showModal('🔴','벌칙 당첨',res);return}const p1=path.points[seg],p2=path.points[seg+1];t+=0.12;if(t>=1){traveled.push(p2);t=0;seg++;requestAnimationFrame(frame);return}const x=p1.x+(p2.x-p1.x)*t,y=p1.y+(p2.y-p1.y)*t;drawLadder(idx,{x,y},[...traveled,{x,y}]);requestAnimationFrame(frame)}frame()}function revealAllLadder(){if(!state.ladderRows.length){showModal('🪜','사다리 없음','사다리를 먼저 만들어줘.');return}state.ladderRows=state.ladderRows.map(r=>({...r,revealed:true}));const win=state.ladderRows.filter(r=>r.task);showModal('🪜','전체 결과',win.length?win.map(w=>`${w.person} · ${w.task}`).join('\n'):'벌칙 당첨 없음');persist('사다리 전체 결과 보기')}function renderLadder(){const task=document.getElementById('penaltyTaskInput');if(task&&document.activeElement!==task)task.value=state.penaltyTask||defaultPenaltyTask;const count=document.getElementById('penaltyCountInput');if(count&&document.activeElement!==count)count.value=state.penaltyCount||4;const mode=document.getElementById('penaltyDuplicateMode');if(mode)mode.value=state.penaltyDuplicateMode||'allow';document.getElementById('ladderChoiceChips').innerHTML=Object.keys(state.ladderChoices).length?Object.entries(state.ladderChoices).map(([n,l])=>`<span class="chip">${esc(n)} · ${Number(l)+1}번 줄</span>`).join(''):'<span class="mini">아직 선택한 줄 없음</span>';document.getElementById('ladderResult').textContent=state.ladderResult||'사다리 대기 중';const ln=document.getElementById('ladderLockNote');if(ln)ln.textContent=state.ladderLocked?'🔒 사다리 확정 잠금 중 · 관리자 리셋 전까지 유지':'사다리를 만들면 자동 잠금됨.';renderLadderLineSelects()}
-function renderAll(){state=normalizeState(state);renderAdmin();updateLobby();renderNames();renderKing();renderCharacters();renderWheel();renderDrive();renderLadder();updateLastSync()}function showModal(e,t,x){document.getElementById('modalEmoji').textContent=e;document.getElementById('modalTitle').textContent=t;document.getElementById('modalText').textContent=x;document.getElementById('modal').classList.add('show')}function hideModal(){document.getElementById('modal').classList.remove('show')}function closeModal(e){if(e.target.id==='modal')hideModal()}async function copyRoomLink(){const room=(document.getElementById('roomInput').value||'JEJU2026').trim().toUpperCase(),url=location.origin+location.pathname+'?room='+encodeURIComponent(room);try{await navigator.clipboard.writeText(url);showModal('🔗','링크 복사 완료','방 코드: '+room)}catch(e){prompt('아래 링크 복사',url)}}function burstConfetti(){const c=document.querySelector('.confetti'),ctx=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const ps=Array.from({length:80},()=>({x:Math.random()*c.width,y:-20-Math.random()*100,s:5+Math.random()*8,v:2+Math.random()*5,r:Math.random()*Math.PI,color:['#0f766e','#14b8a6','#fb923c','#ef4444','#38bdf8','#eab308'][Math.floor(Math.random()*6)]}));let f=0;function a(){ctx.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.y+=p.v;p.x+=Math.sin((f+p.s)*.05)*1.7;p.r+=.08;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.color;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*1.5);ctx.restore()});f++;if(f<110)requestAnimationFrame(a);else ctx.clearRect(0,0,c.width,c.height)}a()}
-function initSelfName(){
-  const input = document.getElementById('myNameInput');
-  if(input && state.selfName) input.value = state.selfName;
+  document.getElementById('ladderChoiceChips').innerHTML=Object.keys(state.ladderChoices).length?Object.entries(state.ladderChoices).map(([n,l])=>`<span class="chip">${esc(n)} · ${Number(l)+1}번 줄</span>`).join(''):'<span class="mini">아직 선택한 줄 없음</span>';
+  document.getElementById('ladderResult').textContent=state.ladderResult||'사다리 대기 중';
+  const board=document.getElementById('ladderBoard');
+  if(board)board.innerHTML=state.ladderRows.length?`<table><thead><tr><th>줄</th><th>사람</th><th>결과</th></tr></thead><tbody>${state.ladderRows.map(r=>`<tr><td>${r.line+1}번</td><td>${esc(r.person)}</td><td class="${r.revealed&&r.task!=='통과'?'bad':''}">${r.revealed?esc(r.task):'숨김'}</td></tr>`).join('')}</tbody></table>`:'';
 }
 
-function initFromUrl(){const r=new URLSearchParams(location.search).get('room');if(r)document.getElementById('roomInput').value=r.toUpperCase()}window.addEventListener('resize',()=>{drawWheel();if(document.getElementById('ladderPage').classList.contains('show'))renderLadderPage()});initFromUrl();renderAll();setStatus(false,supabaseConfigured()?'방 입장 필요':'Supabase 미설정');
-</script></body></html>
+function showModal(e,t,x){document.getElementById('modalEmoji').textContent=e;document.getElementById('modalTitle').textContent=t;document.getElementById('modalText').textContent=x;document.getElementById('modal').classList.add('show')}
+function hideModal(){document.getElementById('modal').classList.remove('show')}
+function closeModal(e){if(e.target.id==='modal')hideModal()}
+async function copyRoomLink(){
+  const room=currentRoom();
+  const url=location.origin+location.pathname+'?room='+encodeURIComponent(room)+'&v='+APP_VERSION.replace(/^v/,'');
+  try{await navigator.clipboard.writeText(url);showModal('🔗','링크 복사 완료',url)}
+  catch(e){prompt('아래 링크 복사',url)}
+}
+function forceRefresh(){
+  const room=currentRoom();
+  location.href=location.origin+location.pathname+'?room='+encodeURIComponent(room)+'&v='+APP_VERSION.replace(/^v/,'')+'&t='+Date.now();
+}
+function initFromUrl(){
+  document.getElementById('visibleVersion').textContent=APP_VERSION;
+  document.getElementById('topVersion').textContent=APP_VERSION;
+  const params=new URLSearchParams(location.search);
+  const r=params.get('room');
+  if(r)document.getElementById('roomInput').value=r.toUpperCase();
+  const input=document.getElementById('myNameInput');
+  if(input&&state.selfName)input.value=state.selfName;
+}
+window.addEventListener('resize',renderLadder);
+initFromUrl();
+renderAll();
+setStatus(false,supabaseConfigured()?'방 입장 필요 · '+APP_VERSION:'Supabase 미설정 · config.js 확인 · '+APP_VERSION);
+</script>
+</body>
+</html>
