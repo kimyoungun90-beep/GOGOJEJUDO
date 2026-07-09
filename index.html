@@ -537,7 +537,19 @@
 <div class="ladderpage" id="ladderPage"><div class="ladshell"><div class="ladtop"><div><h2>🪜 실시간 사다리</h2><p>누가 내려가면 같은 방 전원이 같이 봄</p></div><button class="ghost" onclick="closeLadderPage()">돌아가기</button></div><div class="ladstage"><div class="ladctrl"><select id="ladderRunSelect"></select><button class="orange" onclick="startSelectedLadderFromPage()">선택한 줄 내려가기</button><button onclick="revealAllLadder()">전체 결과 보기</button></div><div class="canvaswrap"><canvas id="ladderCanvas" width="900" height="700"></canvas></div><div class="ladinfo" id="ladderPickedInfo">사다리를 만들고 줄을 선택해줘.</div></div></div></div>
 <div class="modal" id="modal" onclick="closeModal(event)"><div class="modal-card"><div class="emoji" id="modalEmoji">🎉</div><h2 id="modalTitle">결과</h2><p id="modalText"></p><button onclick="hideModal()">확인</button></div></div>
 <script>
-const localStoreKey='jejuPTripAdminLock.v16',deviceIdKey='jejuPTripSimple.deviceId',defaultPenaltyTask='설거지';
+
+// v17 compatibility aliases
+function escapeHtmlSafe(s){ return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+if(typeof esc !== 'function'){ var esc = escapeHtmlSafe; }
+if(typeof escAttr !== 'function'){ var escAttr = esc; }
+if(typeof escJs !== 'function'){
+  var escJs = function(s){ return String(s ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"'); };
+}
+if(typeof escapeJs !== 'function'){ var escapeJs = escJs; }
+if(typeof escapeAttr !== 'function'){ var escapeAttr = escAttr; }
+if(typeof escapeHtml !== 'function'){ var escapeHtml = esc; }
+
+const localStoreKey='jejuPTripAdminLock.v17',deviceIdKey='jejuPTripSimple.deviceId',defaultPenaltyTask='설거지';
 const defaultState={names:[],adminPinHash:'',adminPinSetAt:'',kingDecisions:[],kingResult:'',kingLocked:false,characterAssignments:[],usedCharacters:[],characterLocked:false,wheelItems:[],wheelResult:'',wheelLocked:false,drivePicks:[],driveTarget:'식당',driveRoute:[],driveResult:'',driveLocked:false,ladderChoices:{},ladderRows:[],ladderLinks:[],ladderLevels:0,ladderResult:'',ladderLocked:false,penaltyTask:defaultPenaltyTask,penaltyCount:4,penaltyDuplicateMode:'allow',activeLadderRun:null,lastEvent:'',lastActor:'',lastUpdatedAt:'',selfName:''};
 const defaultKingDecisions=[];
 const characterDeck=[
@@ -617,7 +629,7 @@ function subscribeRoom(){if(channel&&client)client.removeChannel(channel);channe
 function setStatus(on,t){document.getElementById('statusDot').classList.toggle('on',!!on);document.getElementById('statusText').textContent=t}function updateLastSync(){const t=state.lastUpdatedAt?new Date(state.lastUpdatedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';document.getElementById('lastSync').textContent=t?`${t} · ${state.lastEvent||'동기화 완료'}`:'동기화 완료'}function goTab(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.tab,.nav').forEach(b=>b.classList.remove('active','on'));document.querySelectorAll('.tab').forEach(tab=>{if(tab.getAttribute('onclick')?.includes("'"+id+"'"))tab.classList.add('active')});const m={'setup':0,'wheel-sec':1,'drive-game':2,'ladder-sec':3},idx=m[id];if(idx>=0)document.querySelectorAll('.nav')[idx]?.classList.add('on')}function sample(a){return a[Math.floor(Math.random()*a.length)]}function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function escj(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}
 function addName(){if(state.kingLocked||state.characterLocked||state.wheelLocked||state.driveLocked||state.ladderLocked){showModal('🔒','결과 잠금 중','결과가 확정된 게임이 있어 멤버 변경은 관리자 리셋 후 가능해.');return}const i=document.getElementById('nameInput'),n=i.value.trim();if(!n)return;if(!state.names.includes(n))state.names.push(n);i.value='';persist('멤버 추가: '+n)}function removeName(n){if(!requireAdmin('멤버 삭제'))return;state.names=state.names.filter(x=>x!==n);state.drivePicks=state.drivePicks.filter(p=>p.person!==n);delete state.ladderChoices[n];state.characterAssignments=state.characterAssignments.filter(a=>a.person!==n);state.kingResult=state.kingResult&&state.kingResult.includes(n)?'':state.kingResult;state.ladderRows=[];state.ladderResult='';persist('멤버 삭제: '+n)}function clearNames(){adminResetMembers()}function loadSampleNames(){if(state.kingLocked||state.characterLocked||state.wheelLocked||state.driveLocked||state.ladderLocked){showModal('🔒','결과 잠금 중','결과가 확정된 게임이 있어 멤버 변경은 관리자 리셋 후 가능해.');return}state.names=['영언','민수','지훈','현우','성민','수진','지혜','유진','다은','서연'];persist('10명 예시 입력')}function renderNames(){
   const chips=document.getElementById('nameChips');
-  if(chips)chips.innerHTML=state.names.length?state.names.map(n=>`<span class="chip">${esc(n)} <span class="x" onclick="removeName('${escapeJs(n)}')">×</span></span>`).join(''):'<span class="mini">아직 등록된 멤버가 없음</span>';
+  if(chips)chips.innerHTML=state.names.length?state.names.map(n=>`<span class="chip">${esc(n)} <span class="x" onclick="removeName('${escJs(n)}')">×</span></span>`).join(''):'<span class="mini">아직 등록된 멤버가 없음</span>';
 
   const memberList=document.getElementById('memberList');
   if(memberList)memberList.innerHTML=state.names.length?state.names.map((n,i)=>`<div class="member-card"><span>${i+1}</span>${esc(n)}</div>`).join(''):'<div class="mini">방에 입장한 멤버가 여기에 표시됨</div>';
