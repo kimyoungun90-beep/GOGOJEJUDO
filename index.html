@@ -169,13 +169,73 @@ td.bad{color:#ef4444}
   button,input,textarea,select{font-size:16px}
   .game-card{min-height:auto}
 }
+
+/* Mafia full game */
+.mafia-screen{
+  background:radial-gradient(circle at 80% 0%,rgba(180,24,52,.34),transparent 32%),radial-gradient(circle at 6% 58%,rgba(46,105,180,.22),transparent 34%),linear-gradient(180deg,#080a18,#151b35)!important;
+  color:#fff;border-color:rgba(255,255,255,.10);box-shadow:0 16px 40px rgba(0,0,0,.20);overflow:hidden
+}
+.mafia-screen .sub,.mafia-muted{color:#cfd6e8!important}
+.mafia-head{text-align:center;padding:10px 4px 18px}
+.mafia-head .moon{font-size:48px;filter:drop-shadow(0 0 16px rgba(255,221,128,.35));margin-bottom:8px}
+.mafia-title{font-size:34px;font-weight:1000;letter-spacing:-1px;margin:0}
+.mafia-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 13px;background:rgba(150,24,45,.55);border:1px solid rgba(255,120,135,.32);color:#ffe2e5;font-weight:950;font-size:12px;margin-top:14px}
+.mafia-menu{display:grid;gap:13px;margin-top:12px}
+.mafia-card{
+  position:relative;width:100%;border:1px solid rgba(255,255,255,.12);background:rgba(24,30,53,.92);border-radius:26px;padding:18px 44px 17px 72px;min-height:118px;color:#fff;text-align:left;box-shadow:0 16px 30px rgba(0,0,0,.28);cursor:pointer
+}
+.mafia-card.big{min-height:145px}
+.mafia-card:active{transform:scale(.99)}
+.mafia-card:before{content:"";position:absolute;left:18px;top:24px;bottom:24px;width:7px;border-radius:99px;background:var(--accent,#e63a52)}
+.mafia-icon{position:absolute;left:34px;top:25px;width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-size:23px;transform:translateX(-2px)}
+.mafia-card b{display:block;font-size:23px;margin-bottom:7px;color:#fff}
+.mafia-card span{display:block;font-size:13px;line-height:1.45;color:#cfd6e8;font-weight:800;white-space:pre-line}
+.mafia-badge{display:inline-flex;max-width:100%;margin-top:11px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.08);color:#eef2fc;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mafia-chev{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:38px;color:rgba(255,255,255,.70)}
+.mafia-admin-wrap{display:flex;justify-content:center;margin:22px 0 12px}
+.mafia-admin-btn{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#e8edf8;border-radius:999px;padding:12px 18px;font-weight:1000}
+.mafia-small-note{text-align:center;color:#a6b0ca;font-size:12px;font-weight:800;line-height:1.35}
+.mafia-subnav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.mafia-subnav button{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.13);border-radius:999px;color:#fff;min-height:38px;padding:8px 12px;font-size:13px}
+.mafia-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:14px;margin-top:10px;color:#fff}
+.mafia-box h3{margin:0 0 8px;color:#fff}
+.mafia-box p{margin:6px 0;color:#d7def0;font-weight:800;line-height:1.45;font-size:13px}
+.mafia-room-grid,.mafia-role-grid,.mafia-status-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+.mafia-room{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:20px;padding:14px;box-shadow:0 12px 26px rgba(0,0,0,.18)}
+.mafia-room b{display:block;font-size:18px;color:#fff;margin-bottom:5px}
+.mafia-room .meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.mafia-tag{display:inline-flex;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);padding:6px 9px;color:#e6ecfa;font-size:12px;font-weight:900}
+.mafia-tag.red{background:rgba(230,58,82,.17);color:#ffd7dc;border-color:rgba(230,58,82,.30)}
+.mafia-tag.gold{background:rgba(238,184,86,.16);color:#ffe8b9;border-color:rgba(238,184,86,.30)}
+.mafia-tag.blue{background:rgba(112,172,255,.16);color:#d9eaff;border-color:rgba(112,172,255,.30)}
+.mafia-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mafia-actions button{min-height:40px;border-radius:12px;padding:9px 11px;font-size:13px}
+.mafia-actions button.soft{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12);color:#fff}
+.mafia-screen select,.mafia-screen input{background:rgba(255,255,255,.96);color:#0f172a;border-color:rgba(255,255,255,.28)}
+.mafia-public{background:rgba(230,58,82,.14);border:1px solid rgba(230,58,82,.32);border-radius:17px;padding:12px;margin-top:8px;color:#ffe2e5;font-weight:950;line-height:1.45;white-space:pre-line}
+.mafia-private{background:rgba(112,172,255,.14);border:1px solid rgba(112,172,255,.32);border-radius:17px;padding:12px;margin-top:8px;color:#e3f0ff;font-weight:900;line-height:1.45;white-space:pre-line}
+.mafia-warn{background:rgba(238,184,86,.16);border:1px solid rgba(238,184,86,.32);border-radius:17px;padding:12px;margin-top:8px;color:#ffe8b9;font-weight:950;line-height:1.45;white-space:pre-line}
+.mafia-table{width:100%;min-width:0;border-collapse:separate;border-spacing:0 8px}
+.mafia-table th,.mafia-table td{border:0;background:rgba(255,255,255,.08);color:#fff;padding:9px;font-size:12px;text-align:left;vertical-align:top}
+.mafia-table th{color:#ffe8b9;font-size:12px}
+.mafia-table tr td:first-child,.mafia-table tr th:first-child{border-radius:12px 0 0 12px}
+.mafia-table tr td:last-child,.mafia-table tr th:last-child{border-radius:0 12px 12px 0}
+.mafia-log{max-height:260px;overflow:auto;display:grid;gap:7px;margin-top:8px}
+.mafia-log-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:13px;padding:9px;color:#dbe4f7;font-size:12px;font-weight:850;line-height:1.4;white-space:pre-line}
+.mafia-chat{display:grid;gap:7px;max-height:240px;overflow:auto;margin-top:8px}
+.mafia-chat-msg{background:rgba(255,255,255,.09);border-radius:14px;padding:9px;color:#eef2fc;font-size:13px;font-weight:850;line-height:1.4}
+.mafia-chat-msg b{color:#ffe8b9}
+.mafia-role-name{font-size:28px;font-weight:1000;margin:6px 0;color:#fff}
+.mafia-dead{opacity:.58;text-decoration:line-through}
+@media(max-width:720px){.mafia-title{font-size:30px}.mafia-card{padding-left:70px}.mafia-card b{font-size:21px}}
+
 </style>
 </head>
 <body>
 <div class="topbar" id="topGameBar">
   <button class="ghost" onclick="showLobby()">← 메인</button>
   <b id="currentGameTitle">게임</b>
-  <span class="badge version-badge" id="topVersion">v21</span>
+  <span class="badge version-badge" id="topVersion">v23</span>
 </div>
 
 <div class="wrap">
@@ -185,7 +245,7 @@ td.bad{color:#ef4444}
         <h1>🏝️ 제주 P 여행 게임</h1>
         <p class="sub">방 코드와 본인 이름 입력 후 게임 선택</p>
       </div>
-      <span class="badge version-badge" id="visibleVersion">v21</span>
+      <span class="badge version-badge" id="visibleVersion">v23</span>
     </div>
 
     <div class="two" style="margin-top:14px">
@@ -231,6 +291,7 @@ td.bad{color:#ef4444}
       <div class="game-card" onclick="openGame('wheel-sec','돌림판')"><div class="emoji">🎡</div><b>돌림판</b><span>랜덤 선택</span></div>
       <div class="game-card" onclick="openGame('drive-sec','랜덤 운행')"><div class="emoji">🚗</div><b>랜덤 운행</b><span>운전자/목적지 랜덤</span></div>
       <div class="game-card" onclick="openGame('ladder-sec','사다리')"><div class="emoji">🪜</div><b>사다리</b><span>줄 직접 선택</span></div>
+      <div class="game-card" onclick="openGame('mafia-sec','제주 마피아')"><div class="emoji">🌙</div><b>마피아 게임</b><span>방 만들기/역할/밤 행동/투표</span></div>
       <div class="game-card" onclick="openGame('setup-sec','멤버 보기')"><div class="emoji">👥</div><b>멤버 보기</b><span>현재 방 멤버 확인</span></div>
     </div>
   </section>
@@ -337,6 +398,11 @@ td.bad{color:#ef4444}
     <div class="result big" id="ladderResult">사다리 대기 중</div>
     <div class="ladder-board" id="ladderBoard"></div>
   </section>
+
+  <section class="card game-section mafia-screen" id="mafia-sec">
+    <div id="mafiaRender"></div>
+  </section>
+
 </div>
 
 <div class="modal" id="modal" onclick="closeModal(event)">
@@ -349,7 +415,7 @@ td.bad{color:#ef4444}
 </div>
 
 <script>
-const APP_VERSION='v21';
+const APP_VERSION='v23';
 const roomTable='jeju_game_rooms';
 const localStoreKey='jejuPTripStable.'+APP_VERSION;
 const deviceIdKey='jejuPTrip.deviceId';
@@ -381,7 +447,8 @@ const defaultState={
   lastLadderLine:0,
   lastEvent:'',
   lastActor:'',
-  lastUpdatedAt:''
+  lastUpdatedAt:'',
+  mafia:{rooms:[]}
 };
 const legacyKingDefaults=[
 '다음 목적지 정하기','다음 식당/카페 후보 정하기','차량 음악 3곡 선택','단체사진 포즈 정하기','편의점 메뉴 정하기','야식 메뉴 정하기','숙소 게임 선택','내일 첫 일정 정하기','랜덤 운행 목적지 기준 정하기','벌칙 면제권 1회 사용 여부 정하기'
@@ -406,6 +473,9 @@ let channel=null;
 let sharedReady=false;
 const deviceId=getDeviceId();
 let isAdmin=sessionStorage.getItem('jeju_admin_ok')==='Y';
+let mafiaPanel='home';
+let mafiaActiveRoomId=sessionStorage.getItem('jejuMafia.activeRoomId')||'';
+let mafiaMode=sessionStorage.getItem('jejuMafia.mode')||'';
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function escAttr(s){return esc(s)}
@@ -431,6 +501,9 @@ function normalizeState(s){
   if(!n.penaltyTask)n.penaltyTask=defaultPenaltyTask;
   if(!['allow','unique'].includes(n.penaltyDuplicateMode))n.penaltyDuplicateMode='allow';
   n.lastLadderLine=Number(n.lastLadderLine||0);
+  if(!n.mafia||typeof n.mafia!=='object')n.mafia={rooms:[]};
+  if(!Array.isArray(n.mafia.rooms))n.mafia.rooms=[];
+  n.mafia.rooms=n.mafia.rooms.map(normalizeMafiaRoom);
   return n;
 }
 function withMeta(eventName){return {...state,lastEvent:eventName||'업데이트',lastActor:deviceId,lastUpdatedAt:new Date().toISOString()}}
@@ -541,7 +614,7 @@ function showLobby(){
 }
 function renderAll(){
   state=normalizeState(state);
-  renderAdmin();renderMembers();renderKing();renderCharacters();renderWheel();renderDrive();renderLadder();updateLastSync();
+  renderAdmin();renderMembers();renderKing();renderCharacters();renderWheel();renderDrive();renderLadder();renderMafia();updateLastSync();
 }
 function renderMembers(){
   const count=document.getElementById('lobbyMemberCount');
@@ -795,6 +868,423 @@ function renderLadder(){
   document.getElementById('ladderResult').textContent=state.ladderResult||'사다리 대기 중';
   const board=document.getElementById('ladderBoard');
   if(board)board.innerHTML=state.ladderRows.length?`<table><thead><tr><th>줄</th><th>사람</th><th>결과</th></tr></thead><tbody>${state.ladderRows.map(r=>`<tr><td>${r.line+1}번</td><td>${esc(r.person)}</td><td class="${r.revealed&&r.task!=='통과'?'bad':''}">${r.revealed?esc(r.task):'숨김'}</td></tr>`).join('')}</tbody></table>`:'';
+}
+
+
+
+const mafiaRolesInfo={
+  '마피아':{team:'마피아팀',emoji:'🔪',desc:'밤마다 한 명을 지목해 제거합니다. 의사가 같은 대상을 보호하면 실패합니다.'},
+  '스파이':{team:'마피아팀',emoji:'🕶️',desc:'밤마다 한 명의 직업을 확인합니다. 마피아를 지목하면 서로 접선됩니다.'},
+  '경찰':{team:'시민팀',emoji:'👮',desc:'밤마다 한 명을 조사합니다. 마피아는 마피아로, 스파이는 시민으로 표시됩니다.'},
+  '의사':{team:'시민팀',emoji:'💉',desc:'밤마다 한 명을 보호합니다. 마피아 공격 대상과 같으면 치료 성공이 전체 공개됩니다.'},
+  '군인':{team:'시민팀',emoji:'🛡️',desc:'마피아에게 처음 공격당하면 한 번 버티며, 군인 방어 사실은 전체 공개됩니다.'},
+  '영매':{team:'시민팀',emoji:'👻',desc:'죽은 사람 채팅방을 볼 수 있습니다. 단, 죽은 사람의 직업은 자동으로 알 수 없습니다.'},
+  '건달':{team:'시민팀',emoji:'🥊',desc:'밤마다 한 명을 협박합니다. 협박당한 사람은 다음 낮 동안 말할 수 없고 본인만 알 수 있습니다.'},
+  '정치인':{team:'시민팀',emoji:'🗳️',desc:'투표할 때 2표로 계산됩니다. 정치인 여부는 본인만 압니다.'}
+};
+const mafiaRoleOrder=['마피아','스파이','경찰','의사','군인','영매','건달','정치인'];
+function normalizeMafiaRoom(r){
+  const n={
+    id:'',name:'',joinPinHash:'',hostPinHash:'',createdAt:'',status:'대기중',phase:'lobby',dayNumber:1,
+    players:[],publicEvents:[],privateMessages:{},deadChats:[],logs:[],actions:{},votes:{},spyConnected:false,ended:false,winner:''
+  ,...(r||{})};
+  if(!n.id)n.id='M'+Date.now()+Math.random().toString(36).slice(2,5);
+  if(!Array.isArray(n.players))n.players=[];
+  n.players=n.players.map(p=>({name:'',role:'',alive:true,soldierUsed:false,mutedDay:0,joinedAt:'',...p})).filter(p=>p.name);
+  if(!Array.isArray(n.publicEvents))n.publicEvents=[];
+  if(!n.privateMessages||Array.isArray(n.privateMessages))n.privateMessages={};
+  if(!Array.isArray(n.deadChats))n.deadChats=[];
+  if(!Array.isArray(n.logs))n.logs=[];
+  if(!n.actions||Array.isArray(n.actions))n.actions={};
+  if(!n.votes||Array.isArray(n.votes))n.votes={};
+  n.dayNumber=Number(n.dayNumber||1);
+  return n;
+}
+function mafiaStore(){if(!state.mafia||!Array.isArray(state.mafia.rooms))state.mafia={rooms:[]};return state.mafia}
+function getMafiaRoom(id){return mafiaStore().rooms.find(r=>r.id===id)}
+function getMafiaRoomIndex(id){return mafiaStore().rooms.findIndex(r=>r.id===id)}
+function setMafiaPanel(panel){mafiaPanel=panel;renderMafia();window.scrollTo({top:0,behavior:'smooth'})}
+function mafiaGoHome(){mafiaPanel='home';mafiaActiveRoomId='';mafiaMode='';sessionStorage.removeItem('jejuMafia.activeRoomId');sessionStorage.removeItem('jejuMafia.mode');renderMafia()}
+function mafiaPlayerKey(id){return 'jejuMafia.player.'+id}
+function mafiaHostKey(id){return 'jejuMafia.host.'+id}
+function mafiaCurrentName(id){return sessionStorage.getItem(mafiaPlayerKey(id))||''}
+function mafiaIsHost(id){return sessionStorage.getItem(mafiaHostKey(id))==='Y'}
+function mafiaOpenActive(id,mode){mafiaActiveRoomId=id;mafiaMode=mode;sessionStorage.setItem('jejuMafia.activeRoomId',id);sessionStorage.setItem('jejuMafia.mode',mode);mafiaPanel='game';renderMafia();window.scrollTo({top:0,behavior:'smooth'})}
+function mafiaAlivePlayers(room){return room.players.filter(p=>p.alive)}
+function mafiaDeadPlayers(room){return room.players.filter(p=>!p.alive)}
+function mafiaTeam(role){return role==='마피아'||role==='스파이'?'마피아팀':'시민팀'}
+function mafiaCanAct(role){return ['마피아','경찰','의사','스파이','건달'].includes(role)}
+function mafiaRoleSetup(n){
+  const map={
+    4:['마피아','경찰','의사','정치인'],
+    5:['마피아','경찰','의사','군인','정치인'],
+    6:['마피아','경찰','의사','군인','건달','정치인'],
+    7:['마피아','경찰','의사','군인','영매','건달','정치인'],
+    8:['마피아','스파이','경찰','의사','군인','영매','건달','정치인']
+  };
+  return map[n]||[];
+}
+function mafiaStatusText(room){
+  if(room.ended)return '종료 · '+room.winner;
+  if(room.phase==='lobby')return '대기중';
+  if(room.phase==='role')return '첫날 낮 · 직업 확인';
+  if(room.phase==='night')return room.dayNumber+'일차 밤';
+  if(room.phase==='day')return room.dayNumber+'일차 낮';
+  if(room.phase==='vote')return room.dayNumber+'일차 투표';
+  return room.status||'대기중';
+}
+function mafiaAddLog(room,text){room.logs.unshift({at:new Date().toISOString(),day:room.dayNumber,phase:room.phase,text});room.logs=room.logs.slice(0,120)}
+function mafiaAddPublic(room,text){room.publicEvents.unshift({at:new Date().toISOString(),day:room.dayNumber,phase:room.phase,text});room.publicEvents=room.publicEvents.slice(0,50)}
+function mafiaAddPrivate(room,name,text){if(!name)return;if(!room.privateMessages[name])room.privateMessages[name]=[];room.privateMessages[name].unshift({at:new Date().toISOString(),day:room.dayNumber,phase:room.phase,text});room.privateMessages[name]=room.privateMessages[name].slice(0,50)}
+function mafiaTargetSelectHtml(room,selectId,excludeName='',includeSelf=false){
+  const opts=mafiaAlivePlayers(room).filter(p=>includeSelf||p.name!==excludeName).map(p=>`<option value="${escAttr(p.name)}">${esc(p.name)}</option>`).join('');
+  return `<select id="${selectId}">${opts||'<option value="">대상 없음</option>'}</select>`;
+}
+async function createMafiaRoom(){
+  if(!requireAdmin('마피아 방 만들기'))return;
+  const name=(prompt('방 이름 입력\n예: 영언이의 방')||'').trim();
+  if(!name)return;
+  const joinPin=(prompt('참가자 입장 비밀번호 설정')||'').trim();
+  if(!joinPin){showModal('🔐','비밀번호 필요','참가자 입장 비밀번호가 필요해.');return}
+  const hostPin=(prompt('방장 전용 비밀번호 설정')||'').trim();
+  if(!hostPin){showModal('🔐','방장 비밀번호 필요','방장 화면으로 들어갈 비밀번호가 필요해.');return}
+  const room=normalizeMafiaRoom({
+    id:'M'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,
+    joinPinHash:await sha256(joinPin),hostPinHash:await sha256(hostPin),createdAt:new Date().toISOString(),status:'대기중',phase:'lobby',dayNumber:1,
+    publicEvents:[{at:new Date().toISOString(),day:1,phase:'lobby',text:name+'이 생성되었습니다.'}],logs:[]
+  });
+  room.logs.unshift({at:new Date().toISOString(),day:1,phase:'lobby',text:'방 생성 · '+name});
+  mafiaStore().rooms.unshift(room);
+  await persist('마피아 방 생성: '+name);
+  mafiaPanel='rooms';renderMafia();
+}
+async function mafiaDeleteRoom(id){
+  if(!requireAdmin('마피아 방 삭제'))return;
+  const room=getMafiaRoom(id);if(!room)return;
+  if(!confirm(room.name+'을 삭제할까?'))return;
+  mafiaStore().rooms=mafiaStore().rooms.filter(r=>r.id!==id);
+  if(mafiaActiveRoomId===id)mafiaGoHome();
+  await persist('마피아 방 삭제: '+room.name);
+}
+async function mafiaEnterRoom(id,mode){
+  const room=getMafiaRoom(id);if(!room)return;
+  if(mode==='host'){
+    const pin=(prompt('방장 전용 비밀번호 입력')||'').trim();
+    if(!pin)return;
+    if(await sha256(pin)!==room.hostPinHash){showModal('❌','비밀번호 오류','방장 비밀번호가 틀렸어.');return}
+    sessionStorage.setItem(mafiaHostKey(id),'Y');
+    mafiaOpenActive(id,'host');return;
+  }
+  const defaultName=state.selfName||document.getElementById('myNameInput')?.value||'';
+  const name=(prompt('참가자 이름 입력',defaultName)||'').trim();
+  if(!name)return;
+  const pin=(prompt('방 비밀번호 입력')||'').trim();
+  if(!pin)return;
+  if(await sha256(pin)!==room.joinPinHash){showModal('❌','비밀번호 오류','방 비밀번호가 틀렸어.');return}
+  const existing=room.players.find(p=>p.name===name);
+  if(!existing){
+    if(room.phase!=='lobby'){showModal('🚪','게임 진행 중','이미 시작된 방은 새 참가자 입장이 어려워. 같은 이름으로 재입장만 가능해.');return}
+    if(room.players.length>=8){showModal('👥','인원 초과','마피아 게임은 최대 8명까지만 가능해.');return}
+    room.players.push({name,role:'',alive:true,soldierUsed:false,mutedDay:0,joinedAt:new Date().toISOString()});
+    mafiaAddLog(room,'참가자 입장 · '+name);
+    await persist('마피아 참가자 입장: '+name);
+  }
+  sessionStorage.setItem(mafiaPlayerKey(id),name);
+  mafiaOpenActive(id,'player');
+}
+async function mafiaRemovePlayer(id,name){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  if(room.phase!=='lobby'&&!confirm('게임 중 참가자를 제거할까? 기록이 꼬일 수 있어.'))return;
+  room.players=room.players.filter(p=>p.name!==name);
+  delete room.privateMessages[name];
+  delete room.votes[name];
+  mafiaAddLog(room,'참가자 제거 · '+name);
+  await persist('마피아 참가자 제거: '+name);
+}
+async function mafiaStartGame(id){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  const n=room.players.length;
+  if(n<4||n>8){showModal('👥','인원 확인','마피아 게임은 4명부터 8명까지 가능해.');return}
+  const roles=shuffle(mafiaRoleSetup(n));
+  room.players=shuffle(room.players).map((p,i)=>({...p,role:roles[i],alive:true,soldierUsed:false,mutedDay:0}));
+  room.phase='role';room.status='게임중';room.dayNumber=1;room.ended=false;room.winner='';room.actions={};room.votes={};room.privateMessages={};room.deadChats=[];room.spyConnected=false;
+  room.publicEvents=[];room.logs=[];
+  mafiaAddPublic(room,'첫날 낮입니다. 각자 본인 직업을 확인하세요.');
+  mafiaAddLog(room,'역할 배정 완료\n'+room.players.map(p=>p.name+' = '+p.role).join('\n'));
+  await persist('마피아 게임 시작: '+room.name);
+}
+async function mafiaStartNight(id){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  if(room.ended){showModal('🏁','게임 종료','이미 게임이 종료됐어. 초기화 후 다시 시작해줘.');return}
+  room.phase='night';room.status='게임중';room.actions={mafiaVotes:{},nightStartedAt:new Date().toISOString()};room.votes={};
+  mafiaAddPublic(room,room.dayNumber+'일차 밤입니다. 능력이 있는 직업은 대상을 선택하세요.');
+  mafiaAddLog(room,room.dayNumber+'일차 밤 시작');
+  await persist('마피아 밤 시작');
+}
+function mafiaMyNightActionDone(room,p){
+  const a=room.actions||{};
+  if(p.role==='마피아')return !!(a.mafiaVotes&&a.mafiaVotes[p.name]);
+  if(p.role==='경찰')return !!a.police;
+  if(p.role==='의사')return !!a.doctor;
+  if(p.role==='스파이')return !!a.spy;
+  if(p.role==='건달')return !!a.gangster;
+  return true;
+}
+async function mafiaSubmitMyNightAction(id){
+  const room=getMafiaRoom(id);if(!room)return;
+  const name=mafiaCurrentName(id);const p=room.players.find(x=>x.name===name);
+  if(!p||!p.alive||room.phase!=='night'||!mafiaCanAct(p.role))return;
+  const target=document.getElementById('mafiaMyActionTarget')?.value;
+  if(!target){showModal('🌙','대상 없음','선택할 대상이 없어.');return}
+  if(!room.actions)room.actions={};
+  if(p.role==='마피아'){
+    if(!room.actions.mafiaVotes)room.actions.mafiaVotes={};
+    room.actions.mafiaVotes[p.name]=target;
+    mafiaAddLog(room,'마피아 선택 · '+p.name+' → '+target);
+  }else if(p.role==='경찰'){
+    room.actions.police={actor:p.name,target};mafiaAddLog(room,'경찰 조사 선택 · '+p.name+' → '+target);
+  }else if(p.role==='의사'){
+    room.actions.doctor={actor:p.name,target};mafiaAddLog(room,'의사 보호 선택 · '+p.name+' → '+target);
+  }else if(p.role==='스파이'){
+    room.actions.spy={actor:p.name,target};mafiaAddLog(room,'스파이 조사 선택 · '+p.name+' → '+target);
+  }else if(p.role==='건달'){
+    room.actions.gangster={actor:p.name,target};mafiaAddLog(room,'건달 협박 선택 · '+p.name+' → '+target);
+  }
+  await persist('마피아 밤 행동 제출: '+p.name);
+}
+function mafiaPickMafiaTarget(room){
+  const votes=room.actions?.mafiaVotes||{};const vals=Object.values(votes).filter(Boolean);
+  if(!vals.length)return '';
+  const counts={};vals.forEach(v=>counts[v]=(counts[v]||0)+1);
+  return vals.sort((a,b)=>(counts[b]-counts[a]))[0];
+}
+async function mafiaProcessNight(id){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  if(room.phase!=='night'){showModal('🌙','밤 아님','밤 단계에서만 결과 처리가 가능해.');return}
+  const night=room.dayNumber;const nextDay=night+1;
+  const attack=mafiaPickMafiaTarget(room);
+  const doctorTarget=room.actions?.doctor?.target||'';
+  const publicMsgs=[];
+  let killed='';
+  if(attack){
+    const targetP=room.players.find(p=>p.name===attack);
+    if(targetP&&targetP.role==='군인'&&!targetP.soldierUsed){
+      targetP.soldierUsed=true;
+      publicMsgs.push('군인이 마피아의 공격을 버텼습니다.');
+      mafiaAddLog(room,'군인 방어 성공 · '+attack);
+    }else if(doctorTarget&&doctorTarget===attack){
+      publicMsgs.push('의사의 치료가 성공했습니다.');
+      mafiaAddLog(room,'의사 치료 성공 · '+attack);
+    }else if(targetP){
+      targetP.alive=false;killed=attack;
+      publicMsgs.push(attack+'이 마피아에게 죽었습니다.');
+      mafiaAddLog(room,'마피아 공격 성공 · '+attack+' 사망');
+    }
+  }else{
+    mafiaAddLog(room,'마피아 미선택 · 사망 없음');
+  }
+  const police=room.actions?.police;
+  if(police&&police.actor&&police.target){
+    const tp=room.players.find(p=>p.name===police.target);
+    const shown=tp&&tp.role==='마피아'?'마피아':'시민';
+    mafiaAddPrivate(room,police.actor,police.target+' 조사 결과: '+shown+'입니다.');
+    mafiaAddLog(room,'경찰 결과 · '+police.actor+' → '+police.target+' / 표시: '+shown+' / 실제: '+(tp?tp.role:'없음'));
+  }
+  const spy=room.actions?.spy;
+  if(spy&&spy.actor&&spy.target){
+    const tp=room.players.find(p=>p.name===spy.target);
+    if(tp){
+      if(tp.role==='마피아'){
+        room.spyConnected=true;
+        mafiaAddPrivate(room,spy.actor,'접선 성공. '+spy.target+'은 마피아입니다.');
+        room.players.filter(p=>p.role==='마피아').forEach(m=>mafiaAddPrivate(room,m.name,'스파이가 접선했습니다. 스파이: '+spy.actor));
+        mafiaAddLog(room,'스파이 접선 성공 · '+spy.actor+' ↔ '+spy.target);
+      }else{
+        mafiaAddPrivate(room,spy.actor,spy.target+'의 직업은 '+tp.role+'입니다.');
+        mafiaAddLog(room,'스파이 직업 확인 · '+spy.actor+' → '+spy.target+' = '+tp.role);
+      }
+    }
+  }
+  const gangster=room.actions?.gangster;
+  if(gangster&&gangster.actor&&gangster.target){
+    const gp=room.players.find(p=>p.name===gangster.target);
+    if(gp&&gp.alive){gp.mutedDay=nextDay;mafiaAddPrivate(room,gp.name,'당신은 건달에게 맞았습니다. '+nextDay+'일차 낮 동안 말할 수 없습니다.');mafiaAddLog(room,'건달 협박 · '+gangster.actor+' → '+gangster.target+' / '+nextDay+'일차 낮 발언 금지');}
+  }
+  if(!publicMsgs.length)publicMsgs.push('밤이 지나고 아침이 밝았습니다.');
+  room.dayNumber=nextDay;room.phase='day';room.actions={};room.votes={};
+  publicMsgs.forEach(m=>mafiaAddPublic(room,m));
+  mafiaCheckWin(room);
+  await persist('마피아 밤 결과 처리');
+}
+async function mafiaStartVote(id){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  if(room.ended)return;
+  room.phase='vote';room.votes={};mafiaAddPublic(room,room.dayNumber+'일차 투표를 시작합니다.');mafiaAddLog(room,'투표 시작');
+  await persist('마피아 투표 시작');
+}
+async function mafiaSubmitVote(id){
+  const room=getMafiaRoom(id);if(!room)return;
+  const name=mafiaCurrentName(id);const p=room.players.find(x=>x.name===name);
+  if(!p||!p.alive||room.phase!=='vote')return;
+  const target=document.getElementById('mafiaVoteTarget')?.value;
+  if(!target)return;
+  room.votes[p.name]=target;mafiaAddLog(room,'투표 · '+p.name+' → '+target+(p.role==='정치인'?' / 2표':''));
+  await persist('마피아 투표 제출: '+p.name);
+}
+async function mafiaProcessVote(id){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  if(room.phase!=='vote'){showModal('🗳️','투표 단계 아님','투표 시작 후 처리해줘.');return}
+  const counts={};
+  Object.entries(room.votes||{}).forEach(([voter,target])=>{
+    const vp=room.players.find(p=>p.name===voter);
+    if(!vp||!vp.alive||!target)return;
+    counts[target]=(counts[target]||0)+(vp.role==='정치인'?2:1);
+  });
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){mafiaAddPublic(room,'투표자가 없어 처형 없이 넘어갑니다.');mafiaAddLog(room,'투표 처리 · 투표 없음');}
+  else{
+    const top=entries[0];const tied=entries.filter(x=>x[1]===top[1]);
+    if(tied.length>1){mafiaAddPublic(room,'투표가 동률입니다. 처형 없이 넘어갑니다.');mafiaAddLog(room,'투표 동률 · '+entries.map(x=>x[0]+' '+x[1]+'표').join(', '));}
+    else{const dead=room.players.find(p=>p.name===top[0]);if(dead){dead.alive=false;mafiaAddPublic(room,dead.name+'이 투표로 처형되었습니다.');mafiaAddLog(room,'투표 처형 · '+dead.name+' / '+top[1]+'표\n'+entries.map(x=>x[0]+' '+x[1]+'표').join(', '));}}
+  }
+  room.phase='day';room.votes={};mafiaCheckWin(room);
+  await persist('마피아 투표 결과 처리');
+}
+function mafiaCheckWin(room){
+  const alive=mafiaAlivePlayers(room);
+  const mafiaKillers=alive.filter(p=>p.role==='마피아').length;
+  const mafiaTeamAlive=alive.filter(p=>mafiaTeam(p.role)==='마피아팀').length;
+  const citizenAlive=alive.filter(p=>mafiaTeam(p.role)==='시민팀').length;
+  if(mafiaKillers<=0){room.ended=true;room.phase='ended';room.status='종료';room.winner='시민팀 승리';mafiaAddPublic(room,'시민팀 승리! 마피아가 모두 사라졌습니다.');mafiaAddLog(room,'게임 종료 · 시민팀 승리');}
+  else if(mafiaTeamAlive>=citizenAlive){room.ended=true;room.phase='ended';room.status='종료';room.winner='마피아팀 승리';mafiaAddPublic(room,'마피아팀 승리! 마피아팀 수가 시민팀 이상이 되었습니다.');mafiaAddLog(room,'게임 종료 · 마피아팀 승리');}
+}
+async function mafiaResetGame(id){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  if(!confirm('이 방의 게임 진행/역할/기록을 초기화할까? 참가자 이름은 유지돼.'))return;
+  room.phase='lobby';room.status='대기중';room.dayNumber=1;room.players=room.players.map(p=>({name:p.name,role:'',alive:true,soldierUsed:false,mutedDay:0,joinedAt:p.joinedAt||''}));room.publicEvents=[];room.privateMessages={};room.deadChats=[];room.logs=[];room.actions={};room.votes={};room.spyConnected=false;room.ended=false;room.winner='';
+  mafiaAddPublic(room,'게임이 초기화되었습니다.');mafiaAddLog(room,'게임 초기화');
+  await persist('마피아 게임 초기화');
+}
+async function mafiaForceKill(id,name){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  const p=room.players.find(x=>x.name===name);if(!p)return;p.alive=false;mafiaAddPublic(room,name+'이 방장에 의해 사망 처리되었습니다.');mafiaAddLog(room,'방장 강제 사망 · '+name);mafiaCheckWin(room);await persist('마피아 강제 사망: '+name);
+}
+async function mafiaForceRevive(id,name){
+  const room=getMafiaRoom(id);if(!room||!mafiaIsHost(id))return;
+  const p=room.players.find(x=>x.name===name);if(!p)return;p.alive=true;p.mutedDay=0;room.ended=false;if(room.phase==='ended')room.phase='day';room.status='게임중';room.winner='';mafiaAddPublic(room,name+'이 방장에 의해 부활 처리되었습니다.');mafiaAddLog(room,'방장 강제 부활 · '+name);await persist('마피아 강제 부활: '+name);
+}
+async function mafiaSendDeadChat(id){
+  const room=getMafiaRoom(id);if(!room)return;
+  const name=mafiaCurrentName(id);const p=room.players.find(x=>x.name===name);
+  if(!p||p.alive){showModal('👻','사망자 전용','죽은 사람만 사망자 채팅에 글을 쓸 수 있어.');return}
+  const input=document.getElementById('mafiaDeadChatInput');const text=(input?.value||'').trim();
+  if(!text)return;
+  room.deadChats.push({name,text,at:new Date().toISOString()});room.deadChats=room.deadChats.slice(-100);if(input)input.value='';
+  await persist('마피아 사망자 채팅');
+}
+function renderMafia(){
+  const root=document.getElementById('mafiaRender');if(!root)return;
+  mafiaStore().rooms=mafiaStore().rooms.map(normalizeMafiaRoom);
+  if(mafiaPanel==='rooms')root.innerHTML=renderMafiaRooms();
+  else if(mafiaPanel==='rules')root.innerHTML=renderMafiaRules();
+  else if(mafiaPanel==='roles')root.innerHTML=renderMafiaRoles();
+  else if(mafiaPanel==='game')root.innerHTML=renderMafiaGame();
+  else root.innerHTML=renderMafiaMain();
+}
+function mafiaNavHtml(title='제주 마피아'){
+  return `<div class="mafia-subnav"><button onclick="mafiaGoHome()">← 마피아 메인</button><button onclick="setMafiaPanel('rooms')">방 목록</button><button onclick="setMafiaPanel('rules')">게임 방법</button><button onclick="setMafiaPanel('roles')">역할 능력</button></div><h2 style="color:#fff;margin:4px 0 6px">${esc(title)}</h2>`;
+}
+function renderMafiaMain(){
+  const rooms=mafiaStore().rooms;
+  return `<div class="mafia-head"><div class="moon">🌙</div><h2 class="mafia-title">제주 마피아</h2><p class="sub">우리 중에 마피아가 있다</p><div class="mafia-pill">현재 생성된 방 ${rooms.length}개</div></div>
+  <div class="mafia-menu">
+    <button class="mafia-card big" style="--accent:#e63a52" onclick="setMafiaPanel('rooms')"><div class="mafia-icon">🕵️</div><b>방 목록</b><span>친구들과 방을 만들고\n게임을 시작하세요</span><em class="mafia-badge">${rooms.length?rooms.slice(0,3).map(r=>esc(r.name)).join(' · '):'아직 생성된 방 없음'}</em><div class="mafia-chev">›</div></button>
+    <button class="mafia-card" style="--accent:#eeb856" onclick="setMafiaPanel('rules')"><div class="mafia-icon">📖</div><b>게임 방법</b><span>낮, 밤, 투표 진행 방식과\n승리 조건을 확인하세요</span><em class="mafia-badge">첫날 낮 → 밤 행동 → 토론 → 투표</em><div class="mafia-chev">›</div></button>
+    <button class="mafia-card" style="--accent:#70acff" onclick="setMafiaPanel('roles')"><div class="mafia-icon">🎭</div><b>역할 능력</b><span>마피아, 경찰, 의사, 군인,\n영매, 건달, 정치인 확인</span><em class="mafia-badge">전체 공개 / 개인 공개 구분</em><div class="mafia-chev">›</div></button>
+  </div><div class="mafia-admin-wrap"><button class="mafia-admin-btn" onclick="createMafiaRoom()">+ 관리자 방 만들기</button></div><div class="mafia-small-note">방 생성은 관리자 PIN 필요 · 입장은 방 비밀번호 필요</div>`;
+}
+function renderMafiaRooms(){
+  const rooms=mafiaStore().rooms;
+  return mafiaNavHtml('🕵️ 방 목록')+`<p class="sub">참가자는 방 비밀번호로 입장하고, 방장은 방장 전용 비밀번호로 전체 역할/기록을 확인합니다.</p><div class="mafia-actions"><button onclick="createMafiaRoom()">+ 방 만들기</button></div><div class="mafia-room-grid">${rooms.length?rooms.map(r=>`<div class="mafia-room"><b>${esc(r.name)}</b><div class="meta"><span class="mafia-tag red">${esc(mafiaStatusText(r))}</span><span class="mafia-tag blue">${r.players.length}/8명</span><span class="mafia-tag gold">4명부터 시작</span></div><p>참가자는 자기 역할/행동만 보고, 방장은 전체 역할과 모든 기록을 봅니다.</p><div class="mafia-actions"><button onclick="mafiaEnterRoom('${r.id}','player')">참가자 입장</button><button class="orange" onclick="mafiaEnterRoom('${r.id}','host')">방장 입장</button><button class="red" onclick="mafiaDeleteRoom('${r.id}')">삭제</button></div></div>`).join(''):'<div class="mafia-room"><b>아직 방 없음</b><p>관리자 방 만들기를 눌러 영언이의 방, 종운이의 방처럼 생성하면 돼.</p></div>'}</div>`;
+}
+function renderMafiaRules(){
+  return mafiaNavHtml('📖 게임 방법')+`<div class="info-list">
+    <div class="mafia-box"><h3>1. 첫날 낮</h3><p>각자 본인 직업을 확인합니다. 마피아는 마피아팀 정보를 확인하고, 스파이는 마피아를 아직 모릅니다.</p></div>
+    <div class="mafia-box"><h3>2. 밤 행동</h3><p>마피아는 제거 대상, 경찰은 조사 대상, 의사는 보호 대상, 스파이는 직업 확인 대상, 건달은 협박 대상을 선택합니다.</p></div>
+    <div class="mafia-box"><h3>3. 아침 공개</h3><p>마피아 공격 성공 시 “OO이 마피아에게 죽었습니다.”가 전체 공개됩니다. 의사가 정확히 살렸을 때만 “의사의 치료가 성공했습니다.”가 전체 공개됩니다. 군인이 총에 맞으면 군인 방어가 전체 공개됩니다.</p></div>
+    <div class="mafia-box"><h3>4. 개인 공개</h3><p>경찰 조사 결과, 스파이 직업 확인, 건달에게 맞은 사실, 정치인 2표, 영매의 사망자 채팅 열람은 해당자에게만 표시됩니다.</p></div>
+    <div class="mafia-box"><h3>5. 투표/승리</h3><p>낮 토론 후 투표합니다. 정치인의 표는 2표로 계산됩니다. 마피아가 모두 사라지면 시민팀 승리, 마피아팀 수가 시민팀 이상이 되면 마피아팀 승리입니다.</p></div>
+  </div>`;
+}
+function renderMafiaRoles(){
+  return mafiaNavHtml('🎭 역할 능력')+`<p class="sub">8명 기준은 요청한 역할을 모두 넣기 위해 마피아 1명, 스파이 1명, 시민 특수직 6명으로 구성했습니다.</p><div class="mafia-role-grid">${mafiaRoleOrder.map(role=>{const r=mafiaRolesInfo[role];return `<div class="mafia-room"><b>${r.emoji} ${role}</b><div class="meta"><span class="mafia-tag ${r.team==='마피아팀'?'red':'blue'}">${r.team}</span></div><p>${esc(r.desc)}</p></div>`}).join('')}</div>`;
+}
+function renderMafiaGame(){
+  const room=getMafiaRoom(mafiaActiveRoomId);
+  if(!room)return mafiaNavHtml('방 없음')+'<div class="mafia-box"><p>방을 다시 선택해줘.</p></div>';
+  const mode=mafiaMode;
+  const head=mafiaNavHtml(room.name)+`<div class="mafia-box"><div class="meta"><span class="mafia-tag red">${esc(mafiaStatusText(room))}</span><span class="mafia-tag blue">${room.players.length}/8명</span><span class="mafia-tag gold">${room.dayNumber}일차</span></div></div>`;
+  return head+(mode==='host'?renderMafiaHost(room):renderMafiaPlayer(room));
+}
+function renderMafiaPublic(room){
+  return `<div class="mafia-box"><h3>📢 전체 공개</h3>${room.publicEvents.length?room.publicEvents.slice(0,8).map(e=>`<div class="mafia-public">${esc(e.text)}</div>`).join(''):'<p>아직 공개 메시지 없음</p>'}</div>`;
+}
+function renderMafiaHost(room){
+  const actions=room.actions||{};const mafiaVotes=actions.mafiaVotes||{};
+  const actionRows=[
+    ['마피아',Object.keys(mafiaVotes).length?Object.entries(mafiaVotes).map(([a,t])=>a+' → '+t).join('\n'):'미선택'],
+    ['경찰',actions.police?actions.police.actor+' → '+actions.police.target:'미선택'],
+    ['의사',actions.doctor?actions.doctor.actor+' → '+actions.doctor.target:'미선택'],
+    ['스파이',actions.spy?actions.spy.actor+' → '+actions.spy.target:'미선택'],
+    ['건달',actions.gangster?actions.gangster.actor+' → '+actions.gangster.target:'미선택']
+  ];
+  return `<div class="mafia-box"><h3>👑 방장 화면</h3><p>방장은 전체 역할, 밤 행동, 투표, 기록을 모두 확인합니다.</p><div class="mafia-actions">
+    ${room.phase==='lobby'?`<button onclick="mafiaStartGame('${room.id}')">역할 배정/게임 시작</button>`:''}
+    ${room.phase==='role'||room.phase==='day'?`<button onclick="mafiaStartNight('${room.id}')">밤 시작</button>`:''}
+    ${room.phase==='night'?`<button class="orange" onclick="mafiaProcessNight('${room.id}')">밤 결과 처리</button>`:''}
+    ${room.phase==='day'?`<button onclick="mafiaStartVote('${room.id}')">투표 시작</button>`:''}
+    ${room.phase==='vote'?`<button class="orange" onclick="mafiaProcessVote('${room.id}')">투표 결과 처리</button>`:''}
+    <button class="gray" onclick="mafiaResetGame('${room.id}')">게임 초기화</button>
+  </div></div>`+renderMafiaPublic(room)+`<div class="mafia-box"><h3>👥 참가자/역할</h3><table class="mafia-table"><thead><tr><th>이름</th><th>역할</th><th>상태</th><th>관리</th></tr></thead><tbody>${room.players.length?room.players.map(p=>`<tr><td class="${p.alive?'':'mafia-dead'}">${esc(p.name)}</td><td>${esc(p.role||'미배정')}</td><td>${p.alive?'생존':'사망'}${p.mutedDay===room.dayNumber?' · 발언금지':''}${p.soldierUsed?' · 군인방어사용':''}</td><td><button class="red" onclick="mafiaForceKill('${room.id}','${escJs(p.name)}')">사망</button> <button class="gray" onclick="mafiaForceRevive('${room.id}','${escJs(p.name)}')">부활</button> <button class="gray" onclick="mafiaRemovePlayer('${room.id}','${escJs(p.name)}')">제거</button></td></tr>`).join(''):'<tr><td colspan="4">참가자 없음</td></tr>'}</tbody></table></div>
+  <div class="mafia-box"><h3>🌙 이번 밤 행동</h3><table class="mafia-table"><tbody>${actionRows.map(r=>`<tr><th>${r[0]}</th><td style="white-space:pre-line">${esc(r[1])}</td></tr>`).join('')}</tbody></table></div>
+  <div class="mafia-box"><h3>🗳️ 투표 현황</h3><table class="mafia-table"><tbody>${Object.keys(room.votes||{}).length?Object.entries(room.votes).map(([v,t])=>`<tr><th>${esc(v)}</th><td>${esc(t)}${(room.players.find(p=>p.name===v)?.role==='정치인')?' · 2표':''}</td></tr>`).join(''):'<tr><td>아직 투표 없음</td></tr>'}</tbody></table></div>
+  ${renderMafiaDeadChat(room,false,true)}
+  <div class="mafia-box"><h3>📜 방장 기록</h3><div class="mafia-log">${room.logs.length?room.logs.map(l=>`<div class="mafia-log-item">${new Date(l.at).toLocaleTimeString()} · ${esc(l.text)}</div>`).join(''):'<div class="mafia-log-item">기록 없음</div>'}</div></div>`;
+}
+function renderMafiaPlayer(room){
+  const name=mafiaCurrentName(room.id);const p=room.players.find(x=>x.name===name);
+  if(!p)return `<div class="mafia-box"><h3>참가자 정보 없음</h3><p>방 목록에서 참가자 입장으로 다시 들어와줘.</p><div class="mafia-actions"><button onclick="setMafiaPanel('rooms')">방 목록으로</button></div></div>`;
+  const role=mafiaRolesInfo[p.role]||{emoji:'❔',team:'',desc:'아직 역할이 배정되지 않았습니다.'};
+  const muted=p.alive&&p.mutedDay===room.dayNumber&&(room.phase==='day'||room.phase==='vote');
+  let teamInfo='';
+  if(p.role==='마피아'){
+    const mates=room.players.filter(x=>x.role==='마피아'&&x.name!==p.name).map(x=>x.name);
+    if(room.spyConnected){const spy=room.players.find(x=>x.role==='스파이');if(spy)mates.push('스파이 '+spy.name)}
+    teamInfo=mates.length?'같은 팀: '+mates.join(', '):'현재 확인된 같은 팀 없음';
+  }
+  if(p.role==='스파이'&&room.spyConnected){teamInfo='접선 완료. 마피아: '+room.players.filter(x=>x.role==='마피아').map(x=>x.name).join(', ')}
+  let actionHtml='';
+  if(room.phase==='night'&&p.alive&&mafiaCanAct(p.role)){
+    const done=mafiaMyNightActionDone(room,p);
+    const includeSelf=p.role==='의사';
+    actionHtml=`<div class="mafia-box"><h3>🌙 밤 행동</h3><p>${done?'선택 완료. 방장이 밤 결과를 처리할 때까지 기다리면 됩니다.':'대상을 선택하세요.'}</p>${done?'':mafiaTargetSelectHtml(room,'mafiaMyActionTarget',p.name,includeSelf)+`<div class="mafia-actions"><button onclick="mafiaSubmitMyNightAction('${room.id}')">선택 제출</button></div>`}</div>`;
+  }
+  if(room.phase==='vote'&&p.alive){
+    const voted=!!room.votes?.[p.name];
+    actionHtml+=`<div class="mafia-box"><h3>🗳️ 투표</h3><p>${p.role==='정치인'?'당신은 정치인입니다. 투표가 2표로 계산됩니다.':'처형할 사람을 선택하세요.'}</p>${voted?`<div class="mafia-private">투표 완료: ${esc(room.votes[p.name])}</div>`:mafiaTargetSelectHtml(room,'mafiaVoteTarget',p.name,false)+`<div class="mafia-actions"><button onclick="mafiaSubmitVote('${room.id}')">투표 제출</button></div>`}</div>`;
+  }
+  const priv=room.privateMessages?.[p.name]||[];
+  return `<div class="mafia-box"><h3>🙋 참가자 화면 · ${esc(p.name)}</h3><div class="mafia-role-name">${role.emoji||''} ${esc(p.role||'대기중')}</div><p>${esc(role.team||'')}</p><p>${esc(role.desc)}</p>${teamInfo?`<div class="mafia-private">${esc(teamInfo)}</div>`:''}<div class="meta"><span class="mafia-tag ${p.alive?'blue':'red'}">${p.alive?'생존':'사망'}</span>${muted?'<span class="mafia-tag gold">건달 협박 · 오늘 낮 발언 금지</span>':''}</div></div>
+  ${muted?'<div class="mafia-warn">당신은 건달에게 맞았습니다. 오늘 낮 동안 말하면 안 됩니다.</div>':''}
+  ${renderMafiaPublic(room)}
+  ${actionHtml}
+  <div class="mafia-box"><h3>🔒 개인 알림</h3>${priv.length?priv.slice(0,8).map(m=>`<div class="mafia-private">${esc(m.text)}</div>`).join(''):'<p>아직 개인 알림 없음</p>'}</div>
+  ${renderMafiaDeadChat(room,!p.alive,p.role==='영매'||!p.alive)}
+  <div class="mafia-box"><h3>👥 생존 현황</h3><div class="mafia-status-grid">${room.players.map(x=>`<span class="mafia-tag ${x.alive?'blue':'red'} ${x.name===p.name?'gold':''}">${esc(x.name)} · ${x.alive?'생존':'사망'}</span>`).join('')}</div></div>`;
+}
+function renderMafiaDeadChat(room,canWrite=false,canView=false){
+  if(!canView)return '';
+  return `<div class="mafia-box"><h3>👻 사망자 채팅</h3><p>죽은 사람끼리 대화하고, 영매는 이 채팅을 볼 수 있습니다. 직업/팀은 자동 공개되지 않습니다.</p><div class="mafia-chat">${room.deadChats.length?room.deadChats.map(c=>`<div class="mafia-chat-msg"><b>${esc(c.name)}</b> ${esc(c.text)}</div>`).join(''):'<div class="mafia-chat-msg">아직 사망자 대화 없음</div>'}</div>${canWrite?`<div class="two" style="margin-top:8px"><input id="mafiaDeadChatInput" placeholder="사망자 채팅 입력"><button onclick="mafiaSendDeadChat('${room.id}')">보내기</button></div>`:''}</div>`;
 }
 
 function showModal(e,t,x){document.getElementById('modalEmoji').textContent=e;document.getElementById('modalTitle').textContent=t;document.getElementById('modalText').textContent=x;document.getElementById('modal').classList.add('show')}
