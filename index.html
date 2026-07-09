@@ -409,6 +409,61 @@
 .character-detail-card span{display:block;color:#334155;font-size:13px;font-weight:800;line-height:1.45}
 @media(max-width:720px){.bottom{display:none!important}.character-detail-card{padding:11px;border-radius:15px}}
 
+
+/* ===== v15 Fix Patch ===== */
+.character-preview-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+  margin:10px 0 12px;
+}
+.character-preview-card{
+  background:#fff;
+  border:1px solid #dbeafe;
+  border-radius:16px;
+  padding:11px 12px;
+}
+.character-preview-card b{
+  display:block;
+  color:#0f766e;
+  font-size:15px;
+  margin-bottom:4px;
+}
+.character-preview-card span{
+  display:block;
+  color:#334155;
+  font-size:13px;
+  line-height:1.35;
+  font-weight:650;
+}
+.character-preview-card.used{
+  opacity:.55;
+  background:#f8fafc;
+}
+.member-list{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.member-card{
+  background:#fff;
+  border:1px solid #dbeafe;
+  border-radius:15px;
+  padding:10px;
+  font-weight:900;
+  color:#0f766e;
+}
+.member-card span{
+  color:#64748b;
+  margin-right:6px;
+}
+#setup.game-section.active-game{display:block!important}
+@media(max-width:720px){
+  .member-list{grid-template-columns:1fr}
+  .character-preview-card{padding:10px}
+}
+
 </style>
 </head><body>
 <canvas class="confetti"></canvas>
@@ -471,9 +526,9 @@
 
 <nav class="tabs" style="display:none"></nav>
 <section class="grid">
-<div class="card game-section" id="setup"><h2>👥 멤버 세팅</h2><p class="sub">멤버 이름은 돌림판, 랜덤 운행, 사다리에서 같이 사용됨.</p><div class="row"><input id="nameInput" placeholder="이름 입력 예: 영언" style="flex:1;min-width:180px" onkeydown="if(event.key==='Enter')addName()"><button onclick="addName()">추가</button><button class="gray" onclick="loadSampleNames()">10명 예시</button><button class="red" onclick="adminResetMembers()">멤버만 리셋</button></div><div class="chips" id="nameChips"></div><div class="notice ok">같은 방 코드로 접속하면 전원 화면에 같이 반영됨.</div></div>
-<div class="card game-section" id="king-sec"><h2>👑 왕 뽑기</h2><p class="sub">왕은 뽑힐 때마다 결정권 하나를 같이 받음. 결과가 나오면 이 게임만 리셋하기 전까지 유지.</p><textarea id="kingDecisionText" placeholder="필요하면 직접 입력&#10;예: 다음 목적지 정하기&#10;예: 야식 메뉴 정하기"></textarea><div class="row" style="margin-top:8px"><button onclick="applyKingDecisions()">결정권 반영</button><button class="orange" onclick="drawKing()">왕 뽑기</button><button class="gray" onclick="adminResetKing()">왕 뽑기만 리셋</button></div><div class="result big" id="kingResult">왕 뽑기 대기 중</div><div class="chips" id="kingDecisionChips"></div><div class="locknote" id="kingLockNote">왕이 뽑히면 자동 잠금됨.</div></div>
-<div class="card game-section" id="character-sec"><h2>🎭 캐릭터 뽑기</h2><p class="sub">요청한 캐릭터 내용 반영. 누가 어떤 캐릭터에 걸렸는지 아래에 표시됨.</p><div class="row"><select id="charName" style="flex:1;min-width:160px"></select><button class="orange" onclick="drawCharacter()">캐릭터 뽑기</button><button class="gray" onclick="adminResetCharacters()">캐릭터만 리셋</button></div><div class="result" id="charResult">캐릭터 뽑기 대기 중</div><div class="chips" id="characterList"></div><div class="character-detail-list" id="characterDetailList"></div><div class="locknote" id="characterLockNote">뽑힌 캐릭터는 관리자 리셋 전까지 유지됨.</div></div>
+<div class="card game-section" id="setup"><h2>👥 멤버 세팅</h2><p class="sub">멤버 이름은 돌림판, 랜덤 운행, 사다리에서 같이 사용됨.</p><div class="row"><input id="nameInput" placeholder="이름 입력 예: 영언" style="flex:1;min-width:180px" onkeydown="if(event.key==='Enter')addName()"><button onclick="addName()">추가</button><button class="gray" onclick="loadSampleNames()">10명 예시</button><button class="red" onclick="adminResetMembers()">멤버만 리셋</button></div><div class="chips" id="nameChips"></div><div class="member-list" id="memberList"></div><div class="notice ok">같은 방 코드로 접속하면 전원 화면에 같이 반영됨.</div></div>
+<div class="card game-section" id="king-sec"><h2>👑 왕 뽑기</h2><p class="sub">왕은 뽑힐 때마다 결정권 하나를 같이 받음. 결과가 나오면 이 게임만 리셋하기 전까지 유지.</p><textarea id="kingDecisionText" placeholder="필요하면 직접 입력&#10;예: 다음 목적지 정하기&#10;예: 야식 메뉴 정하기"></textarea><div class="row" style="margin-top:8px"><button onclick="applyKingDecisions()">결정권 반영</button><button class="orange" onclick="drawKing()">왕 뽑기</button><button class="gray" onclick="clearKingDecisions()">결정권 기록 삭제</button><button class="gray" onclick="adminResetKing()">왕 뽑기만 리셋</button></div><div class="result big" id="kingResult">왕 뽑기 대기 중</div><div class="chips" id="kingDecisionChips"></div><div class="locknote" id="kingLockNote">왕이 뽑히면 자동 잠금됨.</div></div>
+<div class="card game-section" id="character-sec"><h2>🎭 캐릭터 뽑기</h2><p class="sub">요청한 캐릭터 내용 반영. 누가 어떤 캐릭터에 걸렸는지 아래에 표시됨.</p><div class="row"><select id="charName" style="flex:1;min-width:160px"></select><button class="orange" onclick="drawCharacter()">캐릭터 뽑기</button><button class="gray" onclick="adminResetCharacters()">캐릭터만 리셋</button></div><div class="character-preview-list" id="characterPreviewList"></div><div class="result" id="charResult">캐릭터 뽑기 대기 중</div><div class="chips" id="characterList"></div><div class="character-detail-list" id="characterDetailList"></div><div class="locknote" id="characterLockNote">뽑힌 캐릭터는 관리자 리셋 전까지 유지됨.</div></div>
 <div class="card game-section" id="wheel-sec"><h2>🎡 수기 입력 돌림판</h2><p class="sub">프리셋 없이 직접 입력한 내용만 돌림판에 들어감. 결과가 나오면 돌림판만 리셋하기 전까지 유지.</p><textarea id="wheelText" placeholder="한 줄에 하나씩 입력&#10;예: 카페&#10;예: 바다&#10;예: 흑돼지"></textarea><div class="row" style="margin-top:8px"><button onclick="applyWheelText()">돌림판 반영</button><button class="gray" onclick="adminResetWheel()">돌림판만 리셋</button></div><div class="wheelbox"><div class="pointer"></div><canvas id="wheel" width="700" height="700"></canvas><div class="center" onclick="spinWheel()">돌려!</div></div><div class="result big" id="wheelResult">돌림판 대기 중</div><div class="chips" id="wheelChips"></div><div class="locknote" id="wheelLockNote">결과가 나오면 자동 잠금됨.</div></div>
 <div class="card game-section" id="drive-game"><h2>🚗 랜덤 운행</h2><p class="sub">각자 직진/좌회전/우회전/유턴 중 하나를 고르고, 랜덤 순서대로 이동.</p><div class="two"><div><label class="mini">선택할 사람</label><select id="driveName"></select></div><div><label class="mini">목적지 기준</label><select id="driveTarget" onchange="setDriveTarget(this.value)"><option value="식당">첫 번째 식당</option><option value="카페">첫 번째 카페</option><option value="맛집/카페">첫 번째 식당 또는 카페</option><option value="편의점">첫 번째 편의점</option><option value="바다">첫 번째 바다 보이는 곳</option><option value="아무 목적지">첫 번째 괜찮아 보이는 곳</option></select></div></div><div class="dirs"><button class="dir" onclick="pickDirection('직진')">⬆️ 직진</button><button class="dir" onclick="pickDirection('좌회전')">⬅️ 좌회전</button><button class="dir" onclick="pickDirection('우회전')">➡️ 우회전</button><button class="dir" onclick="pickDirection('유턴')">↩️ 유턴</button></div><div class="notice">운전자는 안전 우선. 실제 유턴/좌회전이 불가능하면 다음 가능한 길에서 적용.</div><h3>선택 현황</h3><div class="chips" id="drivePickChips"></div><div class="row"><button class="orange" onclick="runDriveGame()">랜덤 순서 뽑기</button><button class="gray" onclick="adminResetDrive()">랜덤 운행만 리셋</button></div><div class="result big" id="driveResult">랜덤 운행 대기 중</div><div class="route" id="driveRouteList"></div><div class="locknote" id="driveLockNote">결과가 나오면 자동 잠금됨.</div></div>
 <div class="card game-section" id="ladder-sec"><h2>🪜 선택형 사다리</h2><p class="sub">본인이 줄을 직접 선택. 한 명이 내려가기 누르면 같은 방 전원이 내려가는 모션을 같이 봄.</p><div class="two"><div><label class="mini">사다리 선택할 사람</label><select id="ladderPerson" onchange="renderLadderLineSelects()"></select></div><div><label class="mini">선택할 줄 번호</label><select id="ladderLine"></select></div></div><div class="row" style="margin-top:8px"><button onclick="chooseLadderLine()">내 줄 선택</button><button class="gray" onclick="adminResetLadder()">사다리만 리셋</button></div><div class="chips" id="ladderChoiceChips"></div><h3>벌칙 설정</h3><div class="three"><div><label class="mini">벌칙 내용</label><input id="penaltyTaskInput" placeholder="예: 설거지" oninput="editPenaltyTask(this.value)"></div><div><label class="mini">벌칙 인원</label><input id="penaltyCountInput" type="number" min="1" max="30" value="4" oninput="editPenaltyCount(this.value)"></div><div><label class="mini">중복 여부</label><select id="penaltyDuplicateMode" onchange="editPenaltyDuplicateMode(this.value)"><option value="allow">중복 허용</option><option value="unique">중복 불가능</option></select></div></div><div class="notice">중복 허용: 같은 사람이 여러 번 걸릴 수 있음 / 중복 불가능: 같은 사람은 한 번만 걸림</div><div class="row" style="margin-top:10px"><button onclick="createLadder()">사다리 만들기</button><button class="orange" onclick="startMyLadder()">선택한 줄 내려가기</button><button class="gray" onclick="openLadderPage()">사다리 화면 보기</button></div><div class="result big" id="ladderResult">사다리 대기 중</div><div class="locknote" id="ladderLockNote">사다리를 만들면 자동 잠금됨.</div></div>
@@ -486,16 +541,16 @@ const localStoreKey='jejuPTripAdminLock.v14',deviceIdKey='jejuPTripSimple.device
 const defaultState={names:[],adminPinHash:'',adminPinSetAt:'',kingDecisions:[],kingResult:'',kingLocked:false,characterAssignments:[],usedCharacters:[],characterLocked:false,wheelItems:[],wheelResult:'',wheelLocked:false,drivePicks:[],driveTarget:'식당',driveRoute:[],driveResult:'',driveLocked:false,ladderChoices:{},ladderRows:[],ladderLinks:[],ladderLevels:0,ladderResult:'',ladderLocked:false,penaltyTask:defaultPenaltyTask,penaltyCount:4,penaltyDuplicateMode:'allow',activeLadderRun:null,lastEvent:'',lastActor:'',lastUpdatedAt:'',selfName:''};
 const defaultKingDecisions=[];
 const characterDeck=[
-  {name:'불평 금지 인간',desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
-  {name:'사진 감독',desc:'단체사진 포즈 지시 가능, 안하면 벌칙 추가'},
-  {name:'맛집 평론가',desc:'아침, 미션 더위 담당, 외부에서 줄 경우 1회당 벌칙 추가(내부 제외)'},
-  {name:'오늘의 시다바리',desc:'심부름 담당(운전 불가한 경우 1인 지목 동행, 중복 지목 X / 철수, 영희, 철수는 가능)'},
-  {name:'네비 부사관',desc:'운전자 옆에서 길 안내 담당, 틀리면 1회당 벌칙 추가'},
-  {name:'사장님~계세요~',desc:'장소 도착할 때마다(식당, 카페 등) 자리 파악하기, 못하면 벌칙 추가 x2'},
-  {name:'반대가 좋아요',desc:'오른손잡이 ↔ 왼손잡이 손 바꿔서 밥먹기(단, 아침, 점심만 / 깜빡하거나 안할 경우 1회당 벌칙 추가)'},
-  {name:'관광객 과몰입러',desc:'사진마다 처음 제주 온 것처럼 리액션(혼자), 1회당 안하면 벌칙 추가'},
-  {name:'오늘의 시다바리2',desc:'숙소에서 냉장고 담당(술, 물, 음료 마실것만 / 불만 표시나 표정 안좋을 경우 1회당 벌칙 추가)'},
-  {name:'공짜가 좋아',desc:'리뷰 공짜 음식 무조건 하기, 안하거나 깜빡하면 1회당 벌칙 추가'}
+{name:'불평 금지 인간',desc:'덥다, 힘들다, 배고프다 말하면 1회당 벌칙 추가'},
+{name:'사진 감독',desc:'단체사진 포즈 지시 가능, 안하면 벌칙 추가'},
+{name:'맛집 평론가',desc:'아침, 미션 더위 담당, 외부에서 줄 경우 1회당 벌칙 추가(내부 제외)'},
+{name:'오늘의 시다바리',desc:'심부름 담당(운전 불가한 경우 1인 지목 동행, 중복 지목 X / 철수, 영희, 철수는 가능)'},
+{name:'네비 부사관',desc:'운전자 옆에서 길 안내 담당, 틀리면 1회당 벌칙 추가'},
+{name:'사장님~계세요~',desc:'장소 도착할 때마다(식당, 카페 등) 자리 파악하기, 못하면 벌칙 추가 x2'},
+{name:'반대가 좋아요',desc:'오른손잡이 ↔ 왼손잡이 손 바꿔서 밥먹기(단, 아침, 점심만 / 깜빡하거나 안할 경우 1회당 벌칙 추가)'},
+{name:'관광객 과몰입러',desc:'사진마다 처음 제주 온 것처럼 리액션(혼자), 1회당 안하면 벌칙 추가'},
+{name:'오늘의 시다바리2',desc:'숙소에서 냉장고 담당(술, 물, 음료 마실것만 / 불만 표시나 표정 안좋을 경우 1회당 벌칙 추가)'},
+{name:'공짜가 좋아',desc:'리뷰 공짜 음식 무조건 하기, 안하거나 깜빡하면 1회당 벌칙 추가'}
 ];
 let state=loadLocalState(),activeRoom='',client=null,channel=null,sharedReady=false,spinning=false,wheelRotation=0,lastPlayedRunId='';const deviceId=getDeviceId();let isAdmin=sessionStorage.getItem('jeju_admin_ok')==='Y';
 
@@ -511,7 +566,7 @@ function adminResetDrive(){if(!requireAdmin('랜덤 운행 리셋'))return;state
 function adminResetLadder(){if(!requireAdmin('사다리 리셋'))return;state.ladderChoices={};state.ladderRows=[];state.ladderLinks=[];state.ladderLevels=0;state.ladderResult='';state.ladderLocked=false;state.activeLadderRun=null;persist('사다리만 리셋')}
 function getDeviceId(){let id=localStorage.getItem(deviceIdKey);if(!id){id='D'+Math.random().toString(36).slice(2,10);localStorage.setItem(deviceIdKey,id)}return id}function loadLocalState(){try{return{...defaultState,...JSON.parse(localStorage.getItem(localStoreKey))}}catch(e){return{...defaultState}}}function saveLocalState(){localStorage.setItem(localStoreKey,JSON.stringify(state))}function cleanSupabaseUrl(url){return String(url||'').trim().replace(/\/rest\/v1\/?$/,'').replace(/\/+$/,'')}function normalizeState(s){const n={...defaultState,...(s||{})};if(!Array.isArray(n.names))n.names=[];if(!Array.isArray(n.wheelItems))n.wheelItems=[];if(!Array.isArray(n.drivePicks))n.drivePicks=[];if(!Array.isArray(n.driveRoute))n.driveRoute=[];if(!n.ladderChoices||Array.isArray(n.ladderChoices))n.ladderChoices={};if(!Array.isArray(n.ladderRows))n.ladderRows=[];if(!Array.isArray(n.ladderLinks))n.ladderLinks=[];n.ladderLevels=Number(n.ladderLevels||0);if(!n.penaltyTask)n.penaltyTask=defaultPenaltyTask;n.penaltyCount=Math.max(1,Number(n.penaltyCount||4));if(!['allow','unique'].includes(n.penaltyDuplicateMode))n.penaltyDuplicateMode='allow';return n}function supabaseConfigured(){return!!(cleanSupabaseUrl(window.JEJU_SUPABASE_URL)&&window.JEJU_SUPABASE_ANON_KEY&&window.supabase)}
 
-async function joinRoomWithName(){
+async async function joinRoomWithName(){
   const nameInput = document.getElementById('myNameInput');
   const name = nameInput ? nameInput.value.trim() : '';
   if(!name){
@@ -562,10 +617,20 @@ function subscribeRoom(){if(channel&&client)client.removeChannel(channel);channe
 function setStatus(on,t){document.getElementById('statusDot').classList.toggle('on',!!on);document.getElementById('statusText').textContent=t}function updateLastSync(){const t=state.lastUpdatedAt?new Date(state.lastUpdatedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';document.getElementById('lastSync').textContent=t?`${t} · ${state.lastEvent||'동기화 완료'}`:'동기화 완료'}function goTab(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.tab,.nav').forEach(b=>b.classList.remove('active','on'));document.querySelectorAll('.tab').forEach(tab=>{if(tab.getAttribute('onclick')?.includes("'"+id+"'"))tab.classList.add('active')});const m={'setup':0,'wheel-sec':1,'drive-game':2,'ladder-sec':3},idx=m[id];if(idx>=0)document.querySelectorAll('.nav')[idx]?.classList.add('on')}function sample(a){return a[Math.floor(Math.random()*a.length)]}function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function escj(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"')}
 function addName(){if(state.kingLocked||state.characterLocked||state.wheelLocked||state.driveLocked||state.ladderLocked){showModal('🔒','결과 잠금 중','결과가 확정된 게임이 있어 멤버 변경은 관리자 리셋 후 가능해.');return}const i=document.getElementById('nameInput'),n=i.value.trim();if(!n)return;if(!state.names.includes(n))state.names.push(n);i.value='';persist('멤버 추가: '+n)}function removeName(n){if(!requireAdmin('멤버 삭제'))return;state.names=state.names.filter(x=>x!==n);state.drivePicks=state.drivePicks.filter(p=>p.person!==n);delete state.ladderChoices[n];state.characterAssignments=state.characterAssignments.filter(a=>a.person!==n);state.kingResult=state.kingResult&&state.kingResult.includes(n)?'':state.kingResult;state.ladderRows=[];state.ladderResult='';persist('멤버 삭제: '+n)}function clearNames(){adminResetMembers()}function loadSampleNames(){if(state.kingLocked||state.characterLocked||state.wheelLocked||state.driveLocked||state.ladderLocked){showModal('🔒','결과 잠금 중','결과가 확정된 게임이 있어 멤버 변경은 관리자 리셋 후 가능해.');return}state.names=['영언','민수','지훈','현우','성민','수진','지혜','유진','다은','서연'];persist('10명 예시 입력')}function renderNames(){
   const chips=document.getElementById('nameChips');
-  if(chips)chips.innerHTML=state.names.length?state.names.map((n,i)=>`<span class="chip">${i+1}. ${esc(n)} <span class="x" onclick="removeName('${escj(n)}')">×</span></span>`).join(''):'<span class="mini">아직 등록된 멤버가 없음</span>';
-  ['driveName','ladderPerson','charName'].forEach(id=>{const s=document.getElementById(id);if(!s)return;s.innerHTML=state.names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');if(!state.names.length)s.innerHTML='<option>멤버 없음</option>'});
+  if(chips)chips.innerHTML=state.names.length?state.names.map(n=>`<span class="chip">${esc(n)} <span class="x" onclick="removeName('${escapeJs(n)}')">×</span></span>`).join(''):'<span class="mini">아직 등록된 멤버가 없음</span>';
+
+  const memberList=document.getElementById('memberList');
+  if(memberList)memberList.innerHTML=state.names.length?state.names.map((n,i)=>`<div class="member-card"><span>${i+1}</span>${esc(n)}</div>`).join(''):'<div class="mini">방에 입장한 멤버가 여기에 표시됨</div>';
+
+  ['driveName','ladderPerson','charName'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    sel.innerHTML=state.names.map(n=>`<option value="${escAttr(n)}">${esc(n)}</option>`).join('');
+    if(!state.names.length)sel.innerHTML='<option>멤버 없음</option>';
+  });
   renderLadderLineSelects()
 }
+
 function applyKingDecisions(){
   if(state.kingLocked){showModal('🔒','왕 뽑기 잠금','이미 왕이 뽑혔어. 관리자 리셋 전까지 수정할 수 없어.');return}
   const text=document.getElementById('kingDecisionText').value;
@@ -583,28 +648,62 @@ function drawKing(){
   burstConfetti();
   persist('왕 뽑기 결과 확정: '+king)
 }
+
+function clearKingDecisions(){
+  if(!requireAdmin('왕 결정권 기록 삭제'))return;
+  state.kingDecisions=[];
+  const t=document.getElementById('kingDecisionText');
+  if(t)t.value='';
+  persist('관리자 왕 결정권 기록 삭제')
+}
+function adminResetKing(){
+  if(!requireAdmin('왕 뽑기 리셋'))return;
+  state.kingResult='';
+  state.kingLocked=false;
+  persist('관리자 왕 뽑기 리셋')
+}
+
 function renderKing(){
   const t=document.getElementById('kingDecisionText');
   if(t&&document.activeElement!==t)t.value=(state.kingDecisions&&state.kingDecisions.length?state.kingDecisions:[]).join('\n');
   const r=document.getElementById('kingResult');
   if(r)r.textContent=state.kingResult||'왕 뽑기 대기 중';
   const c=document.getElementById('kingDecisionChips');
-  if(c)c.innerHTML=(state.kingDecisions&&state.kingDecisions.length)?state.kingDecisions.map(x=>`<span class="chip">${esc(x)}</span>`).join(''):'<span class="mini">결정권 내용 없음 · 필요하면 직접 입력</span>';
+  if(c)c.innerHTML=(state.kingDecisions&&state.kingDecisions.length)
+    ? state.kingDecisions.map(x=>`<span class="chip">${esc(x)}</span>`).join('')
+    : '<span class="mini">결정권 내용 없음 · 필요하면 직접 입력</span>';
   const n=document.getElementById('kingLockNote');
   if(n)n.textContent=state.kingLocked?'🔒 왕 뽑기 결과 잠금 중 · 왕 뽑기만 리셋 전까지 유지':'왕이 뽑히면 자동 잠금됨.'
 }
+
 function drawCharacter(){if(!state.names.length){showModal('🎭','멤버 없음','멤버를 먼저 추가해줘.');return}if(state.characterLocked){showModal('🔒','캐릭터 잠금','캐릭터 배정이 완료됐어. 관리자 리셋 전까지 유지돼.');return}const person=document.getElementById('charName').value;if(state.characterAssignments.some(a=>a.person===person)){showModal('🎭','이미 뽑음',person+'님은 이미 캐릭터가 있어.');return}const used=state.characterAssignments.map(a=>a.character);const available=characterDeck.filter(c=>!used.includes(c.name));if(!available.length){state.characterLocked=true;persist('캐릭터 전체 배정 완료');showModal('🎭','캐릭터 없음','남은 캐릭터가 없어.');return}const ch=sample(available);state.characterAssignments.push({person,character:ch.name,desc:ch.desc});if(state.characterAssignments.length>=Math.min(state.names.length,characterDeck.length))state.characterLocked=true;document.getElementById('charResult').textContent=`${person}\n${ch.name}\n${ch.desc}`;showModal('🎭',person+'님의 캐릭터',`${ch.name}\n${ch.desc}`);burstConfetti();persist('캐릭터 뽑기: '+person+' · '+ch.name)}
 function adminResetCharacters(){if(!requireAdmin('캐릭터 리셋'))return;state.characterAssignments=[];state.usedCharacters=[];state.characterLocked=false;persist('캐릭터만 리셋')}
 function renderCharacters(){
+  const used=state.characterAssignments.map(a=>a.character);
+  const preview=document.getElementById('characterPreviewList');
+  if(preview)preview.innerHTML=characterDeck.map(c=>{
+    const assigned=state.characterAssignments.find(a=>a.character===c.name);
+    const usedClass=assigned?' used':'';
+    const prefix=assigned?`${assigned.person} 배정 완료 · `:'';
+    return `<div class="character-preview-card${usedClass}"><b>${esc(prefix+c.name)}</b><span>${esc(c.desc)}</span></div>`
+  }).join('');
+
   const list=document.getElementById('characterList');
-  if(list)list.innerHTML=state.characterAssignments.length?state.characterAssignments.map(a=>`<span class="chip">${esc(a.person)} · ${esc(a.character)}</span>`).join(''):'<span class="mini">아직 뽑은 캐릭터가 없음</span>';
+  if(list)list.innerHTML=state.characterAssignments.length
+    ? state.characterAssignments.map(a=>`<span class="chip">${esc(a.person)} · ${esc(a.character)}</span>`).join('')
+    : '<span class="mini">아직 뽑은 캐릭터가 없음</span>';
+
   const detail=document.getElementById('characterDetailList');
-  if(detail)detail.innerHTML=state.characterAssignments.length?state.characterAssignments.map(a=>`<div class="character-detail-card"><b>${esc(a.person)} · ${esc(a.character)}</b><span>${esc(a.desc||'')}</span></div>`).join(''):'';
+  if(detail)detail.innerHTML=state.characterAssignments.length
+    ? state.characterAssignments.map(a=>`<div class="character-detail-card"><b>${esc(a.person)} · ${esc(a.character)}</b><span>${esc(a.desc||'')}</span></div>`).join('')
+    : '';
+
   const res=document.getElementById('charResult');
   if(res)res.textContent=state.characterAssignments.length?'누가 걸렸는지 / 뭐 걸렸는지 아래 확인':'캐릭터 뽑기 대기 중';
   const note=document.getElementById('characterLockNote');
   if(note)note.textContent=state.characterLocked?'🔒 캐릭터 결과 잠금 중 · 캐릭터만 리셋 전까지 유지':'뽑힌 캐릭터는 캐릭터만 리셋 전까지 유지됨.'
 }
+
 function applyWheelText(){if(state.wheelLocked){showModal('🔒','돌림판 잠금','이미 결과가 나왔어. 관리자 리셋 전까지 수정할 수 없어.');return}state.wheelItems=document.getElementById('wheelText').value.split(/\n/).map(x=>x.trim()).filter(Boolean);state.wheelResult='';persist('돌림판 수기 입력 반영')}function clearWheel(){adminResetWheel()}function renderWheel(){const t=document.getElementById('wheelText');if(document.activeElement!==t)t.value=state.wheelItems.join('\n');document.getElementById('wheelResult').textContent=state.wheelResult||'돌림판 대기 중';document.getElementById('wheelChips').innerHTML=state.wheelItems.length?state.wheelItems.map(x=>`<span class="chip">${esc(x)}</span>`).join(''):'<span class="mini">수기 입력 후 반영 버튼을 눌러줘</span>';const ln=document.getElementById('wheelLockNote');if(ln)ln.textContent=state.wheelLocked?'🔒 돌림판 결과 잠금 중 · 관리자 리셋 전까지 유지':'결과가 나오면 자동 잠금됨.';drawWheel()}function drawWheel(){const c=document.getElementById('wheel'),ctx=c.getContext('2d'),W=c.width,H=c.height,cx=W/2,cy=H/2,r=W/2-8;ctx.clearRect(0,0,W,H);const items=state.wheelItems.length?state.wheelItems:['대기중'],colors=['#0f766e','#14b8a6','#fb923c','#f97316','#38bdf8','#22c55e','#f43f5e','#8b5cf6','#eab308','#06b6d4'],arc=2*Math.PI/items.length;items.forEach((it,i)=>{const st=i*arc-Math.PI/2,en=st+arc;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,st,en);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate(st+arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';ctx.font='bold 28px system-ui,sans-serif';ctx.fillText(it.length>8?it.slice(0,8)+'…':it,r-28,9);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,70,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill()}function spinWheel(){if(state.wheelLocked){showModal('🔒','돌림판 잠금','이미 결과가 확정됐어.\n관리자 리셋 전까지 결과는 유지돼.');return}if(spinning||!state.wheelItems.length){showModal('🎡','내용 없음','돌림판 내용을 먼저 입력해줘.');return}spinning=true;const items=state.wheelItems,idx=Math.floor(Math.random()*items.length),arc=360/items.length,target=360-(idx*arc+arc/2),spins=5+Math.floor(Math.random()*3);wheelRotation+=spins*360+target;document.getElementById('wheel').style.transform=`rotate(${wheelRotation}deg)`;setTimeout(()=>{spinning=false;state.wheelResult=items[idx];state.wheelLocked=true;showModal('🎉','돌림판 결과',items[idx]);burstConfetti();persist('돌림판 결과: '+items[idx])},3100)}
 function setDriveTarget(v){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','이미 운행 결과가 확정됐어.');renderDrive();return}state.driveTarget=v;persist('목적지 기준 변경: '+v)}function pickDirection(d){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','이미 운행 결과가 확정됐어. 관리자 리셋 전까지 수정 불가.');return}if(!state.names.length){showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.');return}const p=document.getElementById('driveName').value,e=state.drivePicks.find(x=>x.person===p);if(e)e.direction=d;else state.drivePicks.push({person:p,direction:d});persist('운행 방향 선택: '+p+' · '+d)}function clearDrivePicks(){adminResetDrive()}function runDriveGame(){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','이미 결과가 확정됐어.\n관리자 리셋 전까지 결과는 유지돼.');return}if(!state.drivePicks.length){showModal('🚗','선택 없음','방향을 먼저 선택해줘.');return}state.driveRoute=shuffle(state.drivePicks);state.driveResult=`${state.driveRoute.length}개 랜덤 순서 확정\n첫 번째 ${state.driveTarget} 나오면 방문`;state.driveLocked=true;showModal('🚗','랜덤 운행 순서',state.driveRoute.map((p,i)=>`${i+1}. ${p.person} · ${p.direction}`).join('\n')+`\n\n첫 번째 ${state.driveTarget} 방문`);burstConfetti();persist('랜덤 운행 순서 확정')}function renderDrive(){document.getElementById('driveTarget').value=state.driveTarget;document.getElementById('drivePickChips').innerHTML=state.drivePicks.length?state.drivePicks.map(p=>`<span class="chip">${esc(p.person)} · ${esc(p.direction)} <span class="x" onclick="removeDrivePick('${escj(p.person)}')">×</span></span>`).join(''):'<span class="mini">아직 선택 없음</span>';document.getElementById('driveResult').textContent=state.driveResult||'랜덤 운행 대기 중';document.getElementById('driveRouteList').innerHTML=state.driveRoute.length?state.driveRoute.map(p=>`<div class="routecard"><div><b>${esc(p.direction)}</b><br><span>${esc(p.person)} 선택</span></div></div>`).join(''):'<div class="mini">랜덤 순서를 뽑으면 표시됨</div>';const ln=document.getElementById('driveLockNote');if(ln)ln.textContent=state.driveLocked?'🔒 랜덤 운행 결과 잠금 중 · 관리자 리셋 전까지 유지':'결과가 나오면 자동 잠금됨.'}function removeDrivePick(p){if(state.driveLocked){showModal('🔒','랜덤 운행 잠금','관리자 리셋 전까지 수정 불가.');return}state.drivePicks=state.drivePicks.filter(x=>x.person!==p);state.driveRoute=state.driveRoute.filter(x=>x.person!==p);persist('운행 방향 삭제: '+p)}
 function renderLadderLineSelects(){
@@ -620,7 +719,7 @@ function renderLadderLineSelects(){
   if(l)l.innerHTML=opts;
   if(r){const rows=state.ladderRows.length?state.ladderRows:Array.from({length:cnt},(_,i)=>({line:i,person:getPersonByLine(i)||`${i+1}번 줄`}));r.innerHTML=rows.map((x,i)=>`<option value="${i}">${esc(x.person)} · ${i+1}번 줄</option>`).join('')}
 }
-function getPersonByLine(line){return Object.keys(state.ladderChoices||{}).find(n=>Number(state.ladderChoices[n])===Number(line))}async function chooseLadderLine(){
+function getPersonByLine(line){return Object.keys(state.ladderChoices||{}).find(n=>Number(state.ladderChoices[n])===Number(line))}async async function chooseLadderLine(){
   if(state.ladderLocked){showModal('🔒','사다리 잠금','이미 사다리가 확정됐어. 관리자 리셋 전까지 수정 불가.');return}
   if(!state.names.length){showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.');return}
   if(sharedReady&&client&&activeRoom){
