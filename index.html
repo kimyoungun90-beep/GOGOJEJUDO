@@ -537,7 +537,7 @@
 <div class="ladderpage" id="ladderPage"><div class="ladshell"><div class="ladtop"><div><h2>🪜 실시간 사다리</h2><p>누가 내려가면 같은 방 전원이 같이 봄</p></div><button class="ghost" onclick="closeLadderPage()">돌아가기</button></div><div class="ladstage"><div class="ladctrl"><select id="ladderRunSelect"></select><button class="orange" onclick="startSelectedLadderFromPage()">선택한 줄 내려가기</button><button onclick="revealAllLadder()">전체 결과 보기</button></div><div class="canvaswrap"><canvas id="ladderCanvas" width="900" height="700"></canvas></div><div class="ladinfo" id="ladderPickedInfo">사다리를 만들고 줄을 선택해줘.</div></div></div></div>
 <div class="modal" id="modal" onclick="closeModal(event)"><div class="modal-card"><div class="emoji" id="modalEmoji">🎉</div><h2 id="modalTitle">결과</h2><p id="modalText"></p><button onclick="hideModal()">확인</button></div></div>
 <script>
-const localStoreKey='jejuPTripAdminLock.v14',deviceIdKey='jejuPTripSimple.deviceId',defaultPenaltyTask='설거지';
+const localStoreKey='jejuPTripAdminLock.v16',deviceIdKey='jejuPTripSimple.deviceId',defaultPenaltyTask='설거지';
 const defaultState={names:[],adminPinHash:'',adminPinSetAt:'',kingDecisions:[],kingResult:'',kingLocked:false,characterAssignments:[],usedCharacters:[],characterLocked:false,wheelItems:[],wheelResult:'',wheelLocked:false,drivePicks:[],driveTarget:'식당',driveRoute:[],driveResult:'',driveLocked:false,ladderChoices:{},ladderRows:[],ladderLinks:[],ladderLevels:0,ladderResult:'',ladderLocked:false,penaltyTask:defaultPenaltyTask,penaltyCount:4,penaltyDuplicateMode:'allow',activeLadderRun:null,lastEvent:'',lastActor:'',lastUpdatedAt:'',selfName:''};
 const defaultKingDecisions=[];
 const characterDeck=[
@@ -566,7 +566,7 @@ function adminResetDrive(){if(!requireAdmin('랜덤 운행 리셋'))return;state
 function adminResetLadder(){if(!requireAdmin('사다리 리셋'))return;state.ladderChoices={};state.ladderRows=[];state.ladderLinks=[];state.ladderLevels=0;state.ladderResult='';state.ladderLocked=false;state.activeLadderRun=null;persist('사다리만 리셋')}
 function getDeviceId(){let id=localStorage.getItem(deviceIdKey);if(!id){id='D'+Math.random().toString(36).slice(2,10);localStorage.setItem(deviceIdKey,id)}return id}function loadLocalState(){try{return{...defaultState,...JSON.parse(localStorage.getItem(localStoreKey))}}catch(e){return{...defaultState}}}function saveLocalState(){localStorage.setItem(localStoreKey,JSON.stringify(state))}function cleanSupabaseUrl(url){return String(url||'').trim().replace(/\/rest\/v1\/?$/,'').replace(/\/+$/,'')}function normalizeState(s){const n={...defaultState,...(s||{})};if(!Array.isArray(n.names))n.names=[];if(!Array.isArray(n.wheelItems))n.wheelItems=[];if(!Array.isArray(n.drivePicks))n.drivePicks=[];if(!Array.isArray(n.driveRoute))n.driveRoute=[];if(!n.ladderChoices||Array.isArray(n.ladderChoices))n.ladderChoices={};if(!Array.isArray(n.ladderRows))n.ladderRows=[];if(!Array.isArray(n.ladderLinks))n.ladderLinks=[];n.ladderLevels=Number(n.ladderLevels||0);if(!n.penaltyTask)n.penaltyTask=defaultPenaltyTask;n.penaltyCount=Math.max(1,Number(n.penaltyCount||4));if(!['allow','unique'].includes(n.penaltyDuplicateMode))n.penaltyDuplicateMode='allow';return n}function supabaseConfigured(){return!!(cleanSupabaseUrl(window.JEJU_SUPABASE_URL)&&window.JEJU_SUPABASE_ANON_KEY&&window.supabase)}
 
-async async function joinRoomWithName(){
+async function joinRoomWithName(){
   const nameInput = document.getElementById('myNameInput');
   const name = nameInput ? nameInput.value.trim() : '';
   if(!name){
@@ -719,7 +719,7 @@ function renderLadderLineSelects(){
   if(l)l.innerHTML=opts;
   if(r){const rows=state.ladderRows.length?state.ladderRows:Array.from({length:cnt},(_,i)=>({line:i,person:getPersonByLine(i)||`${i+1}번 줄`}));r.innerHTML=rows.map((x,i)=>`<option value="${i}">${esc(x.person)} · ${i+1}번 줄</option>`).join('')}
 }
-function getPersonByLine(line){return Object.keys(state.ladderChoices||{}).find(n=>Number(state.ladderChoices[n])===Number(line))}async async function chooseLadderLine(){
+function getPersonByLine(line){return Object.keys(state.ladderChoices||{}).find(n=>Number(state.ladderChoices[n])===Number(line))}async function chooseLadderLine(){
   if(state.ladderLocked){showModal('🔒','사다리 잠금','이미 사다리가 확정됐어. 관리자 리셋 전까지 수정 불가.');return}
   if(!state.names.length){showModal('👥','멤버 없음','먼저 멤버 이름을 추가해줘.');return}
   if(sharedReady&&client&&activeRoom){
